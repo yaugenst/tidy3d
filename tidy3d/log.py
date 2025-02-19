@@ -1,6 +1,7 @@
 """Logging for Tidy3d."""
 
 import inspect
+from contextlib import contextmanager
 from datetime import datetime
 from typing import Callable, List, Tuple, Union
 
@@ -442,3 +443,29 @@ def get_logging_console() -> Console:
     if "console" not in log.handlers:
         set_logging_console()
     return log.handlers["console"].console
+
+
+class NoOpProgress:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        pass
+
+    def add_task(self, *args, **kwargs):
+        pass
+
+    def update(self, *args, **kwargs):
+        pass
+
+
+@contextmanager
+def Progress(console):
+    try:
+        from rich.progress import Progress
+
+        with Progress(console=console) as progress:
+            yield progress
+    except ModuleNotFoundError:
+        with NoOpProgress() as progress:
+            yield progress
