@@ -75,7 +75,7 @@ def configure_fn(apikey: str) -> None:
                 return
 
     if not apikey:
-        current_apikey = config.apikey or ""
+        current_apikey = config.auth.apikey or ""
         message = f"Current API key: [{current_apikey}]\n" if current_apikey else ""
         apikey = click.prompt(f"{message}Please enter your api key", type=str)
 
@@ -90,7 +90,7 @@ def configure_fn(apikey: str) -> None:
         click.echo("Configured successfully.")
 
         # Update the config with the new API key
-        config.apikey = apikey
+        config.auth.apikey = apikey
 
         # If a legacy config already exists, save to that location to maintain compatibility
         legacy_path = CONFIG_PATHS["legacy"]

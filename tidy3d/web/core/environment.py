@@ -59,7 +59,7 @@ def _get_config_ssl_verify() -> bool:
     # Import here to avoid circular import
     from ...config import config as global_config
 
-    return global_config.ssl_verify
+    return global_config.logging.ssl_verify
 
 
 dev = EnvironmentConfig(

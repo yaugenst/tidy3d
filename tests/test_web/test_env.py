@@ -29,16 +29,16 @@ def test_set_ssl_version():
 def test_ssl_verify_from_config():
     """Test that environment ssl_verify follows the global config setting."""
     # Save original value
-    original_ssl_verify = config.ssl_verify
+    original_ssl_verify = config.logging.ssl_verify
 
     try:
         # Test that changing global config propagates to environment
-        config.ssl_verify = False
+        config.logging.ssl_verify = False
         assert Env.current.ssl_verify is False
 
-        config.ssl_verify = True
+        config.logging.ssl_verify = True
         assert Env.current.ssl_verify is True
 
     finally:
         # Restore original value
-        config.ssl_verify = original_ssl_verify
+        config.logging.ssl_verify = original_ssl_verify
