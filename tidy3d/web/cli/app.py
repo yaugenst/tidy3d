@@ -87,9 +87,20 @@ def configure_fn(apikey: str) -> None:
 
     if resp.status_code == 200:
         click.echo("Configured successfully.")
-        # Update the config with the new API key and save it
+
+        # Update the config with the new API key
         config.apikey = apikey
-        config.save()  # This will save to the legacy path by default
+
+        # If a legacy config already exists, save to that location to maintain compatibility
+        legacy_path = config.CONFIG_PATHS["legacy"]
+        if legacy_path.exists():
+            config.save(legacy_path)
+            click.echo(f"Configuration saved to {legacy_path}")
+        else:
+            # Otherwise save to the XDG location (default)
+            config.save()
+            xdg_path = config.CONFIG_PATHS["xdg"]
+            click.echo(f"Configuration saved to {xdg_path}")
     else:
         click.echo("API key is invalid.")
 

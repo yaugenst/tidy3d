@@ -51,7 +51,7 @@ td.config.logging_level = "DEBUG"
 import os
 import platform
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import pydantic.v1 as pd
 import yaml
@@ -63,17 +63,17 @@ SIMCLOUD_APIKEY = "SIMCLOUD_APIKEY"
 
 
 # Configuration file paths
-def get_config_paths() -> List[Path]:
-    """Get list of possible configuration file paths in order of precedence.
+def get_config_paths() -> Dict[str, Path]:
+    """Get dictionary of possible configuration file paths.
 
     Returns
     -------
-    List[Path]
-        List of configuration file paths in order of precedence.
+    Dict[str, Path]
+        Dictionary of configuration file paths with keys: 'legacy', 'xdg'
     """
     home = Path.home()
 
-    # Legacy path (~/.tidy3d/config) has highest precedence
+    # Legacy path (~/.tidy3d/config)
     legacy_config_dir = home / ".tidy3d"
     legacy_config_file = legacy_config_dir / "config"
 
@@ -89,13 +89,22 @@ def get_config_paths() -> List[Path]:
 
     xdg_config_file = xdg_config_dir / "config"
 
-    # Return paths in order of precedence: legacy first, then XDG
-    return [legacy_config_file, xdg_config_file]
+    return {"legacy": legacy_config_file, "xdg": xdg_config_file}
 
 
 # Get configuration directories and files
 CONFIG_PATHS = get_config_paths()
-CONFIG_FILE = CONFIG_PATHS[0]  # Legacy path as the default for backward compatibility
+
+# For new configurations, use XDG path by default
+# For existing configurations, use the existing location
+# This ensures backward compatibility while moving forward with XDG
+if CONFIG_PATHS["legacy"].exists():
+    DEFAULT_CONFIG_FILE = CONFIG_PATHS["legacy"]
+else:
+    DEFAULT_CONFIG_FILE = CONFIG_PATHS["xdg"]
+
+# For reading, check legacy first, then XDG
+READ_CONFIG_PATHS = [CONFIG_PATHS["legacy"], CONFIG_PATHS["xdg"]]
 
 
 # Pydantic settings sources
@@ -109,6 +118,8 @@ def yaml_config_settings_source(settings: pd.BaseSettings) -> Dict[str, Any]:
     If a key is found in multiple files, the value from the first file wins.
 
     When a legacy format file is detected, it will be automatically converted to YAML format.
+    Legacy configs will remain in the legacy location but be converted to YAML.
+    New configs will be saved to the XDG location.
 
     Parameters
     ----------
@@ -124,7 +135,7 @@ def yaml_config_settings_source(settings: pd.BaseSettings) -> Dict[str, Any]:
     result = {}
 
     # Check each config path in order of precedence
-    for config_path in CONFIG_PATHS:
+    for config_path in READ_CONFIG_PATHS:
         if not config_path.exists():
             continue
 
@@ -133,17 +144,19 @@ def yaml_config_settings_source(settings: pd.BaseSettings) -> Dict[str, Any]:
             with open(config_path) as f:
                 content = f.read()
 
-            # If file contains '=' character, it might be in legacy format
-            if "=" in content:
+            # Check if it's the legacy format
+            is_legacy_format = "=" in content
+
+            # Parse accordingly
+            if is_legacy_format:
                 file_config = _parse_legacy_format(content)
 
-                # Automatically migrate legacy format to YAML
                 if file_config:
                     try:
                         # Ensure directory exists
                         config_path.parent.mkdir(parents=True, exist_ok=True)
 
-                        # Write YAML to file
+                        # Just convert to YAML format in place (don't migrate to a new location)
                         with open(config_path, "w") as f:
                             yaml.safe_dump(file_config, f, default_flow_style=False)
 
@@ -294,9 +307,11 @@ class Tidy3dConfig(pd.BaseSettings):
         Parameters
         ----------
         path : Union[str, Path], optional
-            Path to save configuration file. If None, uses default path (legacy ~/.tidy3d/config).
+            Path to save configuration file. If None, uses default path:
+            - Legacy location (~/.tidy3d/config) if it already exists
+            - XDG location for new configurations
         """
-        save_path = Path(path) if path else CONFIG_FILE
+        save_path = Path(path) if path else DEFAULT_CONFIG_FILE
 
         # Ensure directory exists
         save_path.parent.mkdir(parents=True, exist_ok=True)

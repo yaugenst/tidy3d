@@ -10,6 +10,8 @@ import pytest
 import yaml
 from tidy3d.config import (
     CONFIG_PATHS,
+    DEFAULT_CONFIG_FILE,
+    READ_CONFIG_PATHS,
     Tidy3dConfig,
     _parse_legacy_format,
     yaml_config_settings_source,
@@ -125,9 +127,9 @@ def test_config_paths():
     """Test the config paths are correct for each platform."""
     home = Path.home()
 
-    # Legacy path should always be first
+    # Legacy path
     legacy_path = home / ".tidy3d" / "config"
-    assert str(CONFIG_PATHS[0]) == str(legacy_path)
+    assert str(CONFIG_PATHS["legacy"]) == str(legacy_path)
 
     # XDG path depends on platform
     if platform.system() == "Windows":
@@ -136,7 +138,14 @@ def test_config_paths():
     else:
         expected_xdg_path = home / ".config" / "tidy3d" / "config"
 
-    assert str(CONFIG_PATHS[1]) == str(expected_xdg_path)
+    assert str(CONFIG_PATHS["xdg"]) == str(expected_xdg_path)
+
+    # Default config file should be XDG path
+    assert str(DEFAULT_CONFIG_FILE) == str(expected_xdg_path)
+
+    # Read paths should have legacy first, then XDG
+    assert str(READ_CONFIG_PATHS[0]) == str(legacy_path)
+    assert str(READ_CONFIG_PATHS[1]) == str(expected_xdg_path)
 
 
 def test_yaml_config_settings_source():
@@ -151,14 +160,14 @@ def test_yaml_config_settings_source():
         xdg_dir.mkdir()
         xdg_path = xdg_dir / "config"
 
-        # Mock CONFIG_PATHS to point to our temp paths
+        # Mock READ_CONFIG_PATHS to point to our temp paths
         mock_paths = [legacy_path, xdg_path]
 
         # Case 1: Only XDG file exists
         with open(xdg_path, "w") as f:
             yaml.safe_dump({"apikey": "xdg_key"}, f)
 
-        with patch("tidy3d.config.CONFIG_PATHS", mock_paths):
+        with patch("tidy3d.config.READ_CONFIG_PATHS", mock_paths):
             # Check the settings source directly
             config_dict = yaml_config_settings_source(None)
             assert config_dict.get("apikey") == "xdg_key"
@@ -167,7 +176,7 @@ def test_yaml_config_settings_source():
         with open(legacy_path, "w") as f:
             yaml.safe_dump({"apikey": "legacy_key"}, f)
 
-        with patch("tidy3d.config.CONFIG_PATHS", mock_paths):
+        with patch("tidy3d.config.READ_CONFIG_PATHS", mock_paths):
             # Check the settings source directly
             config_dict = yaml_config_settings_source(None)
             assert config_dict.get("apikey") == "legacy_key"
@@ -179,7 +188,7 @@ def test_yaml_config_settings_source():
         with open(xdg_path, "w") as f:
             yaml.safe_dump({"ssl_verify": False}, f)
 
-        with patch("tidy3d.config.CONFIG_PATHS", mock_paths):
+        with patch("tidy3d.config.READ_CONFIG_PATHS", mock_paths):
             # Check the settings source directly
             config_dict = yaml_config_settings_source(None)
             assert config_dict.get("apikey") == "legacy_key"
@@ -192,10 +201,109 @@ def test_yaml_config_settings_source():
         with open(xdg_path, "w") as f:
             yaml.safe_dump({"ssl_verify": False}, f)
 
-        with patch("tidy3d.config.CONFIG_PATHS", mock_paths):
+        with patch("tidy3d.config.READ_CONFIG_PATHS", mock_paths):
             # Check the settings source directly
             config_dict = yaml_config_settings_source(None)
             assert config_dict.get("ssl_verify") is True
+
+
+def test_legacy_format_conversion():
+    """Test conversion of legacy format to YAML without location migration."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Create paths that mimic our real ones
+        legacy_dir = Path(temp_dir) / "legacy"
+        legacy_dir.mkdir()
+        legacy_path = legacy_dir / "config"
+
+        xdg_dir = Path(temp_dir) / "xdg"
+        xdg_dir.mkdir()
+        xdg_path = xdg_dir / "config"
+
+        # Mock config paths
+        mock_config_paths = {"legacy": legacy_path, "xdg": xdg_path}
+        mock_read_paths = [legacy_path, xdg_path]
+
+        # Create a legacy format file in the legacy location
+        with open(legacy_path, "w") as f:
+            f.write('apikey = "conversion_test_key"\nssl_verify = "False"')
+
+        # Call the settings source function with our mocked paths
+        with (
+            patch("tidy3d.config.CONFIG_PATHS", mock_config_paths),
+            patch("tidy3d.config.READ_CONFIG_PATHS", mock_read_paths),
+        ):
+            # This should trigger the conversion
+            config_dict = yaml_config_settings_source(None)
+
+            # Verify the function returned the correct values
+            assert config_dict.get("apikey") == "conversion_test_key"
+            assert config_dict.get("ssl_verify") == "False"  # Still a string at this point
+
+            # Verify the legacy file was converted to YAML format
+            with open(legacy_path) as f:
+                legacy_content = f.read()
+
+            assert "apikey: conversion_test_key" in legacy_content
+            assert "ssl_verify: 'False'" in legacy_content
+            assert "=" not in legacy_content
+
+            # Verify the file was NOT migrated to XDG location
+            assert not xdg_path.exists()
+
+
+def test_default_save_location():
+    """Test that save() uses the correct default location."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Create mock paths
+        legacy_dir = Path(temp_dir) / "legacy"
+        legacy_path = legacy_dir / "config"
+
+        xdg_dir = Path(temp_dir) / "xdg"
+        xdg_path = xdg_dir / "config"
+
+        mock_config_paths = {"legacy": legacy_path, "xdg": xdg_path}
+
+        # Case 1: No existing config - should save to XDG location
+        with (
+            patch("tidy3d.config.CONFIG_PATHS", mock_config_paths),
+            patch("tidy3d.config.DEFAULT_CONFIG_FILE", xdg_path),
+            patch("tidy3d.config.yaml_config_settings_source", return_value={}),
+        ):
+            # Create and save a config
+            config = Tidy3dConfig(apikey="xdg_save_test")
+            config.save()
+
+            # Verify it was saved to XDG path
+            assert xdg_path.exists()
+            with open(xdg_path) as f:
+                content = yaml.safe_load(f)
+
+            assert content["apikey"] == "xdg_save_test"
+
+            # Legacy path should not exist
+            assert not legacy_path.exists()
+
+        # Case 2: Existing legacy config - should save to legacy location
+        # Create legacy directory and file
+        legacy_dir.mkdir()
+        with open(legacy_path, "w") as f:
+            yaml.safe_dump({"apikey": "existing_legacy"}, f)
+
+        with (
+            patch("tidy3d.config.CONFIG_PATHS", mock_config_paths),
+            patch("tidy3d.config.DEFAULT_CONFIG_FILE", legacy_path),
+            patch("tidy3d.config.yaml_config_settings_source", return_value={}),
+        ):
+            # Create and save a config
+            config = Tidy3dConfig(apikey="legacy_save_test")
+            config.save()
+
+            # Verify it was saved to legacy path
+            assert legacy_path.exists()
+            with open(legacy_path) as f:
+                content = yaml.safe_load(f)
+
+            assert content["apikey"] == "legacy_save_test"
 
 
 def test_config_reload():
@@ -233,30 +341,3 @@ def test_config_reload():
 
                 config.load()
                 assert config.apikey == "new_file_key"
-
-
-def test_legacy_format_auto_conversion():
-    """Test automatic conversion of legacy format to YAML."""
-    with tempfile.TemporaryDirectory() as temp_dir:
-        # Create a config file in legacy format
-        config_path = Path(temp_dir) / "config"
-        with open(config_path, "w") as f:
-            f.write('apikey = "auto_conversion_test_key"\nssl_verify = "False"')
-
-        # Call the settings source function directly with our config path
-        with patch("tidy3d.config.CONFIG_PATHS", [config_path]):
-            # This should trigger the auto-conversion
-            config_dict = yaml_config_settings_source(None)
-
-            # Verify the function returned the correct values
-            assert config_dict.get("apikey") == "auto_conversion_test_key"
-            assert config_dict.get("ssl_verify") == "False"  # Still a string at this point
-
-            # Verify the file was converted to YAML format
-            with open(config_path) as f:
-                content = f.read()
-
-            # Check that the file now uses YAML syntax
-            assert "apikey: auto_conversion_test_key" in content
-            assert "ssl_verify: 'False'" in content
-            assert "=" not in content
