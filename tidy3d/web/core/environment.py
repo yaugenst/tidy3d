@@ -5,7 +5,6 @@ import ssl
 
 from pydantic.v1 import BaseSettings
 
-from ...config import config as global_config
 from .core_config import get_logger
 
 
@@ -27,7 +26,8 @@ class EnvironmentConfig(BaseSettings):
     def active(self) -> None:
         """Activate the environment instance."""
         # Ensure ssl_verify is in sync with global config
-        self.ssl_verify = global_config.ssl_verify
+        # Use function to avoid circular import
+        self.ssl_verify = _get_config_ssl_verify()
         Env.set_current(self)
 
     def get_real_url(self, path: str) -> str:
@@ -44,6 +44,22 @@ class EnvironmentConfig(BaseSettings):
             Full url for the webapi.
         """
         return "/".join([self.web_api_endpoint, path])
+
+
+def _get_config_ssl_verify() -> bool:
+    """Get ssl_verify setting from global config.
+
+    Using a function instead of a direct import to avoid circular import issues.
+
+    Returns
+    -------
+    bool
+        The ssl_verify setting value
+    """
+    # Import here to avoid circular import
+    from ...config import config as global_config
+
+    return global_config.ssl_verify
 
 
 dev = EnvironmentConfig(
@@ -110,7 +126,7 @@ class Environment:
             self._current = prod
 
         # Ensure ssl_verify is in sync with global config
-        self._current.ssl_verify = global_config.ssl_verify
+        self._current.ssl_verify = _get_config_ssl_verify()
 
     @property
     def current(self) -> EnvironmentConfig:
@@ -122,7 +138,7 @@ class Environment:
             The config for the current environment.
         """
         # Ensure ssl_verify is always in sync with global config
-        self._current.ssl_verify = global_config.ssl_verify
+        self._current.ssl_verify = _get_config_ssl_verify()
         return self._current
 
     @property
@@ -134,7 +150,7 @@ class Environment:
         EnvironmentConfig
             The config for the dev environment.
         """
-        dev.ssl_verify = global_config.ssl_verify
+        dev.ssl_verify = _get_config_ssl_verify()
         return dev
 
     @property
@@ -146,7 +162,7 @@ class Environment:
         EnvironmentConfig
             The config for the uat environment.
         """
-        uat.ssl_verify = global_config.ssl_verify
+        uat.ssl_verify = _get_config_ssl_verify()
         return uat
 
     @property
@@ -158,7 +174,7 @@ class Environment:
         EnvironmentConfig
             The config for the preprod environment.
         """
-        pre.ssl_verify = global_config.ssl_verify
+        pre.ssl_verify = _get_config_ssl_verify()
         return pre
 
     @property
@@ -170,7 +186,7 @@ class Environment:
         EnvironmentConfig
             The config for the prod environment.
         """
-        prod.ssl_verify = global_config.ssl_verify
+        prod.ssl_verify = _get_config_ssl_verify()
         return prod
 
     def set_current(self, config: EnvironmentConfig) -> None:
@@ -181,7 +197,7 @@ class Environment:
         config : EnvironmentConfig
             The environment to set to current.
         """
-        config.ssl_verify = global_config.ssl_verify
+        config.ssl_verify = _get_config_ssl_verify()
         self._current = config
 
     def enable_caching(self, enable_caching: bool = True) -> None:

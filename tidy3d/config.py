@@ -57,7 +57,9 @@ import pydantic.v1 as pd
 import yaml
 
 from .log import DEFAULT_LEVEL, LogLevel, set_log_suppression, set_logging_level
-from .web.core.constants import SIMCLOUD_APIKEY
+
+# Constants - define here to avoid circular imports
+SIMCLOUD_APIKEY = "SIMCLOUD_APIKEY"
 
 
 # Configuration file paths
