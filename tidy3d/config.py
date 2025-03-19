@@ -106,6 +106,8 @@ def yaml_config_settings_source(settings: pd.BaseSettings) -> Dict[str, Any]:
 
     If a key is found in multiple files, the value from the first file wins.
 
+    When a legacy format file is detected, it will be automatically converted to YAML format.
+
     Parameters
     ----------
     settings : BaseSettings
@@ -132,6 +134,20 @@ def yaml_config_settings_source(settings: pd.BaseSettings) -> Dict[str, Any]:
             # If file contains '=' character, it might be in legacy format
             if "=" in content:
                 file_config = _parse_legacy_format(content)
+
+                # Automatically migrate legacy format to YAML
+                if file_config:
+                    try:
+                        # Ensure directory exists
+                        config_path.parent.mkdir(parents=True, exist_ok=True)
+
+                        # Write YAML to file
+                        with open(config_path, "w") as f:
+                            yaml.safe_dump(file_config, f, default_flow_style=False)
+
+                        print(f"Converted legacy format to YAML: {config_path}")
+                    except Exception as e:
+                        print(f"Warning: Failed to convert legacy format to YAML: {e}")
             else:
                 # Otherwise, parse as YAML
                 file_config = yaml.safe_load(content) or {}

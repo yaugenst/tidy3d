@@ -233,3 +233,30 @@ def test_config_reload():
 
                 config.load()
                 assert config.apikey == "new_file_key"
+
+
+def test_legacy_format_auto_conversion():
+    """Test automatic conversion of legacy format to YAML."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Create a config file in legacy format
+        config_path = Path(temp_dir) / "config"
+        with open(config_path, "w") as f:
+            f.write('apikey = "auto_conversion_test_key"\nssl_verify = "False"')
+
+        # Call the settings source function directly with our config path
+        with patch("tidy3d.config.CONFIG_PATHS", [config_path]):
+            # This should trigger the auto-conversion
+            config_dict = yaml_config_settings_source(None)
+
+            # Verify the function returned the correct values
+            assert config_dict.get("apikey") == "auto_conversion_test_key"
+            assert config_dict.get("ssl_verify") == "False"  # Still a string at this point
+
+            # Verify the file was converted to YAML format
+            with open(config_path) as f:
+                content = f.read()
+
+            # Check that the file now uses YAML syntax
+            assert "apikey: auto_conversion_test_key" in content
+            assert "ssl_verify: 'False'" in content
+            assert "=" not in content
