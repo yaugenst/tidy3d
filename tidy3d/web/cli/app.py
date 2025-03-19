@@ -10,6 +10,7 @@ import click
 import requests
 
 from ... import config
+from ...config import CONFIG_PATHS
 from ..cli.constants import CREDENTIAL_FILE, TIDY3D_DIR
 from ..cli.migrate import migrate
 from ..core.constants import HEADER_APIKEY
@@ -74,7 +75,7 @@ def configure_fn(apikey: str) -> None:
                 return
 
     if not apikey:
-        current_apikey = config.auth.apikey or ""
+        current_apikey = config.apikey or ""
         message = f"Current API key: [{current_apikey}]\n" if current_apikey else ""
         apikey = click.prompt(f"{message}Please enter your api key", type=str)
 
@@ -89,17 +90,18 @@ def configure_fn(apikey: str) -> None:
         click.echo("Configured successfully.")
 
         # Update the config with the new API key
-        config.auth.apikey = apikey
+        config.apikey = apikey
 
         # If a legacy config already exists, save to that location to maintain compatibility
-        legacy_path = config.CONFIG_PATHS["legacy"]
-        if legacy_path.exists() or config.CONFIG_PATHS["old_legacy"].exists():
+        legacy_path = CONFIG_PATHS["legacy"]
+        old_legacy_path = CONFIG_PATHS["old_legacy"]
+        if legacy_path.exists() or old_legacy_path.exists():
             config.save(legacy_path)
             click.echo(f"Configuration saved to {legacy_path}")
         else:
             # Otherwise save to the XDG location (default)
             config.save()
-            xdg_path = config.CONFIG_PATHS["xdg"]
+            xdg_path = CONFIG_PATHS["xdg"]
             click.echo(f"Configuration saved to {xdg_path}")
     else:
         click.echo("API key is invalid.")
