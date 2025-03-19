@@ -8,32 +8,16 @@ import ssl
 
 import click
 import requests
-import toml
 
-from ..cli.constants import CONFIG_FILE, CREDENTIAL_FILE, TIDY3D_DIR
+from ... import config
+from ..cli.constants import CREDENTIAL_FILE, TIDY3D_DIR
 from ..cli.migrate import migrate
-from ..core.constants import HEADER_APIKEY, KEY_APIKEY
+from ..core.constants import HEADER_APIKEY
 from ..core.environment import Env
 from .develop.index import develop
 
 # Prevent race condition on threads
 os.makedirs(TIDY3D_DIR, exist_ok=True)
-
-
-def get_description():
-    """Get the description for the config command.
-    Returns
-    -------
-    str
-        The description for the config command.
-    """
-
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, encoding="utf-8") as f:
-            content = f.read()
-            config = toml.loads(content)
-            return config.get(KEY_APIKEY, "")
-    return ""
 
 
 @click.group()
@@ -90,7 +74,7 @@ def configure_fn(apikey: str) -> None:
                 return
 
     if not apikey:
-        current_apikey = get_description()
+        current_apikey = config.apikey or ""
         message = f"Current API key: [{current_apikey}]\n" if current_apikey else ""
         apikey = click.prompt(f"{message}Please enter your api key", type=str)
 
@@ -103,10 +87,9 @@ def configure_fn(apikey: str) -> None:
 
     if resp.status_code == 200:
         click.echo("Configured successfully.")
-        with open(CONFIG_FILE, "w+", encoding="utf-8") as config_file:
-            toml_config = toml.loads(config_file.read())
-            toml_config.update({KEY_APIKEY: apikey})
-            config_file.write(toml.dumps(toml_config))
+        # Update the config with the new API key and save it
+        config.apikey = apikey
+        config.save()  # This will save to the legacy path by default
     else:
         click.echo("API key is invalid.")
 
