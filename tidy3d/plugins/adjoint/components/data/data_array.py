@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Sequence, Tuple, Union
+from typing import Any, Literal, Sequence, Union
 
 import h5py
 import jax
 import jax.numpy as jnp
 import numpy as np
-import pydantic.v1 as pd
 import xarray as xr
 from jax.tree_util import register_pytree_node_class
+from pydantic import Field, field_validator, model_validator
 
-from .....components.base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
-from .....exceptions import AdjointError, DataError, Tidy3dKeyError
+from tidy3d.components.base import Tidy3dBaseModel, cached_property
+from tidy3d.exceptions import AdjointError, DataError, Tidy3dKeyError
 
 # condition setting when to set value in DataArray to zero:
 # if abs(val) <= VALUE_FILTER_THRESHOLD * max(abs(val))
@@ -27,15 +27,13 @@ JAX_DATA_ARRAY_TAG = "<<JaxDataArray>>"
 class JaxDataArray(Tidy3dBaseModel):
     """A :class:`.DataArray`-like class that only wraps xarray for jax compatibility."""
 
-    values: Any = pd.Field(
-        ...,
+    values: Any = Field(
         title="Values",
         description="Nested list containing the raw values, which can be tracked by jax.",
         jax_field=True,
     )
 
-    coords: Dict[str, list] = pd.Field(
-        ...,
+    coords: dict[str, list] = Field(
         title="Coords",
         description="Dictionary storing the coordinates, namely ``(direction, f, mode_index)``.",
     )
@@ -51,19 +49,18 @@ class JaxDataArray(Tidy3dBaseModel):
         coords = {k: np.array(v).tolist() for k, v in tidy3d_obj.coords.items()}
         return cls(values=tidy3d_obj.data, coords=coords)
 
-    @pd.validator("values", always=True)
-    def _convert_values_to_np(cls, val):
+    @field_validator("values")
+    def _convert_values_to_np(val):
         """Convert supplied values to numpy if they are list (from file)."""
         if isinstance(val, list):
             return np.array(val)
         return val
 
-    @pd.validator("coords", always=True)
-    @skip_if_fields_missing(["values"])
-    def _coords_match_values(cls, val, values):
+    @model_validator(mode="after")
+    def _coords_match_values(self):
         """Make sure the coordinate dimensions and shapes match the values data."""
 
-        _values = values.get("values")
+        _values = self.values
 
         # get the shape, handling both regular and jax objects
         try:
@@ -71,7 +68,7 @@ class JaxDataArray(Tidy3dBaseModel):
         except TypeError:
             values_shape = jnp.array(_values).shape
 
-        for (key, coord_val), size_dim in zip(val.items(), values_shape):
+        for (key, coord_val), size_dim in zip(self.coord.items(), values_shape):
             if len(coord_val) != size_dim:
                 raise ValueError(
                     f"JaxDataArray coord {key} has {len(coord_val)} elements, "
@@ -79,11 +76,11 @@ class JaxDataArray(Tidy3dBaseModel):
                     f"with size {size_dim} along that dimension."
                 )
 
-        return val
+        return self
 
-    @pd.validator("coords", always=True)
-    def _convert_coords_to_list(cls, val):
-        """Convert supplied coordinates to Dict[str, list]."""
+    @field_validator("coords")
+    def _convert_coords_to_list(val):
+        """Convert supplied coordinates to dict[str, list]."""
         return {coord_name: list(coord_list) for coord_name, coord_list in val.items()}
 
     def __eq__(self, other) -> bool:
@@ -407,7 +404,7 @@ class JaxDataArray(Tidy3dBaseModel):
         update_kwargs = {key: np.array(value).tolist() for key, value in update_kwargs.items()}
         return self.updated_copy(coords=update_kwargs)
 
-    def multiply_at(self, value: complex, coord_name: str, indices: List[int]) -> JaxDataArray:
+    def multiply_at(self, value: complex, coord_name: str, indices: list[int]) -> JaxDataArray:
         """Multiply self by value at indices into ."""
         axis = list(self.coords.keys()).index(coord_name)
         scalar_data_arr = self.as_jnp_array
@@ -498,7 +495,7 @@ class JaxDataArray(Tidy3dBaseModel):
         return ret_value
 
     @cached_property
-    def nonzero_val_coords(self) -> Tuple[List[complex], Dict[str, Any]]:
+    def nonzero_val_coords(self) -> tuple[list[complex], dict[str, Any]]:
         """The value and coordinate associated with the only non-zero element of ``self.values``."""
 
         values = np.nan_to_num(self.as_ndarray)
@@ -519,7 +516,7 @@ class JaxDataArray(Tidy3dBaseModel):
 
         return nonzero_values, nonzero_coords
 
-    def tree_flatten(self) -> Tuple[list, dict]:
+    def tree_flatten(self) -> tuple[list, dict]:
         """Jax works on the values, stash the coords for reconstruction."""
 
         return self.values, self.coords

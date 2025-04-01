@@ -3,35 +3,36 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Union
+from typing import Any, Optional, Union
 
 import jax.numpy as jnp
 import numpy as np
-import pydantic.v1 as pd
 from jax.tree_util import register_pytree_node_class
+from pydantic import Field
 
-from .....components.base import cached_property
-from .....components.data.data_array import (
+from tidy3d.components.base import cached_property
+from tidy3d.components.data.data_array import (
     FreqModeDataArray,
     MixedModeDataArray,
     ModeAmpsDataArray,
     ScalarFieldDataArray,
 )
-from .....components.data.dataset import FieldDataset
-from .....components.data.monitor_data import (
+from tidy3d.components.data.dataset import FieldDataset
+from tidy3d.components.data.monitor_data import (
     DiffractionData,
     FieldData,
     ModeData,
     ModeSolverData,
     MonitorData,
 )
-from .....components.geometry.base import Box
-from .....components.source.base import Source
-from .....components.source.current import CustomCurrentSource, PointDipole
-from .....components.source.field import CustomFieldSource, ModeSource, PlaneWave
-from .....components.source.time import GaussianPulse
-from .....constants import C_0, ETA_0, MU_0
-from .....exceptions import AdjointError
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.source.base import Source
+from tidy3d.components.source.current import CustomCurrentSource, PointDipole
+from tidy3d.components.source.field import CustomFieldSource, ModeSource, PlaneWave
+from tidy3d.components.source.time import GaussianPulse
+from tidy3d.constants import C_0, ETA_0, MU_0
+from tidy3d.exceptions import AdjointError
+
 from ..base import JaxObject
 from .data_array import JaxDataArray
 
@@ -54,7 +55,7 @@ class JaxMonitorData(MonitorData, JaxObject, ABC):
         return cls.parse_obj(self_dict)
 
     @abstractmethod
-    def to_adjoint_sources(self, fwidth: float) -> List[Source]:
+    def to_adjoint_sources(self, fwidth: float) -> list[Source]:
         """Construct a list of adjoint sources from this :class:`.JaxMonitorData`."""
 
     @staticmethod
@@ -80,14 +81,13 @@ class JaxMonitorData(MonitorData, JaxObject, ABC):
 class JaxModeData(JaxMonitorData, ModeData):
     """A :class:`.ModeData` registered with jax."""
 
-    amps: JaxDataArray = pd.Field(
-        ...,
+    amps: JaxDataArray = Field(
         title="Amplitudes",
         description="Jax-compatible modal amplitude data associated with an output monitor.",
         jax_field=True,
     )
 
-    def to_adjoint_sources(self, fwidth: float) -> List[ModeSource]:
+    def to_adjoint_sources(self, fwidth: float) -> list[ModeSource]:
         """Converts a :class:`.ModeData` to a list of adjoint :class:`.ModeSource`."""
 
         amps, sel_coords = self.amps.nonzero_val_coords
@@ -121,37 +121,37 @@ class JaxModeData(JaxMonitorData, ModeData):
 class JaxFieldData(JaxMonitorData, FieldData):
     """A :class:`.FieldData` registered with jax."""
 
-    Ex: JaxDataArray = pd.Field(
+    Ex: Optional[JaxDataArray] = Field(
         None,
         title="Ex",
         description="Spatial distribution of the x-component of the electric field.",
         jax_field=True,
     )
-    Ey: JaxDataArray = pd.Field(
+    Ey: Optional[JaxDataArray] = Field(
         None,
         title="Ey",
         description="Spatial distribution of the y-component of the electric field.",
         jax_field=True,
     )
-    Ez: JaxDataArray = pd.Field(
+    Ez: Optional[JaxDataArray] = Field(
         None,
         title="Ez",
         description="Spatial distribution of the z-component of the electric field.",
         jax_field=True,
     )
-    Hx: JaxDataArray = pd.Field(
+    Hx: Optional[JaxDataArray] = Field(
         None,
         title="Hx",
         description="Spatial distribution of the x-component of the magnetic field.",
         jax_field=True,
     )
-    Hy: JaxDataArray = pd.Field(
+    Hy: Optional[JaxDataArray] = Field(
         None,
         title="Hy",
         description="Spatial distribution of the y-component of the magnetic field.",
         jax_field=True,
     )
-    Hz: JaxDataArray = pd.Field(
+    Hz: Optional[JaxDataArray] = Field(
         None,
         title="Hz",
         description="Spatial distribution of the z-component of the magnetic field.",
@@ -167,7 +167,7 @@ class JaxFieldData(JaxMonitorData, FieldData):
     def __getitem__(self, item: str) -> bool:
         return self.field_components[item]
 
-    def package_colocate_results(self, centered_fields: Dict[str, ScalarFieldDataArray]) -> Any:
+    def package_colocate_results(self, centered_fields: dict[str, ScalarFieldDataArray]) -> Any:
         """How to package the dictionary of fields computed via self.colocate()."""
         return self.updated_copy(**centered_fields)
 
@@ -243,7 +243,7 @@ class JaxFieldData(JaxMonitorData, FieldData):
             "'time_reversed_copy' is not yet supported in the adjoint plugin."
         )
 
-    def to_adjoint_sources(self, fwidth: float) -> List[CustomFieldSource]:
+    def to_adjoint_sources(self, fwidth: float) -> list[CustomFieldSource]:
         """Converts a :class:`.JaxFieldData` to a list of adjoint :class:`.CustomFieldSource."""
 
         interpolate_source = True
@@ -335,38 +335,32 @@ class JaxFieldData(JaxMonitorData, FieldData):
 class JaxDiffractionData(JaxMonitorData, DiffractionData):
     """A :class:`.DiffractionData` registered with jax."""
 
-    Er: JaxDataArray = pd.Field(
-        ...,
+    Er: JaxDataArray = Field(
         title="Er",
         description="Spatial distribution of r-component of the electric field.",
         jax_field=True,
     )
-    Etheta: JaxDataArray = pd.Field(
-        ...,
+    Etheta: JaxDataArray = Field(
         title="Etheta",
         description="Spatial distribution of the theta-component of the electric field.",
         jax_field=True,
     )
-    Ephi: JaxDataArray = pd.Field(
-        ...,
+    Ephi: JaxDataArray = Field(
         title="Ephi",
         description="Spatial distribution of phi-component of the electric field.",
         jax_field=True,
     )
-    Hr: JaxDataArray = pd.Field(
-        ...,
+    Hr: JaxDataArray = Field(
         title="Hr",
         description="Spatial distribution of r-component of the magnetic field.",
         jax_field=True,
     )
-    Htheta: JaxDataArray = pd.Field(
-        ...,
+    Htheta: JaxDataArray = Field(
         title="Htheta",
         description="Spatial distribution of theta-component of the magnetic field.",
         jax_field=True,
     )
-    Hphi: JaxDataArray = pd.Field(
-        ...,
+    Hphi: JaxDataArray = Field(
         title="Hphi",
         description="Spatial distribution of phi-component of the magnetic field.",
         jax_field=True,
@@ -408,7 +402,7 @@ class JaxDiffractionData(JaxMonitorData, DiffractionData):
 
         return JaxDataArray(values=power_values, coords=power_coords)
 
-    def to_adjoint_sources(self, fwidth: float) -> List[PlaneWave]:
+    def to_adjoint_sources(self, fwidth: float) -> list[PlaneWave]:
         """Converts a :class:`.DiffractionData` to a list of adjoint :class:`.PlaneWave`."""
 
         # extract the values coordinates of the non-zero amplitudes

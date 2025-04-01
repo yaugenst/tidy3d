@@ -1,8 +1,6 @@
 """Defines heat material specifications"""
 
-from __future__ import annotations
-
-import pydantic.v1 as pd
+from pydantic import Field
 
 from tidy3d.components.spice.sources.types import CurrentSourceType, VoltageSourceType
 from tidy3d.components.tcad.boundary.abstract import HeatChargeBC
@@ -28,8 +26,7 @@ class VoltageBC(HeatChargeBC):
     >>> voltage_bc = td.VoltageBC(source=voltage_source)
     """
 
-    source: VoltageSourceType = pd.Field(
-        ...,
+    source: VoltageSourceType = Field(
         title="Voltage",
         description="Electric potential to be applied at the specified boundary.",
         units=VOLT,
@@ -47,8 +44,7 @@ class CurrentBC(HeatChargeBC):
     >>> current_bc = CurrentBC(source=current_source)
     """
 
-    source: CurrentSourceType = pd.Field(
-        ...,
+    source: CurrentSourceType = Field(
         title="Current Source",
         description="A current source",
         units=CURRENT_DENSITY,

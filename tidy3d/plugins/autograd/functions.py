@@ -1,4 +1,4 @@
-from typing import Callable, Iterable, List, Literal, Tuple, Union
+from typing import Callable, Iterable, Literal, Union
 
 import autograd.numpy as np
 from autograd import jacobian
@@ -30,14 +30,14 @@ __all__ = [
 ]
 
 
-def _pad_indices(n: int, pad_width: Tuple[int, int], *, mode: PaddingType) -> NDArray:
+def _pad_indices(n: int, pad_width: tuple[int, int], *, mode: PaddingType) -> NDArray:
     """Compute the indices to pad an array along a single axis based on the padding mode.
 
     Parameters
     ----------
     n : int
         The size of the axis to pad.
-    pad_width : Tuple[int, int]
+    pad_width : tuple[int, int]
         The number of values padded to the edges of the axis.
     mode : PaddingType
         The padding mode to use.
@@ -78,7 +78,7 @@ def _pad_indices(n: int, pad_width: Tuple[int, int], *, mode: PaddingType) -> ND
 
 def _pad_axis(
     array: NDArray,
-    pad_width: Tuple[int, int],
+    pad_width: tuple[int, int],
     axis: int,
     *,
     mode: PaddingType = "constant",
@@ -90,7 +90,7 @@ def _pad_axis(
     ----------
     array : np.ndarray
         The input array to pad.
-    pad_width : Tuple[int, int]
+    pad_width : tuple[int, int]
         The number of values padded to the edges of the axis.
     axis : int
         The axis along which to pad.
@@ -117,7 +117,7 @@ def _pad_axis(
 
 def pad(
     array: NDArray,
-    pad_width: Union[int, Tuple[int, int]],
+    pad_width: Union[int, tuple[int, int]],
     *,
     mode: PaddingType = "constant",
     axis: Union[int, Iterable[int], None] = None,
@@ -129,7 +129,7 @@ def pad(
     ----------
     array : np.ndarray
         The input array to pad.
-    pad_width : Union[int, Tuple[int, int]]
+    pad_width : Union[int, tuple[int, int]]
         The number of values padded to the edges of each axis. If an integer is provided,
         it is used for both the left and right sides. If a tuple is provided, it specifies
         the padding for the left and right sides respectively.
@@ -188,7 +188,7 @@ def convolve(
     kernel: NDArray,
     *,
     padding: PaddingType = "constant",
-    axes: Union[Tuple[List[int], List[int]], None] = None,
+    axes: Union[tuple[list[int], list[int]], None] = None,
     mode: Literal["full", "valid", "same"] = "same",
 ) -> NDArray:
     """Convolve an array with a given kernel.
@@ -201,7 +201,7 @@ def convolve(
         The kernel to convolve with the input array. All dimensions of the kernel must be odd.
     padding : PaddingType = "constant"
         The padding mode to use.
-    axes : Union[Tuple[List[int], List[int]], None] = None
+    axes : Union[tuple[list[int], list[int]], None] = None
         The axes along which to perform the convolution.
     mode : Literal["full", "valid", "same"] = "same"
         The convolution mode.
@@ -237,7 +237,7 @@ def convolve(
 
 def grey_dilation(
     array: NDArray,
-    size: Union[Union[int, Tuple[int, int]], None] = None,
+    size: Union[Union[int, tuple[int, int]], None] = None,
     structure: Union[NDArray, None] = None,
     *,
     mode: PaddingType = "reflect",
@@ -249,7 +249,7 @@ def grey_dilation(
     ----------
     array : np.ndarray
         The input array to perform grey dilation on.
-    size : Union[Union[int, Tuple[int, int]], None] = None
+    size : Union[Union[int, tuple[int, int]], None] = None
         The size of the structuring element. If None, `structure` must be provided.
     structure : Union[np.ndarray, None] = None
         The structuring element. If None, `size` must be provided.
@@ -291,7 +291,7 @@ def grey_dilation(
 
 def grey_erosion(
     array: NDArray,
-    size: Union[Union[int, Tuple[int, int]], None] = None,
+    size: Union[Union[int, tuple[int, int]], None] = None,
     structure: Union[NDArray, None] = None,
     *,
     mode: PaddingType = "reflect",
@@ -303,7 +303,7 @@ def grey_erosion(
     ----------
     array : np.ndarray
         The input array to perform grey dilation on.
-    size : Union[Union[int, Tuple[int, int]], None] = None
+    size : Union[Union[int, tuple[int, int]], None] = None
         The size of the structuring element. If None, `structure` must be provided.
     structure : Union[np.ndarray, None] = None
         The structuring element. If None, `size` must be provided.
@@ -345,7 +345,7 @@ def grey_erosion(
 
 def grey_opening(
     array: NDArray,
-    size: Union[Union[int, Tuple[int, int]], None] = None,
+    size: Union[Union[int, tuple[int, int]], None] = None,
     structure: Union[NDArray, None] = None,
     *,
     mode: PaddingType = "reflect",
@@ -357,7 +357,7 @@ def grey_opening(
     ----------
     array : np.ndarray
         The input array to perform grey opening on.
-    size : Union[Union[int, Tuple[int, int]], None] = None
+    size : Union[Union[int, tuple[int, int]], None] = None
         The size of the structuring element. If None, `structure` must be provided.
     structure : Union[np.ndarray, None] = None
         The structuring element. If None, `size` must be provided.
@@ -378,7 +378,7 @@ def grey_opening(
 
 def grey_closing(
     array: NDArray,
-    size: Union[Union[int, Tuple[int, int]], None] = None,
+    size: Union[Union[int, tuple[int, int]], None] = None,
     structure: Union[NDArray, None] = None,
     *,
     mode: PaddingType = "reflect",
@@ -390,7 +390,7 @@ def grey_closing(
     ----------
     array : np.ndarray
         The input array to perform grey closing on.
-    size : Union[Union[int, Tuple[int, int]], None] = None
+    size : Union[Union[int, tuple[int, int]], None] = None
         The size of the structuring element. If None, `structure` must be provided.
     structure : Union[np.ndarray, None] = None
         The structuring element. If None, `size` must be provided.
@@ -411,7 +411,7 @@ def grey_closing(
 
 def morphological_gradient(
     array: NDArray,
-    size: Union[Union[int, Tuple[int, int]], None] = None,
+    size: Union[Union[int, tuple[int, int]], None] = None,
     structure: Union[NDArray, None] = None,
     *,
     mode: PaddingType = "reflect",
@@ -423,7 +423,7 @@ def morphological_gradient(
     ----------
     array : np.ndarray
         The input array to compute the morphological gradient of.
-    size : Union[Union[int, Tuple[int, int]], None] = None
+    size : Union[Union[int, tuple[int, int]], None] = None
         The size of the structuring element. If None, `structure` must be provided.
     structure : Union[np.ndarray, None] = None
         The structuring element. If None, `size` must be provided.
@@ -444,7 +444,7 @@ def morphological_gradient(
 
 def morphological_gradient_internal(
     array: NDArray,
-    size: Union[Union[int, Tuple[int, int]], None] = None,
+    size: Union[Union[int, tuple[int, int]], None] = None,
     structure: Union[NDArray, None] = None,
     *,
     mode: PaddingType = "reflect",
@@ -456,7 +456,7 @@ def morphological_gradient_internal(
     ----------
     array : np.ndarray
         The input array to compute the internal morphological gradient of.
-    size : Union[Union[int, Tuple[int, int]], None] = None
+    size : Union[Union[int, tuple[int, int]], None] = None
         The size of the structuring element. If None, `structure` must be provided.
     structure : Union[np.ndarray, None] = None
         The structuring element. If None, `size` must be provided.
@@ -475,7 +475,7 @@ def morphological_gradient_internal(
 
 def morphological_gradient_external(
     array: NDArray,
-    size: Union[Union[int, Tuple[int, int]], None] = None,
+    size: Union[Union[int, tuple[int, int]], None] = None,
     structure: Union[NDArray, None] = None,
     *,
     mode: PaddingType = "reflect",
@@ -487,7 +487,7 @@ def morphological_gradient_external(
     ----------
     array : np.ndarray
         The input array to compute the external morphological gradient of.
-    size : Union[Union[int, Tuple[int, int]], None] = None
+    size : Union[Union[int, tuple[int, int]], None] = None
         The size of the structuring element. If None, `structure` must be provided.
     structure : Union[np.ndarray, None] = None
         The structuring element. If None, `size` must be provided.
@@ -581,7 +581,7 @@ def threshold(
 
 
 def smooth_max(
-    x: NDArray, tau: float = 1.0, axis: Union[int, Tuple[int, ...], None] = None
+    x: NDArray, tau: float = 1.0, axis: Union[int, tuple[int, ...], None] = None
 ) -> float:
     """Compute the smooth maximum of an array using temperature parameter tau.
 
@@ -591,7 +591,7 @@ def smooth_max(
         Input array.
     tau : float = 1.0
         Temperature parameter controlling smoothness. Larger values make the maximum smoother.
-    axis : Union[int, Tuple[int, ...], None] = None
+    axis : Union[int, tuple[int, ...], None] = None
         Axis or axes over which the smooth maximum is computed. By default, the smooth maximum is computed over the entire array.
 
     Returns
@@ -603,7 +603,7 @@ def smooth_max(
 
 
 def smooth_min(
-    x: NDArray, tau: float = 1.0, axis: Union[int, Tuple[int, ...], None] = None
+    x: NDArray, tau: float = 1.0, axis: Union[int, tuple[int, ...], None] = None
 ) -> float:
     """Compute the smooth minimum of an array using temperature parameter tau.
 
@@ -613,7 +613,7 @@ def smooth_min(
         Input array.
     tau : float = 1.0
         Temperature parameter controlling smoothness. Larger values make the minimum smoother.
-    axis : Union[int, Tuple[int, ...], None] = None
+    axis : Union[int, tuple[int, ...], None] = None
         Axis or axes over which the smooth minimum is computed. By default, the smooth minimum is computed over the entire array.
 
     Returns
@@ -628,7 +628,7 @@ def least_squares(
     func: Callable[[NDArray, float], NDArray],
     x: NDArray,
     y: NDArray,
-    initial_guess: Tuple[float, ...],
+    initial_guess: tuple[float, ...],
     max_iterations: int = 100,
     tol: float = 1e-6,
 ) -> NDArray:
@@ -643,7 +643,7 @@ def least_squares(
         Independent variable data.
     y : np.ndarray
         Dependent variable data.
-    initial_guess : Tuple[float, ...]
+    initial_guess : tuple[float, ...]
         Initial guess for the parameters to be optimized.
     max_iterations : int = 100
         Maximum number of iterations for the optimization process.

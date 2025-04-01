@@ -1,7 +1,7 @@
 """Frequency utilities."""
 
 import numpy as np
-import pydantic as pd
+from pydantic import Field
 
 from ..constants import C_0
 from .base import Tidy3dBaseModel
@@ -17,7 +17,7 @@ U_BAND = (1.625, 1.675)
 class FrequencyUtils(Tidy3dBaseModel):
     """Class for general frequency/wavelength utilities."""
 
-    use_wavelength: bool = pd.Field(
+    use_wavelength: bool = Field(
         False,
         title="Use wavelength",
         description="Indicate whether to use wavelengths instead of frequencies for the return "

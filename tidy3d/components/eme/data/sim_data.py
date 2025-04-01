@@ -1,18 +1,16 @@
 """EME simulation data"""
 
-from __future__ import annotations
-
-from typing import List, Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
-import pydantic.v1 as pd
+from pydantic import Field
 
 from ....exceptions import SetupError
 from ...base import cached_property
 from ...data.data_array import EMEScalarFieldDataArray, EMESMatrixDataArray
 from ...data.monitor_data import FieldData, ModeData, ModeSolverData
 from ...data.sim_data import AbstractYeeGridSimulationData
-from ...types import annotate_type
+from ...types import discriminated_union
 from ..simulation import EMESimulation
 from .dataset import EMESMatrixDataset
 from .monitor_data import EMEFieldData, EMEModeSolverData, EMEMonitorDataType
@@ -21,22 +19,24 @@ from .monitor_data import EMEFieldData, EMEModeSolverData, EMEMonitorDataType
 class EMESimulationData(AbstractYeeGridSimulationData):
     """Data associated with an EME simulation."""
 
-    simulation: EMESimulation = pd.Field(
-        ..., title="EME simulation", description="EME simulation associated with this data."
+    simulation: EMESimulation = Field(
+        title="EME simulation",
+        description="EME simulation associated with this data.",
     )
 
-    data: Tuple[annotate_type(EMEMonitorDataType), ...] = pd.Field(
-        ...,
+    data: tuple[discriminated_union(EMEMonitorDataType), ...] = Field(
         title="Monitor Data",
         description="List of EME monitor data "
         "associated with the monitors of the original :class:`.EMESimulation`.",
     )
 
-    smatrix: Optional[EMESMatrixDataset] = pd.Field(
-        None, title="S Matrix", description="Scattering matrix of the EME simulation."
+    smatrix: Optional[EMESMatrixDataset] = Field(
+        None,
+        title="S Matrix",
+        description="Scattering matrix of the EME simulation.",
     )
 
-    port_modes: Optional[EMEModeSolverData] = pd.Field(
+    port_modes: Optional[EMEModeSolverData] = Field(
         None,
         title="Port Modes",
         description="Modes associated with the two ports of the EME device. "
@@ -78,7 +78,7 @@ class EMESimulationData(AbstractYeeGridSimulationData):
         return ModeSolverData(**update_dict, monitor=monitor, grid_expanded=grid_expanded)
 
     @cached_property
-    def port_modes_tuple(self) -> Tuple[ModeSolverData, ModeSolverData]:
+    def port_modes_tuple(self) -> tuple[ModeSolverData, ModeSolverData]:
         """Port modes as a tuple ``(port_modes_1, port_modes_2)``."""
         if self.port_modes is None:
             raise SetupError(
@@ -101,7 +101,7 @@ class EMESimulationData(AbstractYeeGridSimulationData):
         return port_modes_1, port_modes_2
 
     @cached_property
-    def port_modes_list_sweep(self) -> List[Tuple[ModeSolverData, ModeSolverData]]:
+    def port_modes_list_sweep(self) -> list[tuple[ModeSolverData, ModeSolverData]]:
         """Port modes as a list of tuples ``(port_modes_1, port_modes_2)``.
         There is one entry for every sweep index if the port modes vary with sweep index."""
         if self.port_modes is None:

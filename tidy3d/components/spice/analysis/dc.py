@@ -2,7 +2,7 @@
 This class defines standard SPICE electrical_analysis types (electrical simulations configurations).
 """
 
-import pydantic.v1 as pd
+from pydantic import Field, PositiveFloat, PositiveInt
 
 from tidy3d.components.base import Tidy3dBaseModel
 
@@ -19,19 +19,19 @@ class ChargeToleranceSpec(Tidy3dBaseModel):
     >>> charge_settings = td.ChargeToleranceSpec(abs_tol=1e8, rel_tol=1e-10, max_iters=30)
     """
 
-    abs_tol: pd.PositiveFloat = pd.Field(
+    abs_tol: PositiveFloat = Field(
         default=1e10,
         title="Absolute tolerance.",
         description="Absolute tolerance used as stop criteria when converging towards a solution.",
     )
 
-    rel_tol: pd.PositiveFloat = pd.Field(
+    rel_tol: PositiveFloat = Field(
         default=1e-10,
         title="Relative tolerance.",
         description="Relative tolerance used as stop criteria when converging towards a solution.",
     )
 
-    max_iters: pd.PositiveInt = pd.Field(
+    max_iters: PositiveInt = Field(
         default=30,
         title="Maximum number of iterations.",
         description="Indicates the maximum number of iterations to be run. "
@@ -39,7 +39,7 @@ class ChargeToleranceSpec(Tidy3dBaseModel):
         "or when the tolerance criteria has been met.",
     )
 
-    ramp_up_iters: pd.PositiveInt = pd.Field(
+    ramp_up_iters: PositiveInt = Field(
         default=1,
         title="Ramp-up iterations.",
         description="In order to help in start up, quantities such as doping "
@@ -53,7 +53,7 @@ class IsothermalSteadyChargeDCAnalysis(Tidy3dBaseModel):
     Configures relevant steady-state DC simulation parameters for a charge simulation.
     """
 
-    temperature: pd.PositiveFloat = pd.Field(
+    temperature: PositiveFloat = Field(
         300,
         title="Temperature",
         description="Lattice temperature. Assumed constant throughout the device. "
@@ -61,11 +61,11 @@ class IsothermalSteadyChargeDCAnalysis(Tidy3dBaseModel):
         units=KELVIN,
     )
 
-    tolerance_settings: ChargeToleranceSpec = pd.Field(
+    tolerance_settings: ChargeToleranceSpec = Field(
         default=ChargeToleranceSpec(), title="Tolerance settings"
     )
 
-    convergence_dv: pd.PositiveFloat = pd.Field(
+    convergence_dv: PositiveFloat = Field(
         default=1.0,
         title="Bias step.",
         description="By default, a solution is computed at 0 bias. If a bias different than "
@@ -74,7 +74,7 @@ class IsothermalSteadyChargeDCAnalysis(Tidy3dBaseModel):
         "convergence parameter in DC computations.",
     )
 
-    fermi_dirac: bool = pd.Field(
+    fermi_dirac: bool = Field(
         False,
         title="Fermi-Dirac statistics",
         description="Determines whether Fermi-Dirac statistics are used. When False, "

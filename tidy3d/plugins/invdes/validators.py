@@ -1,21 +1,20 @@
 # validator utilities for invdes plugin
 
-import typing
+from typing import Callable
 
-import pydantic.v1 as pd
+from pydantic import field_validator, model_validator
 
 import tidy3d as td
-from tidy3d.components.base import skip_if_fields_missing
 
 # warn if pixel size is > PIXEL_SIZE_WARNING_THRESHOLD * (minimum wavelength in material)
 PIXEL_SIZE_WARNING_THRESHOLD = 0.1
 
 
-def ignore_inherited_field(field_name: str) -> typing.Callable:
+def ignore_inherited_field(field_name: str) -> Callable:
     """Create validator that ignores a field inherited but not set by user."""
 
-    @pd.validator(field_name, always=True)
-    def _ignore_field(cls, val):
+    @field_validator(field_name)
+    def _ignore_field(val):
         """Ignore supplied field value and warn."""
         if val is not None:
             td.log.warning(
@@ -52,16 +51,15 @@ def check_pixel_size(sim_field_name: str):
                 "array resolution, one can set 'DesignRegion.override_structure_dl'."
             )
 
-    @pd.root_validator(allow_reuse=True)
-    @skip_if_fields_missing(["design_region"], root=True)
-    def _check_pixel_size(cls, values):
+    @model_validator(mode="after")
+    def _check_pixel_size(self):
         """Make sure region pixel_size isn't too large compared to sim's wavelength in material."""
-        sim = values.get(sim_field_name)
-        region = values.get("design_region")
+        sim = getattr(self, sim_field_name)
+        region = self.design_region
         pixel_size = region.pixel_size
 
         if not sim and region:
-            return values
+            return self
 
         if isinstance(sim, (list, tuple)):
             for i, s in enumerate(sim):
@@ -69,6 +67,6 @@ def check_pixel_size(sim_field_name: str):
         else:
             check_pixel_size_sim(sim=sim, pixel_size=pixel_size)
 
-        return values
+        return self
 
     return _check_pixel_size

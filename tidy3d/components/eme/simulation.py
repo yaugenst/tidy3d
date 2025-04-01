@@ -2,14 +2,21 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Union
+
+import numpy as np
+from pydantic import (
+    Field,
+    NonNegativeFloat,
+    NonNegativeInt,
+    PositiveInt,
+    field_validator,
+)
 
 try:
     import matplotlib as mpl
 except ImportError:
     pass
-import numpy as np
-import pydantic.v1 as pd
 
 from ...constants import C_0
 from ...exceptions import SetupError, ValidationError
@@ -23,7 +30,7 @@ from ..medium import FullyAnisotropicMedium
 from ..monitor import AbstractModeMonitor, ModeSolverMonitor, Monitor, MonitorType
 from ..scene import Scene
 from ..simulation import AbstractYeeGridSimulation, Simulation, validate_boundaries_for_zero_dims
-from ..types import Ax, Axis, FreqArray, Symmetry, annotate_type
+from ..types import Ax, Axis, FreqArray, Symmetry, discriminated_union
 from ..validators import (
     MIN_FREQUENCY,
     validate_freqs_min,
@@ -153,8 +160,7 @@ class EMESimulation(AbstractYeeGridSimulation):
         * `EME Solver Demonstration <../../notebooks/docs/features/eme.rst>`_
     """
 
-    freqs: FreqArray = pd.Field(
-        ...,
+    freqs: FreqArray = Field(
         title="Frequencies",
         description="Frequencies for the EME simulation. "
         "The field is propagated independently at each provided frequency. "
@@ -163,14 +169,12 @@ class EMESimulation(AbstractYeeGridSimulation):
         "instead of providing all desired frequencies here.",
     )
 
-    axis: Axis = pd.Field(
-        ...,
+    axis: Axis = Field(
         title="Propagation Axis",
         description="Propagation axis (0, 1, or 2) for the EME simulation.",
     )
 
-    eme_grid_spec: EMEGridSpecType = pd.Field(
-        ...,
+    eme_grid_spec: EMEGridSpecType = Field(
         title="EME Grid Specification",
         description="Specification for the EME propagation grid. "
         "The simulation is divided into cells in the propagation direction; "
@@ -181,15 +185,15 @@ class EMESimulation(AbstractYeeGridSimulation):
         "tangential directions, as well as the grid used for field monitors.",
     )
 
-    monitors: Tuple[annotate_type(EMEMonitorType), ...] = pd.Field(
+    monitors: tuple[discriminated_union(EMEMonitorType), ...] = Field(
         (),
         title="Monitors",
         description="Tuple of monitors in the simulation. "
         "Note: monitor names are used to access data after simulation is run.",
     )
 
-    boundary_spec: BoundarySpec = pd.Field(
-        BoundarySpec.all_sides(PECBoundary()),
+    boundary_spec: BoundarySpec = Field(
+        default_factory=lambda: BoundarySpec.all_sides(PECBoundary()),
         title="Boundaries",
         description="Specification of boundary conditions along each dimension. "
         "By default, PEC boundary conditions are applied on all sides. "
@@ -199,7 +203,7 @@ class EMESimulation(AbstractYeeGridSimulation):
         "apply PML layers in the mode solver.",
     )
 
-    sources: Tuple[None, ...] = pd.Field(
+    sources: tuple[None, ...] = Field(
         (),
         title="Sources",
         description="Sources in the simulation. NOTE: sources are not currently supported "
@@ -208,8 +212,8 @@ class EMESimulation(AbstractYeeGridSimulation):
         "use 'smatrix_in_basis' to use another set of modes or input field.",
     )
 
-    grid_spec: GridSpec = pd.Field(
-        GridSpec(),
+    grid_spec: GridSpec = Field(
+        default_factory=GridSpec,
         title="Grid Specification",
         description="Specifications for the simulation grid along each of the three directions. "
         "This is distinct from 'eme_grid_spec', which defines the 1D EME grid in the "
@@ -217,28 +221,28 @@ class EMESimulation(AbstractYeeGridSimulation):
         validate_default=True,
     )
 
-    store_port_modes: bool = pd.Field(
+    store_port_modes: bool = Field(
         True,
         title="Store Port Modes",
         description="Whether to store the modes associated with the two ports. "
         "Required to find scattering matrix in basis besides the computational basis.",
     )
 
-    normalize: bool = pd.Field(
+    normalize: bool = Field(
         True,
         title="Normalize Scattering Matrix",
         description="Whether to normalize the port modes to unity flux, "
         "thereby normalizing the scattering matrix and expansion coefficients.",
     )
 
-    port_offsets: Tuple[pd.NonNegativeFloat, pd.NonNegativeFloat] = pd.Field(
+    port_offsets: tuple[NonNegativeFloat, NonNegativeFloat] = Field(
         (0, 0),
         title="Port Offsets",
         description="Offsets for the two ports, relative to the simulation bounds "
         "along the propagation axis.",
     )
 
-    sweep_spec: Optional[EMESweepSpecType] = pd.Field(
+    sweep_spec: Optional[EMESweepSpecType] = Field(
         None,
         title="EME Sweep Specification",
         description="Specification for a parameter sweep to be performed during the EME "
@@ -246,7 +250,7 @@ class EMESimulation(AbstractYeeGridSimulation):
         "in 'sim_data.smatrix'. Other simulation monitor data is not included in the sweep.",
     )
 
-    constraint: Optional[Literal["passive", "unitary"]] = pd.Field(
+    constraint: Optional[Literal["passive", "unitary"]] = Field(
         "passive",
         title="EME Constraint",
         description="Constraint for EME propagation, imposed at cell interfaces. "
@@ -260,21 +264,21 @@ class EMESimulation(AbstractYeeGridSimulation):
     _freqs_not_empty = validate_freqs_not_empty()
     _freqs_lower_bound = validate_freqs_min()
 
-    @pd.validator("grid_spec", always=True)
-    def _validate_auto_grid_wavelength(cls, val, values):
+    @field_validator("grid_spec")
+    def _validate_auto_grid_wavelength(val):
         """Handle the case where grid_spec is auto and wavelength is not provided."""
         # this is handled instead post-init to ensure freqs is defined
         return val
 
-    @pd.validator("freqs", always=True)
-    def _validate_freqs(cls, val):
+    @field_validator("freqs")
+    def _validate_freqs(val):
         """Freqs cannot contain duplicates."""
         if len(set(val)) != len(val):
             raise SetupError(f"'EMESimulation' 'freqs={val}' cannot contain duplicate frequencies.")
         return val
 
-    @pd.validator("structures", always=True)
-    def _validate_structures(cls, val):
+    @field_validator("structures")
+    def _validate_structures(val):
         """Validate and warn for certain medium types."""
         for ind, structure in enumerate(val):
             medium = structure.medium
@@ -303,8 +307,8 @@ class EMESimulation(AbstractYeeGridSimulation):
         y: float = None,
         z: float = None,
         ax: Ax = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         **kwargs,
     ) -> Ax:
         """Plot the EME ports."""
@@ -347,8 +351,8 @@ class EMESimulation(AbstractYeeGridSimulation):
         y: float = None,
         z: float = None,
         ax: Ax = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         **kwargs,
     ) -> Ax:
         """Plot the EME subgrid boundaries.
@@ -399,8 +403,8 @@ class EMESimulation(AbstractYeeGridSimulation):
         y: float = None,
         z: float = None,
         ax: Ax = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         **kwargs,
     ) -> Ax:
         """Plot the EME grid."""
@@ -442,8 +446,8 @@ class EMESimulation(AbstractYeeGridSimulation):
         ax: Ax = None,
         source_alpha: float = None,
         monitor_alpha: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         **patch_kwargs,
     ) -> Ax:
         """Plot each of simulation's components on a plane defined by one nonzero x,y,z coordinate.
@@ -462,9 +466,9 @@ class EMESimulation(AbstractYeeGridSimulation):
             Opacity of the monitors. If ``None``, uses Tidy3d default.
         ax : matplotlib.axes._subplots.Axes = None
             Matplotlib axes to plot on, if not specified, one is created.
-        hlim : Tuple[float, float] = None
+        hlim : tuple[float, float] = None
             The x range if plotting on xy or xz planes, y range if plotting on yz plane.
-        vlim : Tuple[float, float] = None
+        vlim : tuple[float, float] = None
             The z range if plotting on xz or yz planes, y plane if plotting on xy plane.
 
         Returns
@@ -536,7 +540,7 @@ class EMESimulation(AbstractYeeGridSimulation):
         )
 
     @property
-    def mode_solver_monitors(self) -> List[ModeSolverMonitor]:
+    def mode_solver_monitors(self) -> list[ModeSolverMonitor]:
         """A list of mode solver monitors at the cell centers.
         Each monitor has a mode spec. The cells and mode specs
         are specified by 'eme_grid_spec'."""
@@ -856,7 +860,7 @@ class EMESimulation(AbstractYeeGridSimulation):
     def _validate_modes_size(self) -> None:
         """Warn if mode sources or monitors have a large number of points."""
 
-        def warn_mode_size(monitor: AbstractModeMonitor, msg_header: str, custom_loc: List):
+        def warn_mode_size(monitor: AbstractModeMonitor, msg_header: str, custom_loc: list):
             """Warn if a mode component has a large number of points."""
             num_cells = np.prod(self.discretize_monitor(monitor).num_cells)
             if num_cells > WARN_MODE_NUM_CELLS:
@@ -880,14 +884,14 @@ class EMESimulation(AbstractYeeGridSimulation):
                 warn_mode_size(monitor=monitor, msg_header=msg_header, custom_loc=custom_loc)
 
     @property
-    def _monitors_full(self) -> Tuple[EMEMonitorType, ...]:
+    def _monitors_full(self) -> tuple[EMEMonitorType, ...]:
         """All monitors, including port modes monitor."""
         if self.store_port_modes:
             return list(self.monitors) + [self.port_modes_monitor]
         return list(self.monitors)
 
     @cached_property
-    def monitors_data_size(self) -> Dict[str, float]:
+    def monitors_data_size(self) -> dict[str, float]:
         """Dictionary mapping monitor names to their estimated storage size in bytes."""
         data_size = {}
         for monitor in self._monitors_full:
@@ -914,7 +918,7 @@ class EMESimulation(AbstractYeeGridSimulation):
         return data_size
 
     @property
-    def _num_sweep(self) -> pd.PositiveInt:
+    def _num_sweep(self) -> PositiveInt:
         """Number of sweep indices."""
         if self.sweep_spec is None:
             return 1
@@ -926,7 +930,7 @@ class EMESimulation(AbstractYeeGridSimulation):
         return self.sweep_spec is not None and isinstance(self.sweep_spec, EMEFreqSweep)
 
     @property
-    def _num_sweep_modes(self) -> pd.PositiveInt:
+    def _num_sweep_modes(self) -> PositiveInt:
         """Number of sweep indices for modes."""
         if self._sweep_modes:
             return self._num_sweep
@@ -940,7 +944,7 @@ class EMESimulation(AbstractYeeGridSimulation):
         )
 
     @property
-    def _num_sweep_interfaces(self) -> pd.PositiveInt:
+    def _num_sweep_interfaces(self) -> PositiveInt:
         """Number of sweep indices for interfaces."""
         if self._sweep_interfaces:
             return self._num_sweep
@@ -954,13 +958,13 @@ class EMESimulation(AbstractYeeGridSimulation):
         )
 
     @property
-    def _num_sweep_cells(self) -> pd.PositiveInt:
+    def _num_sweep_cells(self) -> PositiveInt:
         """Number of sweep indices for cells."""
         if self._sweep_cells:
             return self._num_sweep
         return 1
 
-    def _monitor_num_sweep(self, monitor: EMEMonitor) -> pd.PositiveInt:
+    def _monitor_num_sweep(self, monitor: EMEMonitor) -> PositiveInt:
         """Number of sweep indices for a certain monitor."""
         if self.sweep_spec is None:
             return 1
@@ -971,7 +975,7 @@ class EMESimulation(AbstractYeeGridSimulation):
             return self.sweep_spec.num_sweep
         return min(self.sweep_spec.num_sweep, monitor.num_sweep)
 
-    def _monitor_eme_cell_indices(self, monitor: EMEMonitor) -> List[pd.NonNegativeInt]:
+    def _monitor_eme_cell_indices(self, monitor: EMEMonitor) -> list[NonNegativeInt]:
         """EME cell indices inside monitor. Takes into account 'eme_cell_interval_space'."""
         cell_indices_full = self.eme_grid.cell_indices_in_box(box=monitor.geometry)
         if len(cell_indices_full) == 0:
@@ -986,7 +990,7 @@ class EMESimulation(AbstractYeeGridSimulation):
         """Total number of EME cells included in monitor based on simulation grid."""
         return len(self._monitor_eme_cell_indices(monitor=monitor))
 
-    def _monitor_freqs(self, monitor: Monitor) -> List[pd.NonNegativeFloat]:
+    def _monitor_freqs(self, monitor: Monitor) -> list[NonNegativeFloat]:
         """Monitor frequencies."""
         if monitor.freqs is None:
             return list(self.freqs)
@@ -1079,7 +1083,9 @@ class EMESimulation(AbstractYeeGridSimulation):
             grid_spec = grid_spec.updated_copy(wavelength=min_wvl)
 
         # copy over all FDTD monitors too
-        monitors = [monitor for monitor in self.monitors if not isinstance(monitor, EMEMonitor)]
+        monitors = tuple(
+            monitor for monitor in self.monitors if not isinstance(monitor, EMEMonitor)
+        )
 
         kwargs = {key: getattr(self, key) for key in EME_SIM_YEE_SIM_SHARED_ATTRS}
         return Simulation(
@@ -1094,8 +1100,8 @@ class EMESimulation(AbstractYeeGridSimulation):
         region: Box,
         grid_spec: Union[GridSpec, Literal["identical"]] = None,
         eme_grid_spec: Union[EMEGridSpec, Literal["identical"]] = None,
-        symmetry: Tuple[Symmetry, Symmetry, Symmetry] = None,
-        monitors: Tuple[MonitorType, ...] = None,
+        symmetry: tuple[Symmetry, Symmetry, Symmetry] = None,
+        monitors: tuple[MonitorType, ...] = None,
         remove_outside_structures: bool = True,
         remove_outside_custom_mediums: bool = False,
         **kwargs,
@@ -1117,11 +1123,11 @@ class EMESimulation(AbstractYeeGridSimulation):
             simulation. If ``identical``, then the original grid is transferred directly as a
             :class:`.EMEExplicitGrid`. Noe that in the latter case the region of the new simulation
             is expanded to contain full EME cells.
-        symmetry : Tuple[Literal[0, -1, 1], Literal[0, -1, 1], Literal[0, -1, 1]] = None
+        symmetry : tuple[Literal[0, -1, 1], Literal[0, -1, 1], Literal[0, -1, 1]] = None
             New simulation symmetry. If ``None``, then it is inherited from the original
             simulation. Note that in this case the size and placement of new simulation domain
             must be commensurate with the original symmetry.
-        monitors : Tuple[MonitorType, ...] = None
+        monitors : tuple[MonitorType, ...] = None
             New list of monitors. If ``None``, then the monitors intersecting the new simulation
             domain are inherited from the original simulation.
         remove_outside_structures : bool = True
@@ -1170,7 +1176,7 @@ class EMESimulation(AbstractYeeGridSimulation):
         return new_sim
 
     @property
-    def _cell_index_pairs(self) -> List[pd.NonNegativeInt]:
+    def _cell_index_pairs(self) -> list[NonNegativeInt]:
         """All the pairs of adjacent EME cells needed, taken over all sweep indices."""
         pairs = set()
         if isinstance(self.sweep_spec, EMEPeriodicitySweep):

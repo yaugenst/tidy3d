@@ -5,7 +5,7 @@ import os
 import tempfile
 import time
 from datetime import datetime, timedelta
-from typing import Callable, Dict, List, Union
+from typing import Callable, Union
 
 import pytz
 from requests import HTTPError
@@ -30,12 +30,7 @@ from ..core.environment import Env
 from ..core.task_core import Folder, SimulationTask
 from ..core.task_info import ChargeType, TaskInfo
 from ..core.types import PayType
-from .connect_util import (
-    REFRESH_TIME,
-    get_grid_points_str,
-    get_time_steps_str,
-    wait_for_connection,
-)
+from .connect_util import REFRESH_TIME, get_grid_points_str, get_time_steps_str, wait_for_connection
 from .tidy3d_stub import SimulationDataType, SimulationType, Tidy3dStub, Tidy3dStubData
 
 # time between checking run status
@@ -202,7 +197,7 @@ def upload(
     verbose: bool = True,
     progress_callback: Callable[[float], None] = None,
     simulation_type: str = "tidy3d",
-    parent_tasks: List[str] = None,
+    parent_tasks: list[str] = None,
     source_required: bool = True,
     solver_version: str = None,
     reduce_simulation: Literal["auto", True, False] = "auto",
@@ -227,7 +222,7 @@ def upload(
         Optional callback function called when uploading file with ``bytes_in_chunk`` as argument.
     simulation_type : str = "tidy3d"
         Type of simulation being uploaded.
-    parent_tasks : List[str]
+    parent_tasks : list[str]
         List of related task ids.
     source_required: bool = True
         If ``True``, simulations without sources will raise an error before being uploaded.
@@ -909,7 +904,7 @@ def abort(task_id: TaskId):
 @wait_for_connection
 def get_tasks(
     num_tasks: int = None, order: Literal["new", "old"] = "new", folder: str = "default"
-) -> List[Dict]:
+) -> list[dict]:
     """Get a list with the metadata of the last ``num_tasks`` tasks.
 
     Parameters
@@ -923,7 +918,7 @@ def get_tasks(
 
     Returns
     -------
-    List[Dict]
+    list[dict]
         List of dictionaries storing the information for each of the tasks last ``num_tasks`` tasks.
     """
     folder = Folder.get(folder, create=True)

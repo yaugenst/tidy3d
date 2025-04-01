@@ -1,15 +1,16 @@
 """Storing tidy3d data at it's most fundamental level as xr.DataArray objects"""
 
-from __future__ import annotations
-
 from abc import ABC
-from typing import Any, Dict, List, Mapping, Union
+from typing import Any, Mapping, Optional, Union
 
 import autograd.numpy as anp
 import h5py
 import numpy as np
 import xarray as xr
 from autograd.tracer import isbox
+from pydantic.annotated_handlers import GetCoreSchemaHandler
+from pydantic.json_schema import GetJsonSchemaHandler, JsonSchemaValue
+from pydantic_core import core_schema
 from xarray.core import missing
 from xarray.core.indexes import PandasIndex
 from xarray.core.indexing import _outer_to_numpy_indexer
@@ -68,7 +69,7 @@ class DataArray(xr.DataArray):
     # stores an ordered tuple of strings corresponding to the data dimensions
     _dims = ()
     # stores a dictionary of attributes corresponding to the data values
-    _data_attrs: Dict[str, str] = {}
+    _data_attrs: dict[str, str] = {}
 
     def __init__(self, data, *args, **kwargs):
         # if data is a vanilla autograd box, convert to our box
@@ -84,40 +85,116 @@ class DataArray(xr.DataArray):
         super().__init__(data, *args, **kwargs)
 
     @classmethod
-    def __get_validators__(cls):
-        """Validators that get run when :class:`.DataArray` objects are added to pydantic models."""
-        yield cls.check_unloaded_data
-        yield cls.validate_dims
-        yield cls.assign_data_attrs
-        yield cls.assign_coord_attrs
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> core_schema.CoreSchema:
+        """Core schema definition for validation & serialization."""
+
+        def _initial_parser(value: Any) -> Self:
+            if isinstance(value, cls):
+                return value
+
+            if isinstance(value, str) and value == cls.__name__:
+                raise DataError(
+                    f"Trying to load '{cls.__name__}' from string placeholder '{value}' "
+                    "but the actual data is missing. DataArrays are not typically stored "
+                    "in JSON. Load from HDF5 or ensure the DataArray object is provided."
+                )
+
+            try:
+                instance = cls(value)
+                if not isinstance(instance, cls):
+                    raise TypeError(
+                        f"Constructor for {cls.__name__} returned unexpected type {type(instance)}"
+                    )
+                return instance
+            except Exception as e:
+                raise ValueError(
+                    f"Could not construct '{cls.__name__}' from input of type '{type(value)}'. "
+                    f"Ensure input is compatible with xarray.DataArray constructor. Original error: {e}"
+                ) from e
+
+        validation_schema = core_schema.no_info_plain_validator_function(_initial_parser)
+        validation_schema = core_schema.no_info_after_validator_function(
+            cls._validate_dims, validation_schema
+        )
+        validation_schema = core_schema.no_info_after_validator_function(
+            cls._assign_data_attrs, validation_schema
+        )
+        validation_schema = core_schema.no_info_after_validator_function(
+            cls._assign_coord_attrs, validation_schema
+        )
+
+        def _serialize_to_name(instance: Self) -> str:
+            return type(instance).__name__
+
+        # serialization behavior:
+        # - for JSON ('json' mode), use the _serialize_to_name function.
+        # - for Python ('python' mode), use Pydantic's default for the object type
+        serialization_schema = core_schema.plain_serializer_function_ser_schema(
+            _serialize_to_name,
+            return_schema=core_schema.str_schema(),
+            when_used="json",
+        )
+
+        return core_schema.json_or_python_schema(
+            python_schema=validation_schema,
+            json_schema=validation_schema,  # Use same validation rules for JSON input
+            serialization=serialization_schema,
+        )
 
     @classmethod
-    def check_unloaded_data(cls, val):
-        """If the data comes in as the raw data array string, raise a custom warning."""
-        if isinstance(val, str) and val in DATA_ARRAY_MAP:
-            raise DataError(
-                f"Trying to load {cls.__name__} but the data is not present. "
-                "Note that data will not be saved to .json file. "
-                "use .hdf5 format instead if data present."
-            )
-        return cls(val)
+    def __get_pydantic_json_schema__(
+        cls, core_schema_obj: core_schema.CoreSchema, handler: GetJsonSchemaHandler
+    ) -> JsonSchemaValue:
+        """JSON schema definition (defines how it LOOKS in a schema, not the data)."""
+        json_schema = handler(core_schema_obj)
+        json_schema = handler.resolve_ref_schema(json_schema)
+        json_schema.update(
+            {
+                "type": "string",
+                "title": cls.__name__,
+                "description": (
+                    f"Placeholder for a '{cls.__name__}' object. Actual data is typically "
+                    "serialized separately (e.g., via HDF5) and not embedded in JSON."
+                ),
+            }
+        )
+        return json_schema
 
     @classmethod
-    def validate_dims(cls, val):
-        """Make sure the dims are the same as _dims, then put them in the correct order."""
+    def _validate_dims(cls, val: Self) -> Self:
+        """Make sure the dims are the same as ``_dims``, then put them in the correct order."""
         if set(val.dims) != set(cls._dims):
-            raise ValueError(f"wrong dims, expected '{cls._dims}', got '{val.dims}'")
-        return val.transpose(*cls._dims)
-
-    @classmethod
-    def assign_data_attrs(cls, val):
-        """Assign the correct data attributes to the :class:`.DataArray`."""
-
-        for attr_name, attr in cls._data_attrs.items():
-            val.attrs[attr_name] = attr
+            raise ValueError(
+                f"Wrong dims for {cls.__name__}, expected '{cls._dims}', got '{val.dims}'"
+            )
+        if val.dims != cls._dims:
+            val = val.transpose(*cls._dims)
         return val
 
-    def _interp_validator(self, field_name: str = None) -> None:
+    @classmethod
+    def _assign_data_attrs(cls, val: Self) -> Self:
+        """Assign the correct data attributes to the :class:`.DataArray`."""
+        for attr_name, attr_val in cls._data_attrs.items():
+            val.attrs[attr_name] = attr_val
+        return val
+
+    @classmethod
+    def _assign_coord_attrs(cls, val: Self) -> Self:
+        """Assign the correct coordinate attributes to the :class:`.DataArray`."""
+        target_dims = set(val.dims) & set(cls._dims) & set(val.coords)
+        for dim in target_dims:
+            template = DIM_ATTRS.get(dim)
+            if not template:
+                continue
+
+            coord_attrs = val.coords[dim].attrs
+            missing = {k: v for k, v in template.items() if coord_attrs.get(k) != v}
+            coord_attrs.update(missing)
+        return val
+
+    def _interp_validator(self, field_name: Optional[str] = None) -> None:
         """Ensure the data can be interpolated or selected by checking for duplicate coordinates.
 
         NOTE
@@ -126,7 +203,7 @@ class DataArray(xr.DataArray):
         called from a validator, as is the case with 'CustomMedium' and 'CustomFieldSource'.
         """
         if field_name is None:
-            field_name = "DataArray"
+            field_name = self.__class__.__name__
 
         for dim, coord in self.coords.items():
             if coord.to_index().duplicated().any():
@@ -135,39 +212,6 @@ class DataArray(xr.DataArray):
                     "Duplicates can be removed by running "
                     f"'{field_name}={field_name}.drop_duplicates(dim=\"{dim}\")'."
                 )
-
-    @classmethod
-    def assign_coord_attrs(cls, val):
-        """Assign the correct coordinate attributes to the :class:`.DataArray`."""
-
-        for dim in cls._dims:
-            dim_attrs = DIM_ATTRS.get(dim)
-            if dim_attrs is not None:
-                for attr_name, attr in dim_attrs.items():
-                    val.coords[dim].attrs[attr_name] = attr
-        return val
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        """Sets the schema of DataArray object."""
-
-        schema = dict(
-            title="DataArray",
-            type="xr.DataArray",
-            properties=dict(
-                _dims=dict(
-                    title="_dims",
-                    type="Tuple[str, ...]",
-                ),
-            ),
-            required=["_dims"],
-        )
-        field_schema.update(schema)
-
-    @classmethod
-    def _json_encoder(cls, val):
-        """What function to call when writing a DataArray to json."""
-        return type(val).__name__
 
     def __eq__(self, other) -> bool:
         """Whether two data array objects are equal."""
@@ -210,20 +254,15 @@ class DataArray(xr.DataArray):
         return np.allclose(raw_data, raw_data[0])
 
     def to_hdf5(self, fname: Union[str, h5py.File], group_path: str) -> None:
-        """Save an xr.DataArray to the hdf5 file or file handle with a given path to the group."""
-
-        # file name passed
+        """Save an ``xr.DataArray`` to the hdf5 file or file handle with a given path to the group."""
         if isinstance(fname, str):
             with h5py.File(fname, "w") as f_handle:
                 self.to_hdf5_handle(f_handle=f_handle, group_path=group_path)
-
-        # file handle passed
         else:
             self.to_hdf5_handle(f_handle=fname, group_path=group_path)
 
     def to_hdf5_handle(self, f_handle: h5py.File, group_path: str) -> None:
-        """Save an xr.DataArray to the hdf5 file handle with a given path to the group."""
-
+        """Save an ``xr.DataArray`` to the hdf5 file handle with a given path to the group."""
         sub_group = f_handle.create_group(group_path)
         sub_group[DATA_ARRAY_VALUE_NAME] = get_static(self.data)
         for key, val in self.coords.items():
@@ -234,7 +273,7 @@ class DataArray(xr.DataArray):
 
     @classmethod
     def from_hdf5(cls, fname: str, group_path: str) -> Self:
-        """Load an DataArray from an hdf5 file with a given path to the group."""
+        """Load a DataArray from an hdf5 file with a given path to the group."""
         with h5py.File(fname, "r") as f:
             sub_group = f[group_path]
             values = np.array(sub_group[DATA_ARRAY_VALUE_NAME])
@@ -246,7 +285,7 @@ class DataArray(xr.DataArray):
 
     @classmethod
     def from_file(cls, fname: str, group_path: str) -> Self:
-        """Load an DataArray from an hdf5 file with a given path to the group."""
+        """Load a DataArray from an hdf5 file with a given path to the group."""
         if ".hdf5" not in fname:
             raise FileError(
                 f"'DataArray' objects must be written to '.hdf5' format. Given filename of {fname}."
@@ -260,7 +299,7 @@ class DataArray(xr.DataArray):
         token_str = dask.base.tokenize(self)
         return hash(token_str)
 
-    def multiply_at(self, value: complex, coord_name: str, indices: List[int]) -> Self:
+    def multiply_at(self, value: complex, coord_name: str, indices: list[int]) -> Self:
         """Multiply self by value at indices."""
         if isbox(self.data) or isbox(value):
             return self._ag_multiply_at(value, coord_name, indices)
@@ -269,7 +308,7 @@ class DataArray(xr.DataArray):
         self_mult[{coord_name: indices}] *= value
         return self_mult
 
-    def _ag_multiply_at(self, value: complex, coord_name: str, indices: List[int]) -> Self:
+    def _ag_multiply_at(self, value: complex, coord_name: str, indices: list[int]) -> Self:
         """Autograd multiply_at override when tracing."""
         key = {coord_name: indices}
         _, index_tuple, _ = self.variable._broadcast_indexes(key)
@@ -526,7 +565,7 @@ class TimeDataArray(DataArray):
     """
 
     __slots__ = ()
-    _dims = "t"
+    _dims = ("t",)
 
 
 class MixedModeDataArray(DataArray):
@@ -553,7 +592,7 @@ class AbstractSpatialDataArray(DataArray, ABC):
     _data_attrs = {"long_name": "field value"}
 
     @property
-    def _spatially_sorted(self) -> SpatialDataArray:
+    def _spatially_sorted(self) -> Self:
         """Check whether sorted and sort if not."""
         needs_sorting = []
         for axis in "xyz":
@@ -566,7 +605,7 @@ class AbstractSpatialDataArray(DataArray, ABC):
 
         return self
 
-    def sel_inside(self, bounds: Bound) -> SpatialDataArray:
+    def sel_inside(self, bounds: Bound) -> Self:
         """Return a new SpatialDataArray that contains the minimal amount data necessary to cover
         a spatial region defined by ``bounds``. Note that the returned data is sorted with respect
         to spatial coordinates.
@@ -669,7 +708,7 @@ class SpatialDataArray(AbstractSpatialDataArray):
 
     __slots__ = ()
 
-    def reflect(self, axis: Axis, center: float, reflection_only: bool = False) -> SpatialDataArray:
+    def reflect(self, axis: Axis, center: float, reflection_only: bool = False) -> Self:
         """Reflect data across the plane define by parameters ``axis`` and ``center`` from right to
         left. Note that the returned data is sorted with respect to spatial coordinates.
 
@@ -997,7 +1036,7 @@ class HeatDataArray(DataArray):
     """
 
     __slots__ = ()
-    _dims = "T"
+    _dims = ("T",)
 
 
 class EMEScalarModeFieldDataArray(AbstractSpatialDataArray):

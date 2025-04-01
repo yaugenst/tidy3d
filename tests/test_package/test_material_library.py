@@ -1,7 +1,7 @@
 import numpy as np
-import pydantic.v1 as pydantic
 import pytest
 import tidy3d as td
+from pydantic import ValidationError
 from tidy3d.components.material.multi_physics import MultiPhysicsMedium
 from tidy3d.material_library.material_library import (
     MaterialItem,
@@ -50,7 +50,7 @@ def test_MaterialItem():
     material = MaterialItem(name="material", variants=dict(v1=variant1, v2=variant2), default="v1")
     assert material["v1"] == material.medium
 
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         material = MaterialItem(
             name="material", variants=dict(v1=variant1, v2=variant2), default="v3"
         )

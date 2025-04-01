@@ -1,8 +1,6 @@
 """Functional utilities that help define postprocessing functions more simply in ``invdes``."""
 
-# TODO: improve these?
-
-import typing
+from typing import Any
 
 import autograd.numpy as anp
 import xarray as xr
@@ -10,7 +8,7 @@ import xarray as xr
 import tidy3d as td
 
 
-def make_array(arr: typing.Any) -> anp.ndarray:
+def make_array(arr: Any) -> anp.ndarray:
     """Turn something into a ``anp.ndarray``."""
     if isinstance(arr, xr.DataArray):
         return anp.array(arr.values)

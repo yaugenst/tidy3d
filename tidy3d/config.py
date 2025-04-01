@@ -1,24 +1,23 @@
 """Sets the configuration of the script, can be changed with `td.config.config_name = new_val`."""
 
-import pydantic.v1 as pd
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .log import DEFAULT_LEVEL, LogLevel, set_log_suppression, set_logging_level
 
 
-class Tidy3dConfig(pd.BaseModel):
+class Tidy3dConfig(BaseModel):
     """configuration of tidy3d"""
 
-    class Config:
-        """Config of the config."""
+    model_config = ConfigDict(
+        arbitrary_types_allowed=False,
+        validate_default=True,
+        extra="forbid",
+        validate_assignment=True,
+        populate_by_name=True,
+        frozen=False,
+    )
 
-        arbitrary_types_allowed = False
-        validate_all = True
-        extra = "forbid"
-        validate_assignment = True
-        allow_population_by_field_name = True
-        frozen = False
-
-    logging_level: LogLevel = pd.Field(
+    logging_level: LogLevel = Field(
         DEFAULT_LEVEL,
         title="Logging Level",
         description="The lowest level of logging output that will be displayed. "
@@ -26,21 +25,21 @@ class Tidy3dConfig(pd.BaseModel):
         'Note: "SUPPORT" and "USER" levels are only used in backend solver logging.',
     )
 
-    log_suppression: bool = pd.Field(
+    log_suppression: bool = Field(
         True,
         title="Log suppression",
         description="Enable or disable suppression of certain log messages when they are repeated "
         "for several elements.",
     )
 
-    @pd.validator("logging_level", pre=True, always=True)
-    def _set_logging_level(cls, val):
+    @field_validator("logging_level")
+    def _set_logging_level(val):
         """Set the logging level if logging_level is changed."""
         set_logging_level(val)
         return val
 
-    @pd.validator("log_suppression", pre=True, always=True)
-    def _set_log_suppression(cls, val):
+    @field_validator("log_suppression")
+    def _set_log_suppression(val):
         """Control log suppression when log_suppression is changed."""
         set_log_suppression(val)
         return val

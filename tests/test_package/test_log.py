@@ -3,9 +3,9 @@
 import json
 
 import numpy as np
-import pydantic.v1 as pd
 import pytest
 import tidy3d as td
+from pydantic import ValidationError
 from tidy3d.exceptions import Tidy3dError
 from tidy3d.log import DEFAULT_LEVEL, _get_level_int, set_logging_level
 
@@ -55,7 +55,7 @@ def test_logging_upper():
 
 def test_logging_unrecognized():
     """If unrecognized option, raise validation error."""
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         td.config.logging_level = "blah"
 
 
@@ -215,7 +215,7 @@ def test_logging_warning_capture():
     sim.validate_pre_upload()
     warning_list = td.log.captured_warnings()
     print(json.dumps(warning_list, indent=4))
-    assert len(warning_list) == 30
+    assert len(warning_list) == 31
     td.log.set_capture(False)
 
     # check that capture doesn't change validation errors
@@ -233,7 +233,7 @@ def test_logging_warning_capture():
         try:
             sim = td.Simulation.parse_obj(sim_dict)
             sim.validate_pre_upload()
-        except pd.ValidationError as e:
+        except ValidationError as e:
             error_without = e.errors()
         except Exception as e:
             error_without = str(e)
@@ -242,7 +242,7 @@ def test_logging_warning_capture():
         try:
             sim = td.Simulation.parse_obj(sim_dict)
             sim.validate_pre_upload()
-        except pd.ValidationError as e:
+        except ValidationError as e:
             error_with = e.errors()
         except Exception as e:
             error_with = str(e)

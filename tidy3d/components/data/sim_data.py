@@ -6,12 +6,12 @@ import json
 import pathlib
 from abc import ABC
 from collections import defaultdict
-from typing import Callable, Tuple, Union
+from typing import Callable, Union
 
 import h5py
 import numpy as np
-import pydantic.v1 as pd
 import xarray as xr
+from pydantic import Field
 
 from ...constants import C_0, inf
 from ...exceptions import DataError, FileError, Tidy3dKeyError
@@ -25,7 +25,7 @@ from ..simulation import Simulation
 from ..source.time import GaussianPulse
 from ..source.utils import SourceType
 from ..structure import Structure
-from ..types import Ax, Axis, ColormapType, FieldVal, PlotScale, annotate_type
+from ..types import Ax, Axis, ColormapType, FieldVal, PlotScale, discriminated_union
 from ..viz import add_ax_if_none, equal_aspect
 from .data_array import FreqDataArray
 from .monitor_data import (
@@ -35,10 +35,12 @@ from .monitor_data import (
     MonitorDataTypes,
 )
 
-DATA_TYPE_MAP = {data.__fields__["monitor"].type_: data for data in MonitorDataTypes}
+DATA_TYPE_MAP = {data.model_fields["monitor"].annotation: data for data in MonitorDataTypes}
 
 # maps monitor type (string) to the class of the corresponding data
-DATA_TYPE_NAME_MAP = {val.__fields__["monitor"].type_.__name__: val for val in MonitorDataTypes}
+DATA_TYPE_NAME_MAP = {
+    val.model_fields["monitor"].annotation.__name__: val for val in MonitorDataTypes
+}
 
 # residuals below this are considered good fits for broadband adjoint source creation
 RESIDUAL_CUTOFF_ADJOINT = 1e-6
@@ -47,21 +49,18 @@ RESIDUAL_CUTOFF_ADJOINT = 1e-6
 class AdjointSourceInfo(Tidy3dBaseModel):
     """Stores information about the adjoint sources to pass to autograd pipeline."""
 
-    sources: Tuple[annotate_type(SourceType), ...] = pd.Field(
-        ...,
+    sources: tuple[discriminated_union(SourceType), ...] = Field(
         title="Adjoint Sources",
         description="Set of processed sources to include in the adjoint simulation.",
     )
 
-    post_norm: Union[float, FreqDataArray] = pd.Field(
-        ...,
+    post_norm: Union[float, FreqDataArray] = Field(
         title="Post Normalization Values",
         description="Factor to multiply the adjoint fields by after running "
         "given the adjoint source pipeline used.",
     )
 
-    normalize_sim: bool = pd.Field(
-        ...,
+    normalize_sim: bool = Field(
         title="Normalize Adjoint Simulation",
         description="Whether the adjoint simulation needs to be normalized "
         "given the adjoint source pipeline used.",
@@ -906,20 +905,18 @@ class SimulationData(AbstractYeeGridSimulationData):
 
     """
 
-    simulation: Simulation = pd.Field(
-        ...,
+    simulation: Simulation = Field(
         title="Simulation",
         description="Original :class:`.Simulation` associated with the data.",
     )
 
-    data: Tuple[annotate_type(MonitorDataType), ...] = pd.Field(
-        ...,
+    data: tuple[discriminated_union(MonitorDataType), ...] = Field(
         title="Monitor Data",
         description="List of :class:`.MonitorData` instances "
         "associated with the monitors of the original :class:`.Simulation`.",
     )
 
-    diverged: bool = pd.Field(
+    diverged: bool = Field(
         False,
         title="Diverged",
         description="A boolean flag denoting whether the simulation run diverged.",
@@ -988,7 +985,7 @@ class SimulationData(AbstractYeeGridSimulationData):
             return new_spectrum_fn(freqs) / old_spectrum_fn(freqs)
 
         # Make a new monitor_data dictionary with renormalized data
-        data_normalized = [mnt_data.normalize(source_spectrum_fn) for mnt_data in self.data]
+        data_normalized = tuple(mnt_data.normalize(source_spectrum_fn) for mnt_data in self.data)
 
         simulation = self.simulation.copy(update=dict(normalize_index=normalize_index))
 
@@ -1008,7 +1005,7 @@ class SimulationData(AbstractYeeGridSimulationData):
 
         return data_original, data_adjoint
 
-    def split_original_fwd(self, num_mnts_original: int) -> Tuple[SimulationData, SimulationData]:
+    def split_original_fwd(self, num_mnts_original: int) -> tuple[SimulationData, SimulationData]:
         """Split this simulation data into original and fwd data from number of original mnts."""
 
         # split the data and monitors into the original ones & adjoint gradient ones (for 'fwd')

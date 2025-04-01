@@ -6,12 +6,12 @@ from abc import ABC, abstractmethod
 from typing import Union
 
 import numpy as np
-import pydantic.v1 as pd
 import shapely as shapely
 import xarray as xr
+from pydantic import Field, model_validator
 
-from ...components.base import Tidy3dBaseModel, cached_property
-from ...components.data.data_array import (
+from tidy3d.components.base import Tidy3dBaseModel, cached_property
+from tidy3d.components.data.data_array import (
     FreqDataArray,
     FreqModeDataArray,
     ScalarFieldDataArray,
@@ -19,14 +19,15 @@ from ...components.data.data_array import (
     ScalarModeFieldDataArray,
     TimeDataArray,
 )
-from ...components.data.monitor_data import FieldData, FieldTimeData, ModeData, ModeSolverData
-from ...components.geometry.base import Box, Geometry
-from ...components.types import Ax, Axis, Coordinate2D, Direction
-from ...components.validators import assert_line, assert_plane
-from ...components.viz import add_ax_if_none
-from ...constants import AMP, VOLT, fp_eps
-from ...exceptions import DataError, Tidy3dError
-from ...log import log
+from tidy3d.components.data.monitor_data import FieldData, FieldTimeData, ModeData, ModeSolverData
+from tidy3d.components.geometry.base import Box, Geometry
+from tidy3d.components.types import Ax, Axis, Coordinate2D, Direction
+from tidy3d.components.validators import assert_line, assert_plane
+from tidy3d.components.viz import add_ax_if_none
+from tidy3d.constants import AMP, VOLT, fp_eps
+from tidy3d.exceptions import DataError, Tidy3dError
+from tidy3d.log import log
+
 from .viz import (
     ARROW_CURRENT,
     plot_params_current_path,
@@ -73,7 +74,7 @@ class AbstractAxesRH(Tidy3dBaseModel, ABC):
         dim3 = "xyz"[self.main_axis]
         return self.remaining_dims + tuple(dim3)
 
-    @pd.root_validator(pre=False)
+    @model_validator(mode="before")
     def _warn_rf_license(cls, values):
         log.warning(
             "ℹ️ ⚠️ RF simulations are subject to new license requirements in the future. You have instantiated at least one RF-specific component.",
@@ -87,7 +88,7 @@ class AxisAlignedPathIntegral(AbstractAxesRH, Box):
 
     _line_validator = assert_line()
 
-    extrapolate_to_endpoints: bool = pd.Field(
+    extrapolate_to_endpoints: bool = Field(
         False,
         title="Extrapolate to Endpoints",
         description="If the endpoints of the path integral terminate at or near a material interface, "
@@ -95,7 +96,7 @@ class AxisAlignedPathIntegral(AbstractAxesRH, Box):
         "of the integral are ignored. Should be enabled when computing voltage between two conductors.",
     )
 
-    snap_path_to_grid: bool = pd.Field(
+    snap_path_to_grid: bool = Field(
         False,
         title="Snap Path to Grid",
         description="It might be desireable to integrate exactly along the Yee grid associated with "
@@ -220,8 +221,7 @@ class AxisAlignedPathIntegral(AbstractAxesRH, Box):
 class VoltageIntegralAxisAligned(AxisAlignedPathIntegral):
     """Class for computing the voltage between two points defined by an axis-aligned line."""
 
-    sign: Direction = pd.Field(
-        ...,
+    sign: Direction = Field(
         title="Direction of Path Integral",
         description="Positive indicates V=Vb-Va where position b has a larger coordinate along the axis of integration.",
     )
@@ -365,19 +365,18 @@ class CurrentIntegralAxisAligned(AbstractAxesRH, Box):
 
     _plane_validator = assert_plane()
 
-    sign: Direction = pd.Field(
-        ...,
+    sign: Direction = Field(
         title="Direction of Contour Integral",
         description="Positive indicates current flowing in the positive normal axis direction.",
     )
 
-    extrapolate_to_endpoints: bool = pd.Field(
+    extrapolate_to_endpoints: bool = Field(
         False,
         title="Extrapolate to Endpoints",
         description="This parameter is passed to :class:`AxisAlignedPathIntegral` objects when computing the contour integral.",
     )
 
-    snap_contour_to_grid: bool = pd.Field(
+    snap_contour_to_grid: bool = Field(
         False,
         title="Snap Contour to Grid",
         description="This parameter is passed to :class:`AxisAlignedPathIntegral` objects when computing the contour integral.",

@@ -1,6 +1,6 @@
 from typing import Optional
 
-import pydantic.v1 as pd
+from pydantic import Field
 
 from tidy3d.components.base import Tidy3dBaseModel
 from tidy3d.components.material.solver_types import (
@@ -78,24 +78,30 @@ class MultiPhysicsMedium(Tidy3dBaseModel):
         ... )
     """
 
-    name: Optional[str] = pd.Field(None, title="Name", description="Medium name")
+    name: Optional[str] = Field(None, title="Name", description="Medium name")
 
-    optical: Optional[OpticalMediumType] = pd.Field(
-        None, title="Optical properties", description="Specifies optical properties."
+    optical: Optional[OpticalMediumType] = Field(
+        None,
+        title="Optical properties",
+        description="Specifies optical properties.",
     )
 
-    # electrical: Optional[ElectricalMediumType] = pd.Field(
+    # electrical: Optional[ElectricalMediumType] = Field(
     #     None,
     #     title="Electrical properties",
     #     description="Specifies electrical properties for RF simulations. This is currently not in use.",
     # )
 
-    heat: Optional[HeatMediumType] = pd.Field(
-        None, title="Heat properties", description="Specifies properties for Heat simulations."
+    heat: Optional[HeatMediumType] = Field(
+        None,
+        title="Heat properties",
+        description="Specifies properties for Heat simulations.",
     )
 
-    charge: Optional[ChargeMediumType] = pd.Field(
-        None, title="Charge properties", description="Specifies properties for Charge simulations."
+    charge: Optional[ChargeMediumType] = Field(
+        None,
+        title="Charge properties",
+        description="Specifies properties for Charge simulations.",
     )
 
     def __getattr__(self, name: str):

@@ -1,25 +1,25 @@
 """Lumped port specialization with an annular geometry for exciting coaxial ports."""
 
 import numpy as np
-import pydantic.v1 as pd
+from pydantic import Field, PositiveFloat, field_validator, model_validator
 
-from ....components.base import cached_property
-from ....components.data.data_array import FreqDataArray, ScalarFieldDataArray
-from ....components.data.dataset import FieldDataset
-from ....components.data.sim_data import SimulationData
-from ....components.geometry.base import Box, Geometry
-from ....components.geometry.utils_2d import increment_float
-from ....components.grid.grid import Grid, YeeGrid
-from ....components.lumped_element import CoaxialLumpedResistor
-from ....components.monitor import FieldMonitor
-from ....components.source.current import CustomCurrentSource
-from ....components.source.time import GaussianPulse
-from ....components.types import Axis, Coordinate, Direction, FreqArray, Size
-from ....components.validators import skip_if_fields_missing
-from ....constants import MICROMETER
-from ....exceptions import SetupError, ValidationError
-from ...microwave import CustomCurrentIntegral2D, VoltageIntegralAxisAligned
-from ...microwave.path_integrals import AbstractAxesRH
+from tidy3d.components.base import cached_property
+from tidy3d.components.data.data_array import FreqDataArray, ScalarFieldDataArray
+from tidy3d.components.data.dataset import FieldDataset
+from tidy3d.components.data.sim_data import SimulationData
+from tidy3d.components.geometry.base import Box, Geometry
+from tidy3d.components.geometry.utils_2d import increment_float
+from tidy3d.components.grid.grid import Grid, YeeGrid
+from tidy3d.components.lumped_element import CoaxialLumpedResistor
+from tidy3d.components.monitor import FieldMonitor
+from tidy3d.components.source.current import CustomCurrentSource
+from tidy3d.components.source.time import GaussianPulse
+from tidy3d.components.types import Axis, Coordinate, Direction, FreqArray, Size
+from tidy3d.constants import MICROMETER
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.plugins.microwave import CustomCurrentIntegral2D, VoltageIntegralAxisAligned
+from tidy3d.plugins.microwave.path_integrals import AbstractAxesRH
+
 from .base_lumped import AbstractLumpedPort
 
 DEFAULT_COAX_SOURCE_NUM_POINTS = 11
@@ -40,35 +40,31 @@ class CoaxialLumpedPort(AbstractLumpedPort, AbstractAxesRH):
     ...         ) # doctest: +SKIP
     """
 
-    center: Coordinate = pd.Field(
+    center: Coordinate = Field(
         (0.0, 0.0, 0.0),
         title="Center",
         description="Center of object in x, y, and z.",
         units=MICROMETER,
     )
 
-    outer_diameter: pd.PositiveFloat = pd.Field(
-        ...,
+    outer_diameter: PositiveFloat = Field(
         title="Outer Diameter",
         description="Diameter of the outer coaxial circle.",
         units=MICROMETER,
     )
 
-    inner_diameter: pd.PositiveFloat = pd.Field(
-        ...,
+    inner_diameter: PositiveFloat = Field(
         title="Inner Diameter",
         description="Diameter of the inner coaxial circle.",
         units=MICROMETER,
     )
 
-    normal_axis: Axis = pd.Field(
-        ...,
+    normal_axis: Axis = Field(
         title="Normal Axis",
         description="Specifies the axis which is normal to the concentric circles.",
     )
 
-    direction: Direction = pd.Field(
-        ...,
+    direction: Direction = Field(
         title="Direction",
         description="The direction of the signal travelling in the transmission line. "
         "This is needed in order to position the path integral, which is used for computing "
@@ -85,25 +81,23 @@ class CoaxialLumpedPort(AbstractLumpedPort, AbstractAxesRH):
         """Required for inheriting from AbstractTerminalPort."""
         return self.normal_axis
 
-    @pd.validator("center", always=True)
-    def _center_not_inf(cls, val):
+    @field_validator("center")
+    def _center_not_inf(val):
         """Make sure center is not infinity."""
         if any(np.isinf(v) for v in val):
             raise ValidationError("'center' can not contain 'td.inf' terms.")
         return val
 
-    @pd.validator("inner_diameter", always=True)
-    @skip_if_fields_missing(["outer_diameter"])
-    def _ensure_inner_diameter_is_smaller(cls, val, values):
+    @model_validator(mode="after")
+    def _ensure_inner_diameter_is_smaller(self):
         """Ensures that the inner diameter is smaller than the outer diameter, so that the final
         shape is an annulus."""
-        outer_diameter = values.get("outer_diameter")
-        if val >= outer_diameter:
+        if self.inner_diameter >= self.outer_diameter:
             raise ValidationError(
-                f"The 'inner_diameter' {val} of a coaxial lumped element must be less than its "
-                f"'outer_diameter' {outer_diameter}."
+                f"The 'inner_diameter' {self.inner_diameterval} of a coaxial lumped element "
+                f"must be less than its 'outer_diameter' {self.outer_diameter}."
             )
-        return val
+        return self
 
     def to_source(
         self, source_time: GaussianPulse, snap_center: float = None, grid: Grid = None

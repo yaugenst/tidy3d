@@ -6,11 +6,10 @@ import os
 import pathlib
 import tempfile
 from datetime import datetime
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, Optional, Union
 
-import pydantic.v1 as pd
 from botocore.exceptions import ClientError
-from pydantic.v1 import Extra, Field, parse_obj_as
+from pydantic import Extra, Field, model_validator, parse_obj_as
 
 import tidy3d as td
 
@@ -30,9 +29,15 @@ from .types import PayType, Queryable, ResourceLifecycle, Submittable, Tidy3DRes
 class Folder(Tidy3DResource, Queryable, extra=Extra.allow):
     """Tidy3D Folder."""
 
-    folder_id: str = Field(..., title="Folder id", description="folder id", alias="projectId")
+    folder_id: str = Field(
+        title="Folder id",
+        description="folder id",
+        alias="projectId",
+    )
     folder_name: str = Field(
-        ..., title="Folder name", description="folder name", alias="projectName"
+        title="Folder name",
+        description="folder name",
+        alias="projectName",
     )
 
     @classmethod
@@ -47,7 +52,7 @@ class Folder(Tidy3DResource, Queryable, extra=Extra.allow):
         resp = http.get("tidy3d/projects")
         return (
             parse_obj_as(
-                List[Folder],
+                list[Folder],
                 resp,
             )
             if resp
@@ -101,18 +106,18 @@ class Folder(Tidy3DResource, Queryable, extra=Extra.allow):
 
         http.delete(f"tidy3d/projects/{self.folder_id}")
 
-    def list_tasks(self) -> List[Tidy3DResource]:
+    def list_tasks(self) -> list[Tidy3DResource]:
         """List all tasks in this folder.
 
         Returns
         -------
-        tasks : List[:class:`.SimulationTask`]
+        tasks : list[:class:`.SimulationTask`]
             List of tasks in this folder
         """
         resp = http.get(f"tidy3d/projects/{self.folder_id}/tasks")
         return (
             parse_obj_as(
-                List[SimulationTask],
+                list[SimulationTask],
                 resp,
             )
             if resp
@@ -124,7 +129,7 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
     """Interface for managing the running of a :class:`.Simulation` task on server."""
 
     task_id: Optional[str] = Field(
-        ...,
+        None,
         title="task_id",
         description="Task ID number, set when the task is uploaded, leave as None.",
         alias="taskId",
@@ -135,18 +140,31 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
         description="Folder ID number, set when the task is uploaded, leave as None.",
         alias="folderId",
     )
-    status: Optional[str] = Field(title="status", description="Simulation task status.")
+    status: Optional[str] = Field(
+        None,
+        title="status",
+        description="Simulation task status.",
+    )
 
-    real_flex_unit: float = Field(
-        None, title="real FlexCredits", description="Billed FlexCredits.", alias="realCost"
+    real_flex_unit: Optional[float] = Field(
+        None,
+        title="real FlexCredits",
+        description="Billed FlexCredits.",
+        alias="realCost",
     )
 
     created_at: Optional[datetime] = Field(
-        title="created_at", description="Time at which this task was created.", alias="createdAt"
+        None,
+        title="created_at",
+        description="Time at which this task was created.",
+        alias="createdAt",
     )
 
     task_type: Optional[str] = Field(
-        title="task_type", description="The type of task.", alias="taskType"
+        None,
+        title="task_type",
+        description="The type of task.",
+        alias="taskType",
     )
 
     folder_name: Optional[str] = Field(
@@ -156,7 +174,7 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
         alias="folderName",
     )
 
-    callback_url: str = Field(
+    callback_url: Optional[str] = Field(
         None,
         title="Callback URL",
         description="Http PUT url to receive simulation finish event. "
@@ -164,31 +182,30 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
         "``{'id', 'status', 'name', 'workUnit', 'solverVersion'}``.",
     )
 
-    # simulation_type: str = pd.Field(
+    # simulation_type: str = Field(
     #     None,
     #     title="Simulation Type",
     #     description="Type of simulation, used internally only.",
     # )
 
-    # parent_tasks: Tuple[TaskId, ...] = pd.Field(
+    # parent_tasks: tuple[TaskId, ...] = Field(
     #     None,
     #     title="Parent Tasks",
     #     description="List of parent task ids for the simulation, used internally only."
     # )
 
-    @pd.root_validator(pre=True)
-    def _error_if_jax_sim(cls, values):
+    @model_validator(mode="before")
+    def _error_if_jax_sim(data: dict) -> dict:
         """Raise error if user tries to submit simulation that's a JaxSimulation."""
-        sim = values.get("simulation")
-        if sim is None:
-            return values
-        if "JaxSimulation" in str(type(sim)):
+        if data.get("sim") is None:
+            return data
+        if "JaxSimulation" in str(type(data.get("sim"))):
             raise ValueError(
                 "'JaxSimulation' not compatible with regular webapi functions. "
                 "Either convert it to Simulation with 'jax_sim.to_simulation()[0]' or use "
                 "the 'adjoint.run' function to run JaxSimulations."
             )
-        return values
+        return data
 
     @classmethod
     def create(
@@ -198,7 +215,7 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
         folder_name: str = "default",
         callback_url: str = None,
         simulation_type: str = "tidy3d",
-        parent_tasks: List[str] = None,
+        parent_tasks: list[str] = None,
         file_type: str = "Gz",
     ) -> SimulationTask:
         """Create a new task on the server.
@@ -216,7 +233,7 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
             fields ``{'id', 'status', 'name', 'workUnit', 'solverVersion'}``.
         simulation_type : str
             Type of simulation being uploaded.
-        parent_tasks : List[str]
+        parent_tasks : list[str]
             List of related task ids.
         file_type: str
             the simulation file type Json, Hdf5, Gz
@@ -273,19 +290,19 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
         return task
 
     @classmethod
-    def get_running_tasks(cls) -> List[SimulationTask]:
+    def get_running_tasks(cls) -> list[SimulationTask]:
         """Get a list of running tasks from the server"
 
         Returns
         -------
-        List[:class:`.SimulationTask`]
+        list[:class:`.SimulationTask`]
             :class:`.SimulationTask` object containing info about status,
              size, credits of task and others.
         """
         resp = http.get("tidy3d/py/tasks")
         if not resp:
             return []
-        return parse_obj_as(List[SimulationTask], resp)
+        return parse_obj_as(list[SimulationTask], resp)
 
     def delete(self, versions: bool = False):
         """Delete current task from server.
@@ -577,7 +594,7 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
             progress_callback=progress_callback,
         )
 
-    def get_running_info(self) -> Tuple[float, float]:
+    def get_running_info(self) -> tuple[float, float]:
         """Gets the % done and field_decay for a running task.
 
         Returns

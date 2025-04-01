@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
-import pydantic.v1 as pd
 import xarray as xr
 from jax.tree_util import register_pytree_node_class
+from pydantic import Field
 
-from .....components.data.monitor_data import FieldData, MonitorDataType, PermittivityData
-from .....components.data.sim_data import SimulationData
-from .....components.source.current import PointDipole
-from .....components.source.time import GaussianPulse
-from .....log import log
+from tidy3d.components.data.monitor_data import FieldData, MonitorDataType, PermittivityData
+from tidy3d.components.data.sim_data import SimulationData
+from tidy3d.components.source.current import PointDipole
+from tidy3d.components.source.time import GaussianPulse
+from tidy3d.log import log
+
 from ..base import JaxObject
 from ..simulation import JaxInfo, JaxSimulation
 from .monitor_data import JAX_MONITOR_DATA_MAP, JaxMonitorDataType
@@ -23,32 +24,31 @@ from .monitor_data import JAX_MONITOR_DATA_MAP, JaxMonitorDataType
 class JaxSimulationData(SimulationData, JaxObject):
     """A :class:`.SimulationData` registered with jax."""
 
-    output_data: Tuple[JaxMonitorDataType, ...] = pd.Field(
+    output_data: tuple[JaxMonitorDataType, ...] = Field(
         (),
         title="Jax Data",
         description="Tuple of Jax-compatible data associated with output monitors.",
         jax_field=True,
     )
 
-    grad_data: Tuple[FieldData, ...] = pd.Field(
+    grad_data: tuple[FieldData, ...] = Field(
         (),
         title="Gradient Field Data",
         description="Tuple of monitor data storing fields associated with the input structures.",
     )
 
-    grad_eps_data: Tuple[PermittivityData, ...] = pd.Field(
+    grad_eps_data: tuple[PermittivityData, ...] = Field(
         (),
         title="Gradient Permittivity Data",
         description="Tuple of monitor data storing epsilon associated with the input structures.",
     )
 
-    simulation: JaxSimulation = pd.Field(
-        ...,
+    simulation: JaxSimulation = Field(
         title="Simulation",
         description="The jax-compatible simulation corresponding to the data.",
     )
 
-    task_id: str = pd.Field(
+    task_id: Optional[str] = Field(
         None,
         title="Task ID",
         description="Optional field storing the task_id for the original JaxSimulation.",
@@ -83,22 +83,22 @@ class JaxSimulationData(SimulationData, JaxObject):
         return super().get_poynting_vector(field_monitor_name)
 
     @property
-    def grad_data_symmetry(self) -> Tuple[FieldData, ...]:
+    def grad_data_symmetry(self) -> tuple[FieldData, ...]:
         """``self.grad_data`` but with ``symmetry_expanded_copy`` applied."""
         return tuple(data.symmetry_expanded_copy for data in self.grad_data)
 
     @property
-    def grad_eps_data_symmetry(self) -> Tuple[FieldData, ...]:
+    def grad_eps_data_symmetry(self) -> tuple[FieldData, ...]:
         """``self.grad_eps_data`` but with ``symmetry_expanded_copy`` applied."""
         return tuple(data.symmetry_expanded_copy for data in self.grad_eps_data)
 
     @property
-    def output_monitor_data(self) -> Dict[str, JaxMonitorDataType]:
+    def output_monitor_data(self) -> dict[str, JaxMonitorDataType]:
         """Dictionary of ``.output_data`` monitor ``.name`` to the corresponding data."""
         return {monitor_data.monitor.name: monitor_data for monitor_data in self.output_data}
 
     @property
-    def monitor_data(self) -> Dict[str, Union[JaxMonitorDataType, MonitorDataType]]:
+    def monitor_data(self) -> dict[str, Union[JaxMonitorDataType, MonitorDataType]]:
         """Dictionary of ``.output_data`` monitor ``.name`` to the corresponding data."""
         reg_mnt_data = {monitor_data.monitor.name: monitor_data for monitor_data in self.data}
         reg_mnt_data.update(self.output_monitor_data)
@@ -106,8 +106,8 @@ class JaxSimulationData(SimulationData, JaxObject):
 
     @staticmethod
     def split_data(
-        mnt_data: List[MonitorDataType], jax_info: JaxInfo
-    ) -> Dict[str, List[MonitorDataType]]:
+        mnt_data: list[MonitorDataType], jax_info: JaxInfo
+    ) -> dict[str, list[MonitorDataType]]:
         """Split list of monitor data into data, output_data, grad_data, and grad_eps_data."""
         # Get information needed to split the full data list
         len_output_data = jax_info.num_output_monitors
@@ -166,7 +166,7 @@ class JaxSimulationData(SimulationData, JaxObject):
     @classmethod
     def split_fwd_sim_data(
         cls, sim_data: SimulationData, jax_info: JaxInfo
-    ) -> Tuple[SimulationData, SimulationData]:
+    ) -> tuple[SimulationData, SimulationData]:
         """Split a :class:`.SimulationData` into two parts, containing user and gradient data."""
 
         sim = sim_data.simulation

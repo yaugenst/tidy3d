@@ -1,8 +1,8 @@
-from typing import Callable, Tuple, Union
+from typing import Callable, Optional, Union
 
 import autograd.numpy as np
-import pydantic.v1 as pd
 from numpy.typing import NDArray
+from pydantic import Field, NonNegativeFloat
 
 from tidy3d.components.base import Tidy3dBaseModel
 from tidy3d.components.types import ArrayFloat2D
@@ -14,28 +14,40 @@ from .parametrizations import FilterAndProject
 class ErosionDilationPenalty(Tidy3dBaseModel):
     """A class that computes a penalty for erosion/dilation of a parameter map not being unity."""
 
-    radius: Union[float, Tuple[float, ...]] = pd.Field(
-        ..., title="Radius", description="The radius of the kernel."
+    radius: Union[float, tuple[float, ...]] = Field(
+        title="Radius",
+        description="The radius of the kernel.",
     )
-    dl: Union[float, Tuple[float, ...]] = pd.Field(
-        ..., title="Grid Spacing", description="The grid spacing."
+    dl: Union[float, tuple[float, ...]] = Field(
+        title="Grid Spacing",
+        description="The grid spacing.",
     )
-    size_px: Union[int, Tuple[int, ...]] = pd.Field(
-        None, title="Size in Pixels", description="The size of the kernel in pixels."
+    size_px: Optional[Union[int, tuple[int, ...]]] = Field(
+        None,
+        title="Size in Pixels",
+        description="The size of the kernel in pixels.",
     )
-    beta: pd.NonNegativeFloat = pd.Field(
-        20.0, title="Beta", description="The beta parameter for the tanh projection."
+    beta: NonNegativeFloat = Field(
+        20.0,
+        title="Beta",
+        description="The beta parameter for the tanh projection.",
     )
-    eta: pd.NonNegativeFloat = pd.Field(
-        0.5, title="Eta", description="The eta parameter for the tanh projection."
+    eta: NonNegativeFloat = Field(
+        0.5,
+        title="Eta",
+        description="The eta parameter for the tanh projection.",
     )
-    filter_type: str = pd.Field(
-        "conic", title="Filter Type", description="The type of filter to create."
+    filter_type: str = Field(
+        "conic",
+        title="Filter Type",
+        description="The type of filter to create.",
     )
-    padding: PaddingType = pd.Field(
-        "reflect", title="Padding", description="The padding mode to use."
+    padding: PaddingType = Field(
+        "reflect",
+        title="Padding",
+        description="The padding mode to use.",
     )
-    delta_eta: float = pd.Field(
+    delta_eta: float = Field(
         0.01,
         title="Delta Eta",
         description="The binarization threshold for erosion and dilation operations.",
@@ -88,10 +100,10 @@ class ErosionDilationPenalty(Tidy3dBaseModel):
 
 
 def make_erosion_dilation_penalty(
-    radius: Union[float, Tuple[float, ...]],
-    dl: Union[float, Tuple[float, ...]],
+    radius: Union[float, tuple[float, ...]],
+    dl: Union[float, tuple[float, ...]],
     *,
-    size_px: Union[int, Tuple[int, ...]] = None,
+    size_px: Union[int, tuple[int, ...]] = None,
     beta: float = 20.0,
     eta: float = 0.5,
     delta_eta: float = 0.01,

@@ -1,5 +1,5 @@
 from functools import reduce, wraps
-from typing import Any, Callable, Iterable, List, Union
+from typing import Any, Callable, Iterable, Union
 
 import autograd.numpy as anp
 import numpy as np
@@ -84,7 +84,7 @@ def make_kernel(kernel_type: KernelType, size: Iterable[int], normalize: bool = 
 
 def get_kernel_size_px(
     radius: Union[float, Iterable[float]] = None, dl: Union[float, Iterable[float]] = None
-) -> Union[int, List[int]]:
+) -> Union[int, list[int]]:
     """Calculate the kernel size in pixels based on the provided radius and grid spacing.
 
     Parameters
@@ -96,7 +96,7 @@ def get_kernel_size_px(
 
     Returns
     -------
-    Union[int, List[int]]
+    Union[int, list[int]]
         The size of the kernel in pixels for each dimension. Returns an integer if the radius is scalar, otherwise a list of integers.
 
     Raises

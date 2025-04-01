@@ -3,15 +3,16 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Callable, List, Tuple
+from typing import Any, Callable, Iterable
 
 import jax
 import numpy as np
-import pydantic.v1 as pd
 from jax.tree_util import tree_flatten as jax_tree_flatten
 from jax.tree_util import tree_unflatten as jax_tree_unflatten
+from pydantic import model_validator
 
-from ....components.base import Tidy3dBaseModel
+from tidy3d.components.base import Tidy3dBaseModel
+
 from .data.data_array import JAX_DATA_ARRAY_TAG, JaxDataArray
 
 # end of the error message when a ``_validate_web_adjoint`` exception is raised
@@ -36,27 +37,27 @@ class JaxObject(Tidy3dBaseModel):
     """Shortcut to get names of fields with certain properties."""
 
     @classmethod
-    def _get_field_names(cls, field_key: str) -> List[str]:
+    def _get_field_names(cls, field_key: str) -> list[str]:
         """Get all fields where ``field_key`` defined in the ``pydantic.Field``."""
         fields = []
-        for field_name, model_field in cls.__fields__.items():
-            field_value = model_field.field_info.extra.get(field_key)
-            if field_value:
-                fields.append(field_name)
+        for name, field in cls.model_fields.items():
+            extra = field.json_schema_extra or {}
+            if extra.get(field_key):
+                fields.append(name)
         return fields
 
     @classmethod
-    def get_jax_field_names(cls) -> List[str]:
+    def get_jax_field_names(cls) -> list[str]:
         """Returns list of field names where ``jax_field=True``."""
         return cls._get_field_names("jax_field")
 
     @classmethod
-    def get_jax_leaf_names(cls) -> List[str]:
+    def get_jax_leaf_names(cls) -> list[str]:
         """Returns list of field names where ``stores_jax_for`` defined."""
         return cls._get_field_names("stores_jax_for")
 
     @classmethod
-    def get_jax_field_names_all(cls) -> List[str]:
+    def get_jax_field_names_all(cls) -> list[str]:
         """Returns list of field names where ``jax_field=True`` or ``stores_jax_for`` defined."""
         jax_field_names = cls.get_jax_field_names()
         jax_leaf_names = cls.get_jax_leaf_names()
@@ -76,7 +77,7 @@ class JaxObject(Tidy3dBaseModel):
 
     """Methods needed for jax to register arbitrary classes."""
 
-    def tree_flatten(self) -> Tuple[list, dict]:
+    def tree_flatten(self) -> tuple[list, dict]:
         """How to flatten a :class:`.JaxObject` instance into a ``pytree``."""
         children = []
         aux_data = self.dict()
@@ -135,20 +136,22 @@ class JaxObject(Tidy3dBaseModel):
     @classmethod
     def from_tidy3d(cls, tidy3d_obj: Tidy3dBaseModel) -> JaxObject:
         """Convert :class:`.Tidy3dBaseModel` instance to :class:`.JaxObject`."""
-        obj_dict = tidy3d_obj.dict(exclude={"type"})
+        obj_dict = tidy3d_obj.model_dump(exclude={"type"})
 
         for key in cls.get_jax_field_names():
-            sub_field_type = cls.__fields__[key].type_
+            sub_field_type = cls.model_fields[key].annotation
             tidy3d_sub_field = getattr(tidy3d_obj, key)
 
             # TODO: simplify this logic
-            if isinstance(tidy3d_sub_field, (tuple, list)):
-                obj_dict[key] = [sub_field_type.from_tidy3d(x) for x in tidy3d_sub_field]
+            if isinstance(tidy3d_sub_field, Iterable) and not isinstance(
+                tidy3d_sub_field, (str, bytes)
+            ):
+                obj_dict[key] = [sub_field_type.from_tidy3d(v) for v in tidy3d_sub_field]
             else:
                 obj_dict[key] = sub_field_type.from_tidy3d(tidy3d_sub_field)
             # end TODO
 
-        return cls.parse_obj(obj_dict)
+        return cls.model_validate(obj_dict)
 
     @property
     def exclude_fields_leafs_only(self) -> set:
@@ -157,38 +160,42 @@ class JaxObject(Tidy3dBaseModel):
 
     """Accounting with jax and regular fields."""
 
-    @pd.root_validator(pre=True)
-    def handle_jax_kwargs(cls, values: dict) -> dict:
+    @model_validator(mode="before")
+    @classmethod
+    def handle_jax_kwargs(cls, data: dict[str, Any]) -> dict[str, Any]:
         """Pass jax inputs to the jax fields and pass untraced values to the regular fields."""
 
-        # for all jax-traced fields
         for jax_name in cls.get_jax_leaf_names():
-            # if a value was passed to the object for the regular field
-            orig_name = cls.__fields__[jax_name].field_info.extra.get("stores_jax_for")
-            val = values.get(orig_name)
-            if val is not None:
-                # try adding the sanitized (no trace) version to the regular field
-                try:
-                    values[orig_name] = jax.lax.stop_gradient(val)
+            # where the un-traced value should go
+            meta = cls.model_fields[jax_name].json_schema_extra or {}
+            orig_name = meta.get("stores_jax_for")
 
-                # if it doesnt work, just pass the raw value (necessary to handle inf strings)
-                except TypeError:
-                    values[orig_name] = val
+            if orig_name is None:
+                continue
 
-                # if the jax name was not specified directly, use the original traced value
-                if jax_name not in values:
-                    values[jax_name] = val
+            val = data.get(orig_name)
+            if val is None:
+                continue  # nothing supplied for the plain field
 
-        return values
+            # put a non-traced version on the regular field
+            try:
+                data[orig_name] = jax.lax.stop_gradient(val)
+            except TypeError:
+                data[orig_name] = val
 
-    @pd.root_validator(pre=True)
-    def handle_array_jax_leafs(cls, values: dict) -> dict:
+            data.setdefault(jax_name, val)
+
+        return data
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_array_jax_leafs(cls, data) -> dict:
         """Convert jax_leafs that are passed as numpy arrays."""
         for jax_name in cls.get_jax_leaf_names():
-            val = values.get(jax_name)
+            val = data.get(jax_name)
             if isinstance(val, np.ndarray):
-                values[jax_name] = val.tolist()
-        return values
+                data[jax_name] = val.tolist()
+        return data
 
     """ IO """
 
@@ -218,14 +225,14 @@ class JaxObject(Tidy3dBaseModel):
 
     # TODO: replace with implementing these in DataArray
 
-    def to_hdf5(self, fname: str, custom_encoders: List[Callable] = None) -> None:
+    def to_hdf5(self, fname: str, custom_encoders: list[Callable] = None) -> None:
         """Exports :class:`JaxObject` instance to .hdf5 file.
 
         Parameters
         ----------
         fname : str
             Full path to the .hdf5 file to save the :class:`JaxObject` to.
-        custom_encoders : List[Callable]
+        custom_encoders : list[Callable]
             List of functions accepting (fname: str, group_path: str, value: Any) that take
             the ``value`` supplied and write it to the hdf5 ``fname`` at ``group_path``.
 
@@ -249,7 +256,7 @@ class JaxObject(Tidy3dBaseModel):
 
     @classmethod
     def dict_from_hdf5(
-        cls, fname: str, group_path: str = "", custom_decoders: List[Callable] = None
+        cls, fname: str, group_path: str = "", custom_decoders: list[Callable] = None
     ) -> dict:
         """Loads a dictionary containing the model contents from a .hdf5 file.
 
@@ -259,7 +266,7 @@ class JaxObject(Tidy3dBaseModel):
             Full path to the .hdf5 file to load the :class:`JaxObject` from.
         group_path : str, optional
             Path to a group inside the file to selectively load a sub-element of the model only.
-        custom_decoders : List[Callable]
+        custom_decoders : list[Callable]
             List of functions accepting
             (fname: str, group_path: str, model_dict: dict, key: str, value: Any) that store the
             value in the model dict after a custom decoding.

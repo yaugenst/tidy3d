@@ -2,10 +2,10 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pydantic.v1 as pydantic
 import pytest
 import tidy3d as td
 import xarray as xr
+from pydantic import ValidationError
 from tidy3d.components.data.data_array import (
     FreqDataArray,
     FreqModeDataArray,
@@ -344,10 +344,10 @@ def test_mode_solver_data():
     _ = data.updated_copy(eps_spec=["tensorial_real"] * num_freqs)
     _ = data.updated_copy(eps_spec=["tensorial_complex"] * num_freqs)
     # wrong keyword
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         _ = data.updated_copy(eps_spec=["tensorial"] * num_freqs)
     # wrong number
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         _ = data.updated_copy(eps_spec=["diagonal"] * (num_freqs + 1))
     # check monitor direction changes upon time reversal
     data_reversed = data.time_reversed_copy
@@ -625,7 +625,7 @@ def test_field_data_symmetry_present():
     _ = td.FieldTimeData(monitor=monitor, **fields)
 
     # fails if symmetry specified but missing symmetry center
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         _ = td.FieldTimeData(
             monitor=monitor,
             symmetry=(1, -1, 0),
@@ -634,7 +634,7 @@ def test_field_data_symmetry_present():
         )
 
     # fails if symmetry specified but missing etended grid
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         _ = td.FieldTimeData(
             monitor=monitor, symmetry=(1, -1, 1), symmetry_center=(0, 0, 0), **fields
         )
@@ -865,7 +865,7 @@ def test_no_nans():
     eps_dataset_nan = td.PermittivityDataset(
         **{key: eps_nan for key in ["eps_xx", "eps_yy", "eps_zz"]}
     )
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         td.CustomMedium(eps_dataset=eps_dataset_nan)
 
 

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Callable, Tuple, Union
+from typing import Callable, Optional, Union
 
-import pydantic.v1 as pd
 from numpy.typing import NDArray
+from pydantic import Field, NonNegativeFloat
 
 from tidy3d.components.base import Tidy3dBaseModel
 
@@ -16,26 +16,38 @@ from .projections import tanh_projection
 class FilterAndProject(Tidy3dBaseModel):
     """A class that combines filtering and projection operations."""
 
-    radius: Union[float, Tuple[float, ...]] = pd.Field(
-        ..., title="Radius", description="The radius of the kernel."
+    radius: Union[float, tuple[float, ...]] = Field(
+        title="Radius",
+        description="The radius of the kernel.",
     )
-    dl: Union[float, Tuple[float, ...]] = pd.Field(
-        ..., title="Grid Spacing", description="The grid spacing."
+    dl: Union[float, tuple[float, ...]] = Field(
+        title="Grid Spacing",
+        description="The grid spacing.",
     )
-    size_px: Union[int, Tuple[int, ...]] = pd.Field(
-        None, title="Size in Pixels", description="The size of the kernel in pixels."
+    size_px: Optional[Union[int, tuple[int, ...]]] = Field(
+        None,
+        title="Size in Pixels",
+        description="The size of the kernel in pixels.",
     )
-    beta: pd.NonNegativeFloat = pd.Field(
-        BETA_DEFAULT, title="Beta", description="The beta parameter for the tanh projection."
+    beta: NonNegativeFloat = Field(
+        BETA_DEFAULT,
+        title="Beta",
+        description="The beta parameter for the tanh projection.",
     )
-    eta: pd.NonNegativeFloat = pd.Field(
-        ETA_DEFAULT, title="Eta", description="The eta parameter for the tanh projection."
+    eta: NonNegativeFloat = Field(
+        ETA_DEFAULT,
+        title="Eta",
+        description="The eta parameter for the tanh projection.",
     )
-    filter_type: KernelType = pd.Field(
-        "conic", title="Filter Type", description="The type of filter to create."
+    filter_type: KernelType = Field(
+        "conic",
+        title="Filter Type",
+        description="The type of filter to create.",
     )
-    padding: PaddingType = pd.Field(
-        "reflect", title="Padding", description="The padding mode to use."
+    padding: PaddingType = Field(
+        "reflect",
+        title="Padding",
+        description="The padding mode to use.",
     )
 
     def __call__(self, array: NDArray, beta: float = None, eta: float = None) -> NDArray:
@@ -70,10 +82,10 @@ class FilterAndProject(Tidy3dBaseModel):
 
 
 def make_filter_and_project(
-    radius: Union[float, Tuple[float, ...]] = None,
-    dl: Union[float, Tuple[float, ...]] = None,
+    radius: Union[float, tuple[float, ...]] = None,
+    dl: Union[float, tuple[float, ...]] = None,
     *,
-    size_px: Union[int, Tuple[int, ...]] = None,
+    size_px: Union[int, tuple[int, ...]] = None,
     beta: float = BETA_DEFAULT,
     eta: float = ETA_DEFAULT,
     filter_type: KernelType = "conic",

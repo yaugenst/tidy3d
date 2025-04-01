@@ -4,23 +4,22 @@ from __future__ import annotations
 
 import codecs
 import csv
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 import requests
 import scipy.optimize as opt
-from pydantic.v1 import Field, validator
+from pydantic import Field, field_validator, model_validator
 from rich.progress import Progress
 
+from tidy3d.components.base import Tidy3dBaseModel, cached_property
+from tidy3d.components.medium import AbstractMedium, PoleResidue
+from tidy3d.components.types import ArrayFloat1D, Ax
+from tidy3d.components.viz import add_ax_if_none
+from tidy3d.constants import C_0, HBAR, MICROMETER
+from tidy3d.exceptions import SetupError, ValidationError, WebError
+from tidy3d.log import get_logging_console, log
 from tidy3d.web.core.environment import Env
-
-from ...components.base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
-from ...components.medium import AbstractMedium, PoleResidue
-from ...components.types import ArrayFloat1D, Ax
-from ...components.viz import add_ax_if_none
-from ...constants import C_0, HBAR, MICROMETER
-from ...exceptions import SetupError, ValidationError, WebError
-from ...log import get_logging_console, log
 
 
 class DispersionFitter(Tidy3dBaseModel):
@@ -28,25 +27,23 @@ class DispersionFitter(Tidy3dBaseModel):
     dispersive medium described by :class:`.PoleResidue` model."""
 
     wvl_um: ArrayFloat1D = Field(
-        ...,
         title="Wavelength data",
         description="Wavelength data in micrometers.",
         units=MICROMETER,
     )
 
     n_data: ArrayFloat1D = Field(
-        ...,
         title="Index of refraction data",
         description="Real part of the complex index of refraction.",
     )
 
-    k_data: ArrayFloat1D = Field(
+    k_data: Optional[ArrayFloat1D] = Field(
         None,
         title="Extinction coefficient data",
         description="Imaginary part of the complex index of refraction.",
     )
 
-    wvl_range: Tuple[Optional[float], Optional[float]] = Field(
+    wvl_range: tuple[Optional[float], Optional[float]] = Field(
         (None, None),
         title="Wavelength range [wvl_min,wvl_max] for fitting",
         description="Truncate the wavelength, n and k data to the wavelength range '[wvl_min, "
@@ -54,40 +51,36 @@ class DispersionFitter(Tidy3dBaseModel):
         units=MICROMETER,
     )
 
-    @validator("wvl_um", always=True)
-    def _setup_wvl(cls, val):
+    @field_validator("wvl_um")
+    def _setup_wvl(val):
         """Convert wvl_um to a numpy array."""
         if val.size == 0:
             raise ValidationError("Wavelength data cannot be empty.")
         return val
 
-    @validator("n_data", always=True)
-    @skip_if_fields_missing(["wvl_um"])
-    def _ndata_length_match_wvl(cls, val, values):
+    @model_validator(mode="after")
+    def _ndata_length_match_wvl(self):
         """Validate n_data"""
-
-        if val.shape != values["wvl_um"].shape:
+        if self.n_data.shape != self.wvl_um.shape:
             raise ValidationError("The length of 'n_data' doesn't match 'wvl_um'.")
-        return val
+        return self
 
-    @validator("k_data", always=True)
-    @skip_if_fields_missing(["wvl_um"])
-    def _kdata_setup_and_length_match(cls, val, values):
+    @model_validator(mode="after")
+    def _kdata_setup_and_length_match(self):
         """Validate the length of k_data, or setup k if it's None."""
-
-        if val is None:
-            return np.zeros_like(values["wvl_um"])
-        if val.shape != values["wvl_um"].shape:
+        if self.k_data is None:
+            self.k_data = np.zeros_like(self.wvl_um)
+        if self.k_data.shape != self.wvl_um.shape:
             raise ValidationError("The length of 'k_data' doesn't match 'wvl_um'.")
-        return val
+        return self
 
     @cached_property
-    def data_in_range(self) -> Tuple[ArrayFloat1D, ArrayFloat1D, ArrayFloat1D]:
+    def data_in_range(self) -> tuple[ArrayFloat1D, ArrayFloat1D, ArrayFloat1D]:
         """Filter the wavelength-nk data to wavelength range for fitting.
 
         Returns
         -------
-        Tuple[ArrayFloat1D, ArrayFloat1D, ArrayFloat1D]
+        tuple[ArrayFloat1D, ArrayFloat1D, ArrayFloat1D]
             Filtered wvl_um, n_data, k_data
         """
 
@@ -129,12 +122,12 @@ class DispersionFitter(Tidy3dBaseModel):
         return AbstractMedium.nk_to_eps_complex(n=n_data, k=k_data)
 
     @property
-    def freqs(self) -> Tuple[float, ...]:
+    def freqs(self) -> tuple[float, ...]:
         """Convert filtered input wavelength data to frequency.
 
         Returns
         -------
-        Tuple[float, ...]
+        tuple[float, ...]
             Frequency array converted from filtered input wavelength data
         """
 
@@ -142,12 +135,12 @@ class DispersionFitter(Tidy3dBaseModel):
         return C_0 / wvl_um
 
     @property
-    def frequency_range(self) -> Tuple[float, float]:
+    def frequency_range(self) -> tuple[float, float]:
         """Frequency range of filtered input data
 
         Returns
         -------
-        Tuple[float, float]
+        tuple[float, float]
             The minimal frequency and the maximal frequency
         """
 
@@ -164,7 +157,7 @@ class DispersionFitter(Tidy3dBaseModel):
 
         Returns
         -------
-        Tuple[np.ndarray[complex], np.ndarray[complex]]
+        tuple[np.ndarray[complex], np.ndarray[complex]]
             "a" and "c" poles for the PoleResidue model.
         """
         if len(coeffs) % 4 != 0:
@@ -209,7 +202,7 @@ class DispersionFitter(Tidy3dBaseModel):
 
         Returns
         -------
-        List[Tuple[complex, complex]]
+        list[tuple[complex, complex]]
             List of complex poles (a, c)
         """
         coeffs_scaled = coeffs / HBAR
@@ -222,7 +215,7 @@ class DispersionFitter(Tidy3dBaseModel):
 
         Parameters
         ----------
-        poles : List[Tuple[complex, complex]]
+        poles : list[tuple[complex, complex]]
             List of complex poles (a, c)
 
         Returns
@@ -262,7 +255,7 @@ class DispersionFitter(Tidy3dBaseModel):
         num_tries: int = 50,
         tolerance_rms: float = 1e-2,
         guess: PoleResidue = None,
-    ) -> Tuple[PoleResidue, float]:
+    ) -> tuple[PoleResidue, float]:
         """Fit data a number of times and returns best results.
 
         Parameters
@@ -279,7 +272,7 @@ class DispersionFitter(Tidy3dBaseModel):
 
         Returns
         -------
-        Tuple[:class:`.PoleResidue`, float]
+        tuple[:class:`.PoleResidue`, float]
             Best results of multiple fits: (dispersive medium, RMS error).
         """
 
@@ -347,7 +340,7 @@ class DispersionFitter(Tidy3dBaseModel):
         self,
         num_poles: int = 3,
         guess: PoleResidue = None,
-    ) -> Tuple[PoleResidue, float]:
+    ) -> tuple[PoleResidue, float]:
         """Perform a single fit to the data and return optimization result.
 
         Parameters
@@ -359,7 +352,7 @@ class DispersionFitter(Tidy3dBaseModel):
 
         Returns
         -------
-        Tuple[:class:`.PoleResidue`, float]
+        tuple[:class:`.PoleResidue`, float]
             Results of single fit: (dispersive medium, RMS error).
         """
 
@@ -557,7 +550,7 @@ class DispersionFitter(Tidy3dBaseModel):
         return ax
 
     @staticmethod
-    def _validate_url_load(data_load: List):
+    def _validate_url_load(data_load: list):
         """Validate if the loaded data from URL is valid
             The data list should be in this format:
                 [["wl",     "n"],
@@ -753,7 +746,7 @@ class DispersionFitter(Tidy3dBaseModel):
         wvl_um: ArrayFloat1D,
         eps_real: ArrayFloat1D,
         eps_imag: ArrayFloat1D = None,
-        wvl_range: Tuple[Optional[float], Optional[float]] = (None, None),
+        wvl_range: tuple[Optional[float], Optional[float]] = (None, None),
     ) -> DispersionFitter:
         """Loads :class:`DispersionFitter` from wavelength and complex relative permittivity data
 
@@ -765,7 +758,7 @@ class DispersionFitter(Tidy3dBaseModel):
             Real parts of relative permittivity data
         eps_imag : Optional[ArrayFloat1D]
             Imaginary parts of relative permittivity data; `None` for lossless medium.
-        wvg_range : Tuple[Optional[float], Optional[float]]
+        wvg_range : tuple[Optional[float], Optional[float]]
             Wavelength range [wvl_min,wvl_max] for fitting.
 
         Returns
@@ -785,7 +778,7 @@ class DispersionFitter(Tidy3dBaseModel):
         wvl_um: ArrayFloat1D,
         eps_real: ArrayFloat1D,
         loss_tangent: ArrayFloat1D,
-        wvl_range: Tuple[Optional[float], Optional[float]] = (None, None),
+        wvl_range: tuple[Optional[float], Optional[float]] = (None, None),
     ) -> DispersionFitter:
         """Loads :class:`DispersionFitter` from wavelength and loss tangent data.
 
@@ -797,7 +790,7 @@ class DispersionFitter(Tidy3dBaseModel):
             Real parts of relative permittivity data
         loss_tangent : Optional[ArrayFloat1D]
             Loss tangent data, defined as the ratio of imaginary and real parts of permittivity.
-        wvl_range : Tuple[Optional[float], Optional[float]]
+        wvl_range : tuple[Optional[float], Optional[float]]
             Wavelength range [wvl_min,wvl_max] for fitting.
 
         Returns

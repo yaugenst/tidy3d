@@ -4,7 +4,6 @@ import os
 from enum import Enum
 from functools import wraps
 from os.path import expanduser
-from typing import Dict
 
 import requests
 import toml
@@ -104,12 +103,12 @@ def api_key_auth(request: requests.request) -> requests.request:
     return request
 
 
-def get_headers() -> Dict[str, str]:
+def get_headers() -> dict[str, str]:
     """get headers for http request.
 
     Returns
     -------
-    Dict[str, str]
+    dict[str, str]
         dictionary with "Authorization" and "Application" keys.
     """
     return {

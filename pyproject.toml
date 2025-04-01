@@ -23,6 +23,7 @@ documentation = "https://docs.flexcompute.com/projects/tidy3d/en/latest/"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.14"
+typing-extensions = { version = "*", python = "<3.11" }
 pyroots = ">=0.5.0"
 xarray = ">=2023.08"
 importlib-metadata = ">=6.0.0"
@@ -33,7 +34,8 @@ numpy = "*"
 matplotlib = "*"
 shapely = "^2.0"
 pandas = "*"
-pydantic = "^2.0"
+pydantic = ">=2,<3"
+pydantic-settings=">=2,<3"
 PyYAML = "*"
 dask = "*"
 toml = "*"

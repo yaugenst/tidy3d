@@ -3,6 +3,8 @@
 import numpy as np
 import pytest
 import tidy3d as td
+from pydantic import ValidationError
+from pydantic_core import PydanticSerializationError
 from tidy3d.components.base import Tidy3dBaseModel
 
 M = td.Medium()
@@ -198,7 +200,7 @@ def test_attrs(tmp_path):
     assert obj.attrs == {"foo": "attr"}
 
     # this is still not allowed though
-    with pytest.raises(TypeError):
+    with pytest.raises(ValidationError):
         obj.attrs = {}
 
     # attrs can be modified
@@ -215,7 +217,7 @@ def test_attrs(tmp_path):
 
     # attrs are in the json strings
     obj_json = obj3.json()
-    assert '{"foo": "bar"}' in obj_json
+    assert '{"foo":"bar"}' in obj_json
 
     # attrs are in the dict()
     obj_dict = obj3.dict()
@@ -230,7 +232,7 @@ def test_attrs(tmp_path):
 
     # test attrs that can't be serialized
     obj.attrs["not_serializable"] = type
-    with pytest.raises(TypeError):
+    with pytest.raises(PydanticSerializationError):
         obj.json()
 
 

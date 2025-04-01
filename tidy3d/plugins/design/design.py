@@ -3,15 +3,16 @@
 from __future__ import annotations
 
 import inspect
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Optional, Union
 
-import pydantic.v1 as pd
+from pydantic import Field
 
-from ...components.base import TYPE_TAG_STR, Tidy3dBaseModel, cached_property
-from ...components.data.sim_data import SimulationData
-from ...components.simulation import Simulation
-from ...log import Console, get_logging_console, log
-from ...web.api.container import Batch, BatchData, Job
+from tidy3d.components.base import TYPE_TAG_STR, Tidy3dBaseModel, cached_property
+from tidy3d.components.data.sim_data import SimulationData
+from tidy3d.components.simulation import Simulation
+from tidy3d.log import Console, get_logging_console, log
+from tidy3d.web.api.container import Batch, BatchData, Job
+
 from .method import (
     MethodBayOpt,
     MethodGenAlg,
@@ -64,20 +65,19 @@ class DesignSpace(Tidy3dBaseModel):
 
     """
 
-    parameters: Tuple[ParameterType, ...] = pd.Field(
+    parameters: tuple[ParameterType, ...] = Field(
         (),
         title="Parameters",
         description="Set of parameters defining the dimensions and allowed values for the design space.",
     )
 
-    method: MethodType = pd.Field(
-        ...,
+    method: MethodType = Field(
         title="Search Type",
         description="Specifications for the procedure used to explore the parameter space.",
         discriminator=TYPE_TAG_STR,  # Stops pydantic trying to validate every method whilst checking MethodType
     )
 
-    task_name: str = pd.Field(
+    task_name: str = Field(
         "",
         title="Task Name",
         description="Task name assigned to tasks along with a simulation counter in the form of {task_name}_{sim_index}_{counter} where ``sim_index`` is "
@@ -86,33 +86,37 @@ class DesignSpace(Tidy3dBaseModel):
         "Only used when pre-post functions are supplied.",
     )
 
-    name: str = pd.Field(None, title="Name", description="Optional name for the design space.")
+    name: Optional[str] = Field(
+        None,
+        title="Name",
+        description="Optional name for the design space.",
+    )
 
-    path_dir: str = pd.Field(
+    path_dir: str = Field(
         ".",
         title="Path Directory",
         description="Directory where simulation data files will be locally saved to. Only used when pre and post functions are supplied.",
     )
 
-    folder_name: str = pd.Field(
+    folder_name: str = Field(
         "default",
         title="Folder Name",
         description="Folder path where the simulation will be uploaded in the Tidy3D Workspace. Will use 'default' if no path is set.",
     )
 
     @cached_property
-    def dims(self) -> Tuple[str]:
+    def dims(self) -> tuple[str]:
         """dimensions defined by the design parameter names."""
         return tuple(param.name for param in self.parameters)
 
     def _package_run_results(
         self,
         fn_args: list[dict[str, Any]],
-        fn_values: List[Any],
+        fn_values: list[Any],
         fn_source: str,
-        task_names: Tuple[str] = None,
+        task_names: tuple[str] = None,
         task_paths: list = None,
-        aux_values: List[Any] = None,
+        aux_values: list[Any] = None,
         opt_output: Any = None,
     ) -> Result:
         """How to package results from ``method.run`` and ``method.run_batch``"""
@@ -245,14 +249,14 @@ class DesignSpace(Tidy3dBaseModel):
             opt_output=opt_output,
         )
 
-    def run_single(self, fn: Callable, console: Console) -> Tuple(list[dict], list, list[Any]):
+    def run_single(self, fn: Callable, console: Console) -> tuple[list[dict], list, list[Any]]:
         """Run a single function of parameter inputs."""
         evaluate_fn = self._get_evaluate_fn_single(fn=fn)
         return self.method._run(run_fn=evaluate_fn, parameters=self.parameters, console=console)
 
-    def run_pre_post(self, fn_pre: Callable, fn_post: Callable, console: Console) -> Tuple(
-        list[dict], list[dict], list[Any]
-    ):
+    def run_pre_post(
+        self, fn_pre: Callable, fn_post: Callable, console: Console
+    ) -> tuple[list[dict], list[dict], list[Any]]:
         """Run a function with Tidy3D implicitly called in between."""
         handler = self._get_evaluate_fn_pre_post(
             fn_pre=fn_pre, fn_post=fn_post, fn_mid=self._fn_mid, console=console
@@ -454,9 +458,9 @@ class DesignSpace(Tidy3dBaseModel):
 
     def run_batch(
         self,
-        fn_pre: Callable[Any, Union[Simulation, List[Simulation], Dict[str, Simulation]]],
+        fn_pre: Callable[Any, Union[Simulation, list[Simulation], dict[str, Simulation]]],
         fn_post: Callable[
-            Union[SimulationData, List[SimulationData], Dict[str, SimulationData]], Any
+            Union[SimulationData, list[SimulationData], dict[str, SimulationData]], Any
         ],
         path_dir: str = ".",
         **batch_kwargs,
@@ -592,8 +596,8 @@ class DesignSpace(Tidy3dBaseModel):
         # If check stops it printing standard attributes
         arg_values = [
             f"{field}: {getattr(self.method, field)}\n"
-            for field in self.method.__fields__
-            if field not in MethodOptimize.__fields__
+            for field in self.method.model_fields
+            if field not in MethodOptimize.model_fields
         ]
 
         param_values = []

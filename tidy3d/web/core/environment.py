@@ -2,8 +2,10 @@
 
 import os
 import ssl
+from typing import Optional
 
-from pydantic.v1 import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 from .core_config import get_logger
 
@@ -19,8 +21,8 @@ class EnvironmentConfig(BaseSettings):
     website_endpoint: str
     s3_region: str
     ssl_verify: bool = Field(True, env="TIDY3D_SSL_VERIFY")
-    enable_caching: bool = None
-    ssl_version: ssl.TLSVersion = None
+    enable_caching: Optional[bool] = None
+    ssl_version: Optional[ssl.TLSVersion] = None
 
     def active(self) -> None:
         """Activate the environment instance."""

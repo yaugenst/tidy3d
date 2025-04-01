@@ -1,7 +1,5 @@
 """Defines electric current sources for injecting light into simulation."""
 
-from __future__ import annotations
-
 from typing import Union
 
 from .current import CustomCurrentSource, PointDipole, UniformCurrentSource

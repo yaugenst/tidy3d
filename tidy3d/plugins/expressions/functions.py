@@ -1,7 +1,7 @@
 from typing import Any
 
 import autograd.numpy as anp
-import pydantic.v1 as pd
+from pydantic import Field, field_validator
 
 from .base import Expression
 from .types import NumberOrExpression, NumberType
@@ -12,15 +12,15 @@ class Function(Expression):
     Base class for mathematical functions in expressions.
     """
 
-    operand: NumberOrExpression = pd.Field(
-        ...,
+    operand: NumberOrExpression = Field(
         title="Operand",
         description="The operand for the function.",
     )
 
     _format: str = "{func}({operand})"
 
-    @pd.validator("operand", pre=True, always=True)
+    @field_validator("operand")
+    @classmethod
     def validate_operand(cls, v):
         """
         Validate and convert operand to an expression.

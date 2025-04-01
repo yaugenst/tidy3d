@@ -1,11 +1,11 @@
 """Class and custom data array for representing a scattering matrix port based on waveguide modes."""
 
-import pydantic.v1 as pd
+from pydantic import Field
 
-from ....components.data.data_array import DataArray
-from ....components.geometry.base import Box
-from ....components.mode_spec import ModeSpec
-from ....components.types import Direction
+from tidy3d.components.data.data_array import DataArray
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.mode_spec import ModeSpec
+from tidy3d.components.types import Direction
 
 
 class ModalPortDataArray(DataArray):
@@ -37,18 +37,16 @@ class ModalPortDataArray(DataArray):
 class Port(Box):
     """Specifies a port in the scattering matrix."""
 
-    direction: Direction = pd.Field(
-        ...,
+    direction: Direction = Field(
         title="Direction",
         description="'+' or '-', defining which direction is considered 'input'.",
     )
-    mode_spec: ModeSpec = pd.Field(
-        ModeSpec(),
+    mode_spec: ModeSpec = Field(
+        default_factory=ModeSpec,
         title="Mode Specification",
         description="Specifies how the mode solver will solve for the modes of the port.",
     )
-    name: str = pd.Field(
-        ...,
+    name: str = Field(
         title="Name",
         description="Unique name for the port.",
         min_length=1,

@@ -3,22 +3,19 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Union
+from typing import Optional, Union
 
-import pydantic.v1 as pd
+from pydantic import Field, PositiveFloat
 
 from tidy3d.components.base import Tidy3dBaseModel
-from tidy3d.constants import (
-    SPECIFIC_HEAT_CAPACITY,
-    THERMAL_CONDUCTIVITY,
-)
+from tidy3d.constants import SPECIFIC_HEAT_CAPACITY, THERMAL_CONDUCTIVITY
 
 
 # Liquid class
 class AbstractHeatMedium(ABC, Tidy3dBaseModel):
     """Abstract heat material specification."""
 
-    name: str = pd.Field(None, title="Name", description="Optional unique name for medium.")
+    name: Optional[str] = Field(None, title="Name", description="Optional unique name for medium.")
 
     @property
     def heat(self):
@@ -68,13 +65,13 @@ class SolidMedium(AbstractHeatMedium):
     ... )
     """
 
-    capacity: pd.PositiveFloat = pd.Field(
+    capacity: PositiveFloat = Field(
         title="Heat capacity",
         description=f"Volumetric heat capacity in unit of {SPECIFIC_HEAT_CAPACITY}.",
         units=SPECIFIC_HEAT_CAPACITY,
     )
 
-    conductivity: pd.PositiveFloat = pd.Field(
+    conductivity: PositiveFloat = Field(
         title="Thermal conductivity",
         description=f"Thermal conductivity of material in units of {THERMAL_CONDUCTIVITY}.",
         units=THERMAL_CONDUCTIVITY,

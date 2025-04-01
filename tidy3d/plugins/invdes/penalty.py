@@ -1,10 +1,10 @@
 # define penalties applied to parameters from design region
 
 import abc
-import typing
+from typing import Union
 
 import autograd.numpy as anp
-import pydantic.v1 as pd
+from pydantic import Field, NonNegativeFloat, PositiveFloat
 
 from tidy3d.constants import MICROMETER
 from tidy3d.plugins.autograd.invdes import make_erosion_dilation_penalty
@@ -15,7 +15,7 @@ from .base import InvdesBaseModel
 class AbstractPenalty(InvdesBaseModel, abc.ABC):
     """Base class for penalties added to ``invdes.DesignRegion`` objects."""
 
-    weight: pd.NonNegativeFloat = pd.Field(
+    weight: NonNegativeFloat = Field(
         1.0,
         title="Weight",
         description="When this penalty is evaluated, it will be weighted by this "
@@ -48,8 +48,7 @@ class ErosionDilationPenalty(AbstractPenalty):
 
     """
 
-    length_scale: pd.PositiveFloat = pd.Field(
-        ...,
+    length_scale: PositiveFloat = Field(
         title="Length Scale",
         description="Length scale of erosion and dilation. "
         "Corresponds to ``radius`` in the :class:`ConicFilter` used for filtering. "
@@ -58,7 +57,7 @@ class ErosionDilationPenalty(AbstractPenalty):
         units=MICROMETER,
     )
 
-    beta: float = pd.Field(
+    beta: float = Field(
         100.0,
         ge=1.0,
         title="Projection Beta",
@@ -67,7 +66,7 @@ class ErosionDilationPenalty(AbstractPenalty):
         "Higher values correspond to stronger discretization.",
     )
 
-    eta0: float = pd.Field(
+    eta0: float = Field(
         0.5,
         ge=0.0,
         le=1.0,
@@ -77,7 +76,7 @@ class ErosionDilationPenalty(AbstractPenalty):
         "Corresponds to ``eta`` in the :class:`BinaryProjector`.",
     )
 
-    delta_eta: float = pd.Field(
+    delta_eta: float = Field(
         0.01,
         ge=0.0,
         le=1.0,
@@ -97,4 +96,4 @@ class ErosionDilationPenalty(AbstractPenalty):
         return self.weight * penalty_unweighted
 
 
-PenaltyType = typing.Union[ErosionDilationPenalty]
+PenaltyType = Union[ErosionDilationPenalty]

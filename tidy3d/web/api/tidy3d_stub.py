@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import json
-from typing import Callable, List, Union
+from typing import Callable, Union
 
-import pydantic.v1 as pd
-from pydantic.v1 import BaseModel
+from pydantic import BaseModel, Field
 
 from tidy3d.components.tcad.data.sim_data import HeatChargeSimulationData, HeatSimulationData
 from tidy3d.components.tcad.simulation.heat import HeatSimulation
@@ -44,7 +43,7 @@ SimulationDataType = Union[
 
 
 class Tidy3dStub(BaseModel, TaskStub):
-    simulation: SimulationType = pd.Field(discriminator="type")
+    simulation: SimulationType = Field(discriminator="type")
 
     @classmethod
     def from_file(cls, file_path: str) -> SimulationType:
@@ -109,7 +108,7 @@ class Tidy3dStub(BaseModel, TaskStub):
         """
         self.simulation.to_file(file_path)
 
-    def to_hdf5_gz(self, fname: str, custom_encoders: List[Callable] = None) -> None:
+    def to_hdf5_gz(self, fname: str, custom_encoders: list[Callable] = None) -> None:
         """Exports Union[:class:`.Simulation`, :class:`.HeatSimulation`, :class:`.EMESimulation`] instance to .hdf5.gz file.
 
         Parameters
@@ -117,7 +116,7 @@ class Tidy3dStub(BaseModel, TaskStub):
         fname : str
             Full path to the .hdf5.gz file to save
             the Union[:class:`.Simulation`, :class:`.HeatSimulation`, :class:`.EMESimulation`] to.
-        custom_encoders : List[Callable]
+        custom_encoders : list[Callable]
             List of functions accepting (fname: str, group_path: str, value: Any) that take
             the ``value`` supplied and write it to the hdf5 ``fname`` at ``group_path``.
 

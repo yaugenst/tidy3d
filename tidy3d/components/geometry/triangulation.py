@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List, Tuple
 
 import numpy as np
 import shapely
@@ -33,12 +32,12 @@ class Vertex:
     is_ear: bool
 
 
-def update_convexity(vertices: List[Vertex], i: int) -> int:
+def update_convexity(vertices: list[Vertex], i: int) -> int:
     """Update the convexity of a vertex in a polygon.
 
     Parameters
     ----------
-    vertices : List[Vertex]
+    vertices : list[Vertex]
         Vertices of the polygon.
     i : int
         Index of the vertex to be updated.
@@ -69,7 +68,7 @@ def update_convexity(vertices: List[Vertex], i: int) -> int:
 
 
 def is_inside(
-    vertex: ArrayFloat1D, triangle: Tuple[ArrayFloat1D, ArrayFloat1D, ArrayFloat1D]
+    vertex: ArrayFloat1D, triangle: tuple[ArrayFloat1D, ArrayFloat1D, ArrayFloat1D]
 ) -> bool:
     """Check if a vertex is inside a triangle.
 
@@ -77,7 +76,7 @@ def is_inside(
     ----------
     vertex : ArrayFloat1D
         Vertex coordinates.
-    triangle : Tuple[ArrayFloat1D, ArrayFloat1D, ArrayFloat1D]
+    triangle : tuple[ArrayFloat1D, ArrayFloat1D, ArrayFloat1D]
         Vertices of the triangle in CCW order.
 
     Returns
@@ -90,12 +89,12 @@ def is_inside(
     )
 
 
-def update_ear_flag(vertices: List[Vertex], i: int) -> None:
+def update_ear_flag(vertices: list[Vertex], i: int) -> None:
     """Update the ear flag of a vertex in a polygon.
 
     Parameters
     ----------
-    vertices : List[Vertex]
+    vertices : list[Vertex]
         Vertices of the polygon.
     i : int
         Index of the vertex to be updated.
@@ -112,7 +111,7 @@ def update_ear_flag(vertices: List[Vertex], i: int) -> None:
 
 # TODO: This is an inefficient algorithm that runs in O(n^2). We should use something
 # better, and probably as a compiled extension.
-def triangulate(vertices: ArrayFloat2D) -> List[Tuple[int, int, int]]:
+def triangulate(vertices: ArrayFloat2D) -> list[tuple[int, int, int]]:
     """Triangulate a simple polygon.
 
     Parameters
@@ -122,7 +121,7 @@ def triangulate(vertices: ArrayFloat2D) -> List[Tuple[int, int, int]]:
 
     Returns
     -------
-    List[Tuple[int, int, int]]
+    list[tuple[int, int, int]]
        List of indices of the vertices of the triangles.
     """
     is_ccw = shapely.LinearRing(vertices).is_ccw

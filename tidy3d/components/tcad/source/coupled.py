@@ -1,7 +1,5 @@
 """Defines heat-charge material specifications for 'HeatChargeSimulation'"""
 
-from __future__ import annotations
-
 from tidy3d.components.tcad.source.abstract import GlobalHeatChargeSource
 
 

@@ -1,9 +1,9 @@
 """Find corners of structures on a 2D plane."""
 
-from typing import Any, List, Literal, Optional, Tuple
+from typing import Any, Literal, Optional
 
 import numpy as np
-import pydantic.v1 as pd
+from pydantic import Field, PositiveFloat, PositiveInt
 
 from ...constants import inf
 from ..base import Tidy3dBaseModel, cached_property
@@ -19,7 +19,7 @@ CORNER_ANGLE_THRESOLD = 0.1 * np.pi
 class CornerFinderSpec(Tidy3dBaseModel):
     """Specification for corner detection on a 2D plane."""
 
-    medium: Literal["metal", "dielectric", "all"] = pd.Field(
+    medium: Literal["metal", "dielectric", "all"] = Field(
         "metal",
         title="Material Type For Corner Identification",
         description="Find corners of structures made of ``medium``, "
@@ -27,7 +27,7 @@ class CornerFinderSpec(Tidy3dBaseModel):
         "for non-metallic materials, and ``all`` for all materials.",
     )
 
-    angle_threshold: float = pd.Field(
+    angle_threshold: float = Field(
         CORNER_ANGLE_THRESOLD,
         title="Angle Threshold In Corner Identification",
         description="A vertex is qualified as a corner if the angle spanned by its two edges "
@@ -37,28 +37,28 @@ class CornerFinderSpec(Tidy3dBaseModel):
         lt=np.pi,
     )
 
-    distance_threshold: Optional[pd.PositiveFloat] = pd.Field(
+    distance_threshold: Optional[PositiveFloat] = Field(
         None,
         title="Distance Threshold In Corner Identification",
         description="If not ``None`` and the distance of the vertex to its neighboring vertices "
         "is below the threshold value based on Douglas-Peucker algorithm, the vertex is disqualified as a corner.",
     )
 
-    concave_resolution: Optional[pd.PositiveInt] = pd.Field(
+    concave_resolution: Optional[PositiveInt] = Field(
         None,
         title="Concave Region Resolution.",
         description="Specifies number of steps to use for determining `dl_min` based on concave featues."
         "If set to ``None``, then the corresponding `dl_min` reduction is not applied.",
     )
 
-    convex_resolution: Optional[pd.PositiveInt] = pd.Field(
+    convex_resolution: Optional[PositiveInt] = Field(
         None,
         title="Convex Region Resolution.",
         description="Specifies number of steps to use for determining `dl_min` based on convex featues."
         "If set to ``None``, then the corresponding `dl_min` reduction is not applied.",
     )
 
-    mixed_resolution: Optional[pd.PositiveInt] = pd.Field(
+    mixed_resolution: Optional[PositiveInt] = Field(
         None,
         title="Mixed Region Resolution.",
         description="Specifies number of steps to use for determining `dl_min` based on mixed featues."
@@ -80,10 +80,10 @@ class CornerFinderSpec(Tidy3dBaseModel):
         cls,
         normal_axis: Axis,
         coord: float,
-        structure_list: List[Structure],
-        center: Tuple[float, float] = [0, 0, 0],
-        size: Tuple[float, float, float] = [inf, inf, inf],
-    ) -> List[Tuple[Any, Shapely]]:
+        structure_list: list[Structure],
+        center: tuple[float, float] = [0, 0, 0],
+        size: tuple[float, float, float] = [inf, inf, inf],
+    ) -> list[tuple[Any, Shapely]]:
         """On a 2D plane specified by axis = `normal_axis` and coordinate `coord`, merge geometries made of PEC.
 
         Parameters
@@ -92,16 +92,16 @@ class CornerFinderSpec(Tidy3dBaseModel):
             Axis normal to the 2D plane.
         coord : float
             Position of plane along the normal axis.
-        structure_list : List[Structure]
+        structure_list : list[Structure]
             List of structures present in simulation.
-        center : Tuple[float, float] = [0, 0, 0]
+        center : tuple[float, float] = [0, 0, 0]
             Center of the 2D plane (coordinate along ``axis`` is ignored)
-        size : Tuple[float, float, float] = [inf, inf, inf]
+        size : tuple[float, float, float] = [inf, inf, inf]
             Size of the 2D plane (size along ``axis`` is ignored)
 
         Returns
         -------
-        List[Tuple[Any, Shapely]]
+        list[tuple[Any, Shapely]]
             List of shapes and their property value on the plane after merging.
         """
 
@@ -129,9 +129,9 @@ class CornerFinderSpec(Tidy3dBaseModel):
         self,
         normal_axis: Axis,
         coord: float,
-        structure_list: List[Structure],
+        structure_list: list[Structure],
         ravel: bool,
-    ) -> Tuple[ArrayFloat2D, ArrayFloat1D]:
+    ) -> tuple[ArrayFloat2D, ArrayFloat1D]:
         """On a 2D plane specified by axis = `normal_axis` and coordinate `coord`, find out corners of merged
         geometries made of PEC.
 
@@ -142,14 +142,14 @@ class CornerFinderSpec(Tidy3dBaseModel):
             Axis normal to the 2D plane.
         coord : float
             Position of plane along the normal axis.
-        structure_list : List[Structure]
+        structure_list : list[Structure]
             List of structures present in simulation.
         ravel : bool
             Whether to put the resulting corners in a single list or per polygon.
 
         Returns
         -------
-        Tuple[ArrayFloat2D, ArrayFloat1D]
+        tuple[ArrayFloat2D, ArrayFloat1D]
             Corner coordinates and their convexity.
         """
 
@@ -192,7 +192,7 @@ class CornerFinderSpec(Tidy3dBaseModel):
         self,
         normal_axis: Axis,
         coord: float,
-        structure_list: List[Structure],
+        structure_list: list[Structure],
     ) -> ArrayFloat2D:
         """On a 2D plane specified by axis = `normal_axis` and coordinate `coord`, find out corners of merged
         geometries made of `medium`.
@@ -204,7 +204,7 @@ class CornerFinderSpec(Tidy3dBaseModel):
             Axis normal to the 2D plane.
         coord : float
             Position of plane along the normal axis.
-        structure_list : List[Structure]
+        structure_list : list[Structure]
             List of structures present in simulation.
 
         Returns
@@ -220,7 +220,7 @@ class CornerFinderSpec(Tidy3dBaseModel):
 
     def _filter_collinear_vertices(
         self, vertices: ArrayFloat2D
-    ) -> Tuple[ArrayFloat2D, ArrayFloat1D]:
+    ) -> tuple[ArrayFloat2D, ArrayFloat1D]:
         """Filter collinear vertices of a polygon, and return corners locations and their convexity.
 
         Parameters

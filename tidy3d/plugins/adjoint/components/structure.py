@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Union
+from typing import Union
 
 import numpy as np
-import pydantic.v1 as pd
 from jax.tree_util import register_pytree_node_class
+from pydantic import Field, field_validator
 
-from ....components.data.monitor_data import FieldData, PermittivityData
-from ....components.geometry.utils import GeometryType
-from ....components.medium import MediumType
-from ....components.monitor import FieldMonitor
-from ....components.structure import Structure
-from ....components.types import TYPE_TAG_STR, Bound
-from ....constants import C_0
+from tidy3d.components.data.monitor_data import FieldData, PermittivityData
+from tidy3d.components.geometry.utils import GeometryType
+from tidy3d.components.medium import MediumType
+from tidy3d.components.monitor import FieldMonitor
+from tidy3d.components.structure import Structure
+from tidy3d.components.types import TYPE_TAG_STR, Bound
+from tidy3d.constants import C_0
+
 from .base import JaxObject
 from .geometry import JAX_GEOMETRY_MAP, JaxBox, JaxGeometryType
 from .medium import JAX_MEDIUM_MAP, JaxMediumType
@@ -33,8 +34,8 @@ class AbstractJaxStructure(Structure, JaxObject):
     geometry: Union[JaxGeometryType, GeometryType]
     medium: Union[JaxMediumType, MediumType]
 
-    @pd.validator("medium", always=True)
-    def _check_2d_geometry(cls, val, values):
+    @field_validator("medium")
+    def _check_2d_geometry(val):
         """Override validator checking 2D geometry, which triggers unnecessarily for gradients."""
         return val
 
@@ -83,7 +84,7 @@ class AbstractJaxStructure(Structure, JaxObject):
 
         return cls.parse_obj(struct_dict)
 
-    def make_grad_monitors(self, freqs: List[float], name: str) -> FieldMonitor:
+    def make_grad_monitors(self, freqs: list[float], name: str) -> FieldMonitor:
         """Return gradient monitor associated with this object."""
         if "geometry" not in self._differentiable_fields:
             # make a fake JaxBox to be able to call .make_grad_monitors
@@ -96,7 +97,7 @@ class AbstractJaxStructure(Structure, JaxObject):
     def _get_medium_params(
         self,
         grad_data_eps: PermittivityData,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Compute params in the material of this structure."""
         freq_max = float(max(grad_data_eps.eps_xx.f))
         eps_in = self.medium.eps_model(frequency=freq_max)
@@ -151,7 +152,7 @@ class AbstractJaxStructure(Structure, JaxObject):
 
     def store_vjp(
         self,
-        # field_keys: List[Literal["medium", "geometry"]],
+        # field_keys: list[Literal["medium", "geometry"]],
         grad_data_fwd: FieldData,
         grad_data_adj: FieldData,
         grad_data_eps: PermittivityData,
@@ -193,16 +194,14 @@ class AbstractJaxStructure(Structure, JaxObject):
 class JaxStructure(AbstractJaxStructure, JaxObject):
     """A :class:`.Structure` registered with jax."""
 
-    geometry: JaxGeometryType = pd.Field(
-        ...,
+    geometry: JaxGeometryType = Field(
         title="Geometry",
         description="Geometry of the structure, which is jax-compatible.",
         jax_field=True,
         discriminator=TYPE_TAG_STR,
     )
 
-    medium: JaxMediumType = pd.Field(
-        ...,
+    medium: JaxMediumType = Field(
         title="Medium",
         description="Medium of the structure, which is jax-compatible.",
         jax_field=True,
@@ -216,15 +215,14 @@ class JaxStructure(AbstractJaxStructure, JaxObject):
 class JaxStructureStaticMedium(AbstractJaxStructure, JaxObject):
     """A :class:`.Structure` registered with jax."""
 
-    geometry: JaxGeometryType = pd.Field(
-        ...,
+    geometry: JaxGeometryType = Field(
         title="Geometry",
         description="Geometry of the structure, which is jax-compatible.",
         jax_field=True,
         discriminator=TYPE_TAG_STR,
     )
 
-    medium: MediumType = pd.Field(
+    medium: MediumType = Field(
         ...,
         title="Medium",
         description="Regular ``tidy3d`` medium of the structure, non differentiable. "
@@ -240,8 +238,7 @@ class JaxStructureStaticMedium(AbstractJaxStructure, JaxObject):
 class JaxStructureStaticGeometry(AbstractJaxStructure, JaxObject):
     """A :class:`.Structure` registered with jax."""
 
-    geometry: GeometryType = pd.Field(
-        ...,
+    geometry: GeometryType = Field(
         title="Geometry",
         description="Regular ``tidy3d`` geometry of the structure, non differentiable. "
         "Supports angled sidewalls and other complex geometries.",
@@ -249,8 +246,7 @@ class JaxStructureStaticGeometry(AbstractJaxStructure, JaxObject):
         discriminator=TYPE_TAG_STR,
     )
 
-    medium: JaxMediumType = pd.Field(
-        ...,
+    medium: JaxMediumType = Field(
         title="Medium",
         description="Medium of the structure, which is jax-compatible.",
         jax_field=True,

@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Tuple
+from typing import Optional
 
-import pydantic.v1 as pydantic
+from pydantic import Field
 from typing_extensions import Literal
 
 from ...constants import MICROMETER
@@ -20,14 +20,13 @@ from .base import Source
 class CurrentSource(Source, ABC):
     """Source implements a current distribution directly."""
 
-    polarization: Polarization = pydantic.Field(
-        ...,
+    polarization: Polarization = Field(
         title="Polarization",
         description="Specifies the direction and type of current component.",
     )
 
     @cached_property
-    def _pol_vector(self) -> Tuple[float, float, float]:
+    def _pol_vector(self) -> tuple[float, float, float]:
         """Returns a vector indicating the source polarization for arrow plotting, if not None."""
         component = self.polarization[-1]  # 'x' 'y' or 'z'
         pol_axis = "xyz".index(component)
@@ -39,7 +38,7 @@ class CurrentSource(Source, ABC):
 class ReverseInterpolatedSource(Source):
     """Abstract source that allows reverse-interpolation along zero-sized dimensions."""
 
-    interpolate: bool = pydantic.Field(
+    interpolate: bool = Field(
         True,
         title="Enable Interpolation",
         description="Handles reverse-interpolation of zero-size dimensions of the source. "
@@ -48,7 +47,7 @@ class ReverseInterpolatedSource(Source):
         "placement at the specified location using linear interpolation.",
     )
 
-    confine_to_bounds: bool = pydantic.Field(
+    confine_to_bounds: bool = Field(
         False,
         title="Confine to Analytical Bounds",
         description="If ``True``, any source amplitudes which, after discretization, fall beyond "
@@ -99,7 +98,7 @@ class PointDipole(CurrentSource, ReverseInterpolatedSource):
         * `Adjoint optimization of quantum emitter light extraction to an integrated waveguide <../../notebooks/AdjointPlugin12LightExtractor.html>`_
     """
 
-    size: Tuple[Literal[0], Literal[0], Literal[0]] = pydantic.Field(
+    size: tuple[Literal[0], Literal[0], Literal[0]] = Field(
         (0, 0, 0),
         title="Size",
         description="Size in x, y, and z directions, constrained to ``(0, 0, 0)``.",
@@ -149,8 +148,7 @@ class CustomCurrentSource(ReverseInterpolatedSource):
         * `Defining spatially-varying sources <../../notebooks/CustomFieldSource.html>`_
     """
 
-    current_dataset: Optional[FieldDataset] = pydantic.Field(
-        ...,
+    current_dataset: Optional[FieldDataset] = Field(
         title="Current Dataset",
         description=":class:`.FieldDataset` containing the desired frequency-domain "
         "electric and magnetic current patterns to inject.",

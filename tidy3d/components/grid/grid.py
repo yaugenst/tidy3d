@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Tuple, Union
+from typing import Literal, Union
 
 import numpy as np
-import pydantic.v1 as pd
+from pydantic import Field
 
 from ...exceptions import SetupError
 from ..base import Tidy3dBaseModel, cached_property
 from ..data.data_array import DataArray, ScalarFieldDataArray, SpatialDataArray
 from ..data.utils import UnstructuredGridDataset, UnstructuredGridDatasetType
 from ..geometry.base import Box
-from ..types import ArrayFloat1D, Axis, Coordinate, InterpMethod, Literal
+from ..types import ArrayFloat1D, Axis, Coordinate, InterpMethod
 
 # data type of one dimensional coordinate array.
 Coords1D = ArrayFloat1D
@@ -29,16 +29,19 @@ class Coords(Tidy3dBaseModel):
     >>> coords = Coords(x=x, y=y, z=z)
     """
 
-    x: Coords1D = pd.Field(
-        ..., title="X Coordinates", description="1-dimensional array of x coordinates."
+    x: Coords1D = Field(
+        title="X Coordinates",
+        description="1-dimensional array of x coordinates.",
     )
 
-    y: Coords1D = pd.Field(
-        ..., title="Y Coordinates", description="1-dimensional array of y coordinates."
+    y: Coords1D = Field(
+        title="Y Coordinates",
+        description="1-dimensional array of y coordinates.",
     )
 
-    z: Coords1D = pd.Field(
-        ..., title="Z Coordinates", description="1-dimensional array of z coordinates."
+    z: Coords1D = Field(
+        title="Z Coordinates",
+        description="1-dimensional array of z coordinates.",
     )
 
     @property
@@ -280,20 +283,17 @@ class FieldGrid(Tidy3dBaseModel):
     >>> field_grid = FieldGrid(x=coords, y=coords, z=coords)
     """
 
-    x: Coords = pd.Field(
-        ...,
+    x: Coords = Field(
         title="X Positions",
         description="x,y,z coordinates of the locations of the x-component of a vector field.",
     )
 
-    y: Coords = pd.Field(
-        ...,
+    y: Coords = Field(
         title="Y Positions",
         description="x,y,z coordinates of the locations of the y-component of a vector field.",
     )
 
-    z: Coords = pd.Field(
-        ...,
+    z: Coords = Field(
         title="Z Positions",
         description="x,y,z coordinates of the locations of the z-component of a vector field.",
     )
@@ -313,14 +313,12 @@ class YeeGrid(Tidy3dBaseModel):
     >>> Ex_coords = yee_grid.E.x
     """
 
-    E: FieldGrid = pd.Field(
-        ...,
+    E: FieldGrid = Field(
         title="Electric Field Grid",
         description="Coordinates of the locations of all three components of the electric field.",
     )
 
-    H: FieldGrid = pd.Field(
-        ...,
+    H: FieldGrid = Field(
         title="Electric Field Grid",
         description="Coordinates of the locations of all three components of the magnetic field.",
     )
@@ -353,8 +351,7 @@ class Grid(Tidy3dBaseModel):
     >>> yee_grid = grid.yee
     """
 
-    boundaries: Coords = pd.Field(
-        ...,
+    boundaries: Coords = Field(
         title="Boundary Coordinates",
         description="x,y,z coordinates of the boundaries between cells, defining the FDTD grid.",
     )
@@ -410,7 +407,7 @@ class Grid(Tidy3dBaseModel):
         return Coords(**{key: np.diff(val) for key, val in self.boundaries.to_dict.items()})
 
     @property
-    def num_cells(self) -> Tuple[int, int, int]:
+    def num_cells(self) -> tuple[int, int, int]:
         """Return sizes of the cells in the :class:`Grid`.
 
         Returns
@@ -452,7 +449,7 @@ class Grid(Tidy3dBaseModel):
         return float(max(max(sizes) for sizes in self.sizes.to_list))
 
     @property
-    def info(self) -> Dict:
+    def info(self) -> dict:
         """Dictionary collecting various properties of the grids."""
         num_cells = self.num_cells
         total_cells = int(np.prod(num_cells))
@@ -567,7 +564,7 @@ class Grid(Tidy3dBaseModel):
 
         return Coords(**yee_coords)
 
-    def discretize_inds(self, box: Box, extend: bool = False) -> List[Tuple[int, int]]:
+    def discretize_inds(self, box: Box, extend: bool = False) -> list[tuple[int, int]]:
         """Start and stopping indexes for the cells that intersect with a :class:`Box`.
 
         Parameters
@@ -581,7 +578,7 @@ class Grid(Tidy3dBaseModel):
 
         Returns
         -------
-        List[Tuple[int, int]]
+        list[tuple[int, int]]
             The (start, stop) indexes of the cells that intersect with ``box`` in each of the three
             dimensions.
         """

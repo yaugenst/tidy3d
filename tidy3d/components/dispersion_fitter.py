@@ -2,17 +2,24 @@
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 import scipy
-from pydantic.v1 import Field, NonNegativeFloat, PositiveFloat, PositiveInt, validator
+from pydantic import (
+    Field,
+    NonNegativeFloat,
+    PositiveFloat,
+    PositiveInt,
+    field_validator,
+    model_validator,
+)
 from rich.progress import Progress
 
 from ..constants import fp_eps
 from ..exceptions import ValidationError
 from ..log import get_logging_console, log
-from .base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
+from .base import Tidy3dBaseModel, cached_property
 from .types import ArrayComplex1D, ArrayComplex2D, ArrayFloat1D, ArrayFloat2D
 
 # numerical tolerance for pole relocation for fast fitter
@@ -111,7 +118,7 @@ def imag_resp_extrema_locs(poles: ArrayComplex1D, residues: ArrayComplex1D) -> A
 class AdvancedFastFitterParam(Tidy3dBaseModel):
     """Advanced fast fitter parameters."""
 
-    loss_bounds: Tuple[float, float] = Field(
+    loss_bounds: tuple[float, float] = Field(
         (0, np.inf),
         title="Loss bounds",
         description="Bounds (lower, upper) on Im[resp]. Default corresponds to only passivity. "
@@ -121,7 +128,7 @@ class AdvancedFastFitterParam(Tidy3dBaseModel):
         "A finite upper bound may be helpful when fitting lossless materials. "
         "In this case, consider also increasing the weight for fitting the imaginary part.",
     )
-    weights: Tuple[NonNegativeFloat, NonNegativeFloat] = Field(
+    weights: Optional[tuple[NonNegativeFloat, NonNegativeFloat]] = Field(
         None,
         title="Weights",
         description="Weights (real, imag) in objective function for fitting. The weights "
@@ -187,8 +194,8 @@ class AdvancedFastFitterParam(Tidy3dBaseModel):
         "There will be a warning if this value is too small.",
     )
 
-    @validator("loss_bounds", always=True)
-    def _max_loss_geq_min_loss(cls, val):
+    @field_validator("loss_bounds")
+    def _max_loss_geq_min_loss(val):
         """Must have max_loss >= min_loss."""
         if val[0] > val[1]:
             raise ValidationError(
@@ -196,8 +203,8 @@ class AdvancedFastFitterParam(Tidy3dBaseModel):
             )
         return val
 
-    @validator("weights", always=True)
-    def _weights_average_to_one(cls, val):
+    @field_validator("weights")
+    def _weights_average_to_one(val):
         """Weights must average to one."""
         if val is None:
             return None
@@ -210,25 +217,39 @@ class FastFitterData(AdvancedFastFitterParam):
     """Data class for internal use while running fitter."""
 
     omega: ArrayComplex1D = Field(
-        ..., title="Angular frequencies in eV", description="Angular frequencies in eV"
+        title="Angular frequencies in eV",
+        description="Angular frequencies in eV",
     )
-    eps: ArrayComplex1D = Field(..., title="Permittivity", description="Permittivity to fit")
-
-    optimize_eps_inf: bool = Field(
-        None, title="Optimize eps_inf", description="Whether to optimize ``eps_inf``."
+    eps: ArrayComplex1D = Field(
+        title="Permittivity",
+        description="Permittivity to fit",
     )
 
-    num_poles: PositiveInt = Field(None, title="Number of poles", description="Number of poles")
-    eps_inf: float = Field(
+    optimize_eps_inf: Optional[bool] = Field(
+        None,
+        title="Optimize eps_inf",
+        description="Whether to optimize ``eps_inf``.",
+    )
+
+    num_poles: Optional[PositiveInt] = Field(
+        None,
+        title="Number of poles",
+        description="Number of poles",
+    )
+    eps_inf: Optional[float] = Field(
         None,
         title="eps_inf",
         description="Value of ``eps_inf``.",
     )
     poles: Optional[ArrayComplex1D] = Field(
-        None, title="Pole frequencies in eV", description="Pole frequencies in eV"
+        None,
+        title="Pole frequencies in eV",
+        description="Pole frequencies in eV",
     )
     residues: Optional[ArrayComplex1D] = Field(
-        None, title="Residues in eV", description="Residues in eV"
+        None,
+        title="Residues in eV",
+        description="Residues in eV",
     )
 
     passivity_optimized: Optional[bool] = Field(
@@ -253,37 +274,31 @@ class FastFitterData(AdvancedFastFitterParam):
     )
 
     scale_factor: PositiveFloat = Field(
-        ...,
         title="Scale Factor",
         description="Factor by which frequencies have been rescaled prior to fitting. "
         "The ``pole_residue`` model returned will be rescaled by the inverse of this factor "
         "in order to restore it to the original units.",
     )
 
-    @validator("eps_inf", always=True)
-    @skip_if_fields_missing(["optimize_eps_inf"])
-    def _eps_inf_geq_one(cls, val, values):
+    @model_validator(mode="after")
+    def _eps_inf_geq_one(self):
         """Must have eps_inf >= 1 unless it is being optimized.
         In the latter case, it will be made >= 1 later."""
-        if values["optimize_eps_inf"] is False and val < 1:
+        if self.optimize_eps_inf is False and self.eps_inf < 1:
             raise ValidationError("The value of 'eps_inf' must be at least 1.")
-        return val
+        return self
 
-    @validator("poles", always=True)
-    @skip_if_fields_missing(["logspacing", "smooth", "num_poles", "omega", "num_poles"])
-    def _generate_initial_poles(cls, val, values):
+    @model_validator(mode="after")
+    def _generate_initial_poles(self):
         """Generate initial poles."""
+        val = self.poles
         if val is not None:
-            return val
-        if (
-            values.get("logspacing") is None
-            or values.get("smooth") is None
-            or values.get("num_poles") is None
-        ):
-            return None
-        omega = values["omega"]
-        num_poles = values["num_poles"]
-        if values["logspacing"]:
+            return self
+        if self.logspacing is None or self.smooth is None or self.num_poles is None:
+            return self
+        omega = self.omega
+        num_poles = self.num_poles
+        if self.logspacing:
             pole_range = np.logspace(
                 np.log10(min(omega) / SCALE_FACTOR), np.log10(max(omega) * SCALE_FACTOR), num_poles
             )
@@ -291,22 +306,22 @@ class FastFitterData(AdvancedFastFitterParam):
             pole_range = np.linspace(
                 min(omega) / SCALE_FACTOR, max(omega) * SCALE_FACTOR, num_poles
             )
-        if values["smooth"]:
+        if self.smooth:
             poles = -pole_range
         else:
             poles = -pole_range / 100 + 1j * pole_range
-        return poles
+        self.poles = poles
+        return self
 
-    @validator("residues", always=True)
-    @skip_if_fields_missing(["poles"])
-    def _generate_initial_residues(cls, val, values):
+    @model_validator(mode="after")
+    def _generate_initial_residues(self):
         """Generate initial residues."""
-        if val is not None:
-            return val
-        poles = values.get("poles")
-        if poles is None:
-            return None
-        return np.zeros(len(poles))
+        if self.residues is not None:
+            return self
+        if self.poles is None:
+            return self
+        self.residues = np.zeros(len(self.poles))
+        return self
 
     @classmethod
     def initialize(
@@ -350,7 +365,7 @@ class FastFitterData(AdvancedFastFitterParam):
         return self.poles[np.iscomplex(self.poles)]
 
     @classmethod
-    def get_default_weights(cls, eps: ArrayComplex1D) -> Tuple[float, float]:
+    def get_default_weights(cls, eps: ArrayComplex1D) -> tuple[float, float]:
         """Default weights based on real and imaginary part of eps."""
         rms = np.array([np.sqrt(np.mean(x**2)) for x in (np.real(eps), np.imag(eps))])
         rms = np.maximum(RMS_MIN, rms)
@@ -360,7 +375,7 @@ class FastFitterData(AdvancedFastFitterParam):
         return tuple(weights)
 
     @cached_property
-    def pole_residue(self) -> Tuple[float, ArrayComplex1D, ArrayComplex1D]:
+    def pole_residue(self) -> tuple[float, ArrayComplex1D, ArrayComplex1D]:
         """Parameters for pole-residue model in original units."""
         if self.eps_inf is None or self.poles is None:
             return 1, [], []
@@ -647,7 +662,7 @@ class FastFitterData(AdvancedFastFitterParam):
 
         return model
 
-    def iterate_passivity(self, passivity_omega: ArrayFloat1D) -> Tuple[FastFitterData, int]:
+    def iterate_passivity(self, passivity_omega: ArrayFloat1D) -> tuple[FastFitterData, int]:
         """Iterate passivity enforcement algorithm."""
 
         size = len(self.real_poles) + 2 * len(self.complex_poles)
@@ -724,7 +739,7 @@ class FastFitterData(AdvancedFastFitterParam):
 
 
 def _fit_fixed_parameters(
-    num_poles_range: Tuple[PositiveInt, PositiveInt], model: FastFitterData
+    num_poles_range: tuple[PositiveInt, PositiveInt], model: FastFitterData
 ) -> FastFitterData:
     def fit_non_passive(model: FastFitterData) -> FastFitterData:
         best_model = model
@@ -759,7 +774,7 @@ def fit(
     tolerance_rms: NonNegativeFloat = DEFAULT_TOLERANCE_RMS,
     advanced_param: AdvancedFastFitterParam = None,
     scale_factor: PositiveFloat = 1,
-) -> Tuple[Tuple[float, ArrayComplex1D, ArrayComplex1D], float]:
+) -> tuple[tuple[float, ArrayComplex1D, ArrayComplex1D], float]:
     """Fit data using a fast fitting algorithm.
 
     Note
@@ -818,7 +833,7 @@ def fit(
 
     Returns
     -------
-    Tuple[Tuple[float, ArrayComplex1D, ArrayComplex1D], float]
+    tuple[tuple[float, ArrayComplex1D, ArrayComplex1D], float]
         Best fitting result: (dispersive medium parameters, weighted RMS error).
         The dispersive medium parameters have the form (resp_inf, poles, residues)
         and are in the original unscaled units.
@@ -963,7 +978,4 @@ def fit(
             best_model.unweighted_rms_error,
         )
 
-    return (
-        best_model.pole_residue,
-        best_model.rms_error,
-    )
+    return best_model.pole_residue, best_model.rms_error

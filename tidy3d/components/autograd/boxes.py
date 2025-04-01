@@ -2,7 +2,7 @@
 # NOTE: we do not subclass ArrayBox since that would break autograd's internal checks
 
 import importlib
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable
 
 import autograd.numpy as anp
 from autograd.extend import VJPNode, defjvp, register_notrace
@@ -33,9 +33,9 @@ def from_arraybox(cls, box: ArrayBox) -> TidyArrayBox:
 def __array_function__(
     self: Any,
     func: Callable,
-    types: List[Any],
-    args: Tuple[Any, ...],
-    kwargs: Dict[str, Any],
+    types: list[Any],
+    args: tuple[Any, ...],
+    kwargs: dict[str, Any],
 ) -> Any:
     """
     Handle the dispatch of NumPy functions to autograd's numpy implementation.
@@ -46,11 +46,11 @@ def __array_function__(
         The instance of the class.
     func : Callable
         The NumPy function being called.
-    types : List[Any]
+    types : list[Any]
         The types of the arguments that implement __array_function__.
-    args : Tuple[Any, ...]
+    args : tuple[Any, ...]
         The positional arguments to the function.
-    kwargs : Dict[str, Any]
+    kwargs : dict[str, Any]
         The keyword arguments to the function.
 
     Returns
@@ -102,7 +102,7 @@ def __array_ufunc__(
     ufunc: Callable,
     method: str,
     *inputs: Any,
-    **kwargs: Dict[str, Any],
+    **kwargs: dict[str, Any],
 ) -> Any:
     """
     Handle the dispatch of NumPy ufuncs to autograd's numpy implementation.
@@ -117,7 +117,7 @@ def __array_ufunc__(
         The method of the ufunc being called.
     inputs : Any
         The input arguments to the ufunc.
-    kwargs : Dict[str, Any]
+    kwargs : dict[str, Any]
         The keyword arguments to the ufunc.
 
     Returns
@@ -152,7 +152,6 @@ TidyArrayBox.from_arraybox = from_arraybox
 TidyArrayBox.__array_namespace__ = lambda self, *, api_version=None: anp
 TidyArrayBox.__array_ufunc__ = __array_ufunc__
 TidyArrayBox.__array_function__ = __array_function__
-TidyArrayBox.__repr__ = str
 TidyArrayBox.real = property(anp.real)
 TidyArrayBox.imag = property(anp.imag)
 TidyArrayBox.conj = anp.conj

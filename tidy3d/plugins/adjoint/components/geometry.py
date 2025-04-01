@@ -3,32 +3,33 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Dict, List, Tuple, Union
+from typing import Union
 
 import jax
 import jax.numpy as jnp
 import numpy as np
-import pydantic.v1 as pd
 import shapely
 import xarray as xr
 from jax.tree_util import register_pytree_node_class
 from joblib import Parallel, delayed
+from pydantic import Field, field_validator
 
-from ....components.base import cached_property
-from ....components.data.data_array import ScalarFieldDataArray
-from ....components.data.monitor_data import FieldData, PermittivityData
-from ....components.geometry.base import Box, Geometry, GeometryGroup
-from ....components.geometry.polyslab import (
+from tidy3d.components.base import cached_property
+from tidy3d.components.data.data_array import ScalarFieldDataArray
+from tidy3d.components.data.monitor_data import FieldData, PermittivityData
+from tidy3d.components.geometry.base import Box, Geometry, GeometryGroup
+from tidy3d.components.geometry.polyslab import (
     _COMPLEX_POLYSLAB_DIVISIONS_WARN,
     _IS_CLOSE_RTOL,
     PolySlab,
 )
-from ....components.monitor import FieldMonitor, PermittivityMonitor
-from ....components.types import ArrayFloat2D, Bound, Coordinate2D  # , annotate_type
-from ....constants import MICROMETER, fp_eps
-from ....exceptions import AdjointError
-from ....log import log
-from ...polyslab import ComplexPolySlab
+from tidy3d.components.monitor import FieldMonitor, PermittivityMonitor
+from tidy3d.components.types import ArrayFloat2D, Bound, Coordinate2D
+from tidy3d.constants import MICROMETER, fp_eps
+from tidy3d.exceptions import AdjointError
+from tidy3d.log import log
+from tidy3d.plugins.polyslab import ComplexPolySlab
+
 from .base import WEB_ADJOINT_MESSAGE, JaxObject
 from .types import JaxFloat
 
@@ -46,13 +47,13 @@ class JaxGeometry(Geometry, ABC):
     """Abstract :class:`.Geometry` with methods useful for all Jax subclasses."""
 
     @property
-    def bound_size(self) -> Tuple[float, float, float]:
+    def bound_size(self) -> tuple[float, float, float]:
         """Size of the bounding box of this geometry."""
         rmin, rmax = self.bounds
         return tuple(abs(pt_max - pt_min) for (pt_min, pt_max) in zip(rmin, rmax))
 
     @property
-    def bound_center(self) -> Tuple[float, float, float]:
+    def bound_center(self) -> tuple[float, float, float]:
         """Size of the bounding box of this geometry."""
         rmin, rmax = self.bounds
 
@@ -76,8 +77,8 @@ class JaxGeometry(Geometry, ABC):
         return JaxBox.from_bounds(*self.bounds)
 
     def make_grad_monitors(
-        self, freqs: List[float], name: str
-    ) -> Tuple[FieldMonitor, PermittivityMonitor]:
+        self, freqs: list[float], name: str
+    ) -> tuple[FieldMonitor, PermittivityMonitor]:
         """Return gradient monitor associated with this object."""
         size_enlarged = tuple(s + 2 * GRAD_MONITOR_EXPANSION for s in self.bound_size)
         field_mnt = FieldMonitor(
@@ -100,7 +101,7 @@ class JaxGeometry(Geometry, ABC):
     @staticmethod
     def compute_dotted_e_d_fields(
         grad_data_fwd: FieldData, grad_data_adj: FieldData, grad_data_eps: PermittivityData
-    ) -> Tuple[Dict[str, ScalarFieldDataArray], Dict[str, ScalarFieldDataArray]]:
+    ) -> tuple[dict[str, ScalarFieldDataArray], dict[str, ScalarFieldDataArray]]:
         """Get the (x,y,z) components of E_fwd * E_adj and D_fwd * D_adj fields in the domain."""
 
         e_mult_xyz = {}
@@ -133,7 +134,7 @@ class JaxBox(JaxGeometry, Box, JaxObject):
 
     _tidy3d_class = Box
 
-    center_jax: Tuple[JaxFloat, JaxFloat, JaxFloat] = pd.Field(
+    center_jax: tuple[JaxFloat, JaxFloat, JaxFloat] = Field(
         (0.0, 0.0, 0.0),
         title="Center (Jax)",
         description="Jax traced value for the center of the box in (x, y, z).",
@@ -141,8 +142,7 @@ class JaxBox(JaxGeometry, Box, JaxObject):
         stores_jax_for="center",
     )
 
-    size_jax: Tuple[JaxFloat, JaxFloat, JaxFloat] = pd.Field(
-        ...,
+    size_jax: tuple[JaxFloat, JaxFloat, JaxFloat] = Field(
         title="Size (Jax)",
         description="Jax-traced value for the size of the box in (x, y, z).",
         units=MICROMETER,
@@ -275,8 +275,7 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
 
     _tidy3d_class = PolySlab
 
-    vertices_jax: Tuple[Tuple[JaxFloat, JaxFloat], ...] = pd.Field(
-        ...,
+    vertices_jax: tuple[tuple[JaxFloat, JaxFloat], ...] = Field(
         title="Vertices (Jax)",
         description="Jax-traced list of (d1, d2) defining the 2 dimensional positions of the "
         "polygon face vertices at the ``reference_plane``. "
@@ -286,8 +285,7 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
         stores_jax_for="vertices",
     )
 
-    slab_bounds_jax: Tuple[JaxFloat, JaxFloat] = pd.Field(
-        ...,
+    slab_bounds_jax: tuple[JaxFloat, JaxFloat] = Field(
         title="Slab bounds (Jax)",
         description="Jax-traced list of (h1, h2) defining the minimum and maximum positions "
         "of the slab along the ``axis`` dimension. ",
@@ -295,7 +293,7 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
         stores_jax_for="slab_bounds",
     )
 
-    sidewall_angle_jax: JaxFloat = pd.Field(
+    sidewall_angle_jax: JaxFloat = Field(
         default=0.0,
         title="Sidewall angle (Jax)",
         description="Jax-traced float defining the sidewall angle of the slab "
@@ -304,7 +302,7 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
         stores_jax_for="sidewall_angle",
     )
 
-    dilation_jax: JaxFloat = pd.Field(
+    dilation_jax: JaxFloat = Field(
         default=0.0,
         title="Dilation (Jax)",
         description="Jax-traced float defining the dilation.",
@@ -312,8 +310,8 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
         stores_jax_for="dilation",
     )
 
-    @pd.validator("sidewall_angle", always=True)
-    def no_sidewall(cls, val):
+    @field_validator("sidewall_angle")
+    def no_sidewall(val):
         """Warn if sidewall angle present."""
         if not np.isclose(val, 0.0):
             log.warning(
@@ -383,7 +381,7 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
     @staticmethod
     def _shift_vertices(
         vertices: jnp.ndarray, dist
-    ) -> Tuple[jnp.ndarray, jnp.ndarray, Tuple[jnp.ndarray, jnp.ndarray]]:
+    ) -> tuple[jnp.ndarray, jnp.ndarray, tuple[jnp.ndarray, jnp.ndarray]]:
         """Shifts the vertices of a polygon outward uniformly by distances
         `dists`.
 
@@ -396,7 +394,7 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
 
         Returns
         -------
-        Tuple[jnp.ndarray, jnp.narray, Tuple[jnp.ndarray, jnp.ndarray]]
+        tuple[jnp.ndarray, jnp.narray, tuple[jnp.ndarray, jnp.ndarray]]
             New polygon vertices;
             and the shift of vertices in direction parallel to the edges.
             Shift along x and y direction.
@@ -468,7 +466,7 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
         return None
 
     @staticmethod
-    def _edge_length_and_reduction_rate(vertices: jnp.ndarray) -> Tuple[jnp.ndarray, jnp.ndarray]:
+    def _edge_length_and_reduction_rate(vertices: jnp.ndarray) -> tuple[jnp.ndarray, jnp.ndarray]:
         """Edge length of reduction rate of each edge with unit offset length.
 
         Parameters
@@ -478,7 +476,7 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
 
         Returns
         -------
-        Tuple[jnp.ndarray, jnp.narray]
+        tuple[jnp.ndarray, jnp.narray]
             edge length, and reduction rate
         """
 
@@ -565,8 +563,8 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
         vertex_grad: Coordinate2D,
         vertex_stat: Coordinate2D,
         is_next: bool,
-        e_mult_xyz: Tuple[Dict[str, ScalarFieldDataArray]],
-        d_mult_xyz: Tuple[Dict[str, ScalarFieldDataArray]],
+        e_mult_xyz: tuple[dict[str, ScalarFieldDataArray]],
+        d_mult_xyz: tuple[dict[str, ScalarFieldDataArray]],
         sim_bounds: Bound,
         wvl_mat: float,
         eps_out: complex,
@@ -606,8 +604,8 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
             return (1 - s) * vertex_stat[:, None] + s * vertex_grad[:, None]
 
         def edge_basis(
-            xyz_components: Tuple[FieldData, FieldData, FieldData],
-        ) -> Tuple[FieldData, FieldData, FieldData]:
+            xyz_components: tuple[FieldData, FieldData, FieldData],
+        ) -> tuple[FieldData, FieldData, FieldData]:
             """Puts a field component from the (x, y, z) basis to the (t, n, z) basis."""
             cmp_z, (cmp_x_edge, cmp_y_edge) = self.pop_axis(xyz_components, axis=self.axis)
 
@@ -696,8 +694,8 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
     def vertex_vjp(
         self,
         i_vertex,
-        e_mult_xyz: Tuple[Dict[str, ScalarFieldDataArray]],
-        d_mult_xyz: Tuple[Dict[str, ScalarFieldDataArray]],
+        e_mult_xyz: tuple[dict[str, ScalarFieldDataArray]],
+        d_mult_xyz: tuple[dict[str, ScalarFieldDataArray]],
         sim_bounds: Bound,
         wvl_mat: float,
         eps_out: complex,
@@ -840,8 +838,8 @@ class JaxComplexPolySlab(JaxPolySlab, ComplexPolySlab):
 
     _tidy3d_class = ComplexPolySlab
 
-    @pd.validator("vertices", always=True)
-    def no_self_intersecting_polygon_during_extrusion(cls, val, values):
+    @field_validator("vertices")
+    def no_self_intersecting_polygon_during_extrusion(val):
         """Turn off the validation for this class."""
         return val
 
@@ -870,14 +868,14 @@ class JaxComplexPolySlab(JaxPolySlab, ComplexPolySlab):
         return z_coord
 
     @property
-    def sub_polyslabs(self) -> List[JaxPolySlab]:
+    def sub_polyslabs(self) -> list[JaxPolySlab]:
         """Divide a complex polyslab into a list of simple polyslabs.
         Only neighboring vertex-vertex crossing events are treated in this
         version.
 
         Returns
         -------
-        List[JaxPolySlab]
+        list[JaxPolySlab]
             A list of simple jax polyslabs.
         """
         sub_polyslab_list = []
@@ -992,7 +990,7 @@ class JaxGeometryGroup(JaxGeometry, GeometryGroup, JaxObject):
 
     _tidy3d_class = GeometryGroup
 
-    geometries: Tuple[JaxPolySlab, ...] = pd.Field(
+    geometries: tuple[JaxPolySlab, ...] = Field(
         ...,
         title="Geometries",
         description="Tuple of jax geometries in a single grouping. "

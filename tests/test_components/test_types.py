@@ -71,7 +71,7 @@ def test_array_like_field_name():
         e: constrained_array(ndim=3, shape=(1, 2, 3))  # must have certain shape
         f: ArrayLike = None
 
-    fields = MyClass.__fields__
+    fields = MyClass.model_fields
 
     def correct_field_display(field_name, display_name):
         """Make sure the field has the expected name."""

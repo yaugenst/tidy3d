@@ -1,14 +1,13 @@
 """utilities for plotting"""
 
-from __future__ import annotations
-
 from functools import wraps
 from html import escape
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
-import pydantic.v1 as pd
 from numpy import array, concatenate, inf, ones
+from pydantic import Field, NonNegativeFloat, field_validator
 
+from ..compat import Self
 from ..constants import UnitScaling
 from ..exceptions import SetupError, Tidy3dKeyError
 from ..log import log
@@ -99,19 +98,19 @@ class AbstractPlotParams(Tidy3dBaseModel):
     Corresponds with select properties of ``matplotlib.artist.Artist``.
     """
 
-    alpha: Any = pd.Field(1.0, title="Opacity")
-    zorder: float = pd.Field(None, title="Display Order")
+    alpha: float = Field(1.0, title="Opacity", ge=0, le=1)
+    zorder: Optional[float] = Field(None, title="Display Order")
 
-    def include_kwargs(self, **kwargs) -> AbstractPlotParams:
+    def include_kwargs(self, **kwargs) -> Self:
         """Update the plot params with supplied kwargs."""
         update_dict = {
             key: value
             for key, value in kwargs.items()
-            if key not in ("type",) and value is not None and key in self.__fields__
+            if key not in ("type",) and value is not None and key in self.model_fields
         }
-        return self.copy(update=update_dict)
+        return self.model_copy(update=update_dict)
 
-    def override_with_viz_spec(self, viz_spec) -> AbstractPlotParams:
+    def override_with_viz_spec(self, viz_spec) -> Self:
         """Override plot params with supplied VisualizationSpec."""
         return self.include_kwargs(**dict(viz_spec))
 
@@ -128,13 +127,13 @@ class PathPlotParams(AbstractPlotParams):
     Corresponds with select properties of ``matplotlib.lines.Line2D``.
     """
 
-    color: Any = pd.Field(None, title="Color", alias="c")
-    linewidth: pd.NonNegativeFloat = pd.Field(2, title="Line Width", alias="lw")
-    linestyle: str = pd.Field("--", title="Line Style", alias="ls")
-    marker: Any = pd.Field("o", title="Marker Style")
-    markeredgecolor: Any = pd.Field(None, title="Marker Edge Color", alias="mec")
-    markerfacecolor: Any = pd.Field(None, title="Marker Face Color", alias="mfc")
-    markersize: pd.NonNegativeFloat = pd.Field(10, title="Marker Size", alias="ms")
+    color: Optional[Any] = Field(None, title="Color", alias="c")
+    linewidth: NonNegativeFloat = Field(2, title="Line Width", alias="lw")
+    linestyle: str = Field("--", title="Line Style", alias="ls")
+    marker: Any = Field("o", title="Marker Style")
+    markeredgecolor: Optional[Any] = Field(None, title="Marker Edge Color", alias="mec")
+    markerfacecolor: Optional[Any] = Field(None, title="Marker Face Color", alias="mfc")
+    markersize: NonNegativeFloat = Field(10, title="Marker Size", alias="ms")
 
 
 class PlotParams(AbstractPlotParams):
@@ -142,11 +141,11 @@ class PlotParams(AbstractPlotParams):
     Corresponds with select properties of ``matplotlib.patches.Patch``.
     """
 
-    edgecolor: Any = pd.Field(None, title="Edge Color", alias="ec")
-    facecolor: Any = pd.Field(None, title="Face Color", alias="fc")
-    fill: bool = pd.Field(True, title="Is Filled")
-    hatch: str = pd.Field(None, title="Hatch Style")
-    linewidth: pd.NonNegativeFloat = pd.Field(1, title="Line Width", alias="lw")
+    edgecolor: Optional[Any] = Field(None, title="Edge Color", alias="ec")
+    facecolor: Optional[Any] = Field(None, title="Face Color", alias="fc")
+    fill: bool = Field(True, title="Is Filled")
+    hatch: Optional[str] = Field(None, title="Hatch Style")
+    linewidth: NonNegativeFloat = Field(1, title="Line Width", alias="lw")
 
 
 # defaults for different tidy3d objects
@@ -203,32 +202,34 @@ def is_valid_color(value: str) -> str:
 class VisualizationSpec(Tidy3dBaseModel):
     """Defines specification for visualization when used with plotting functions."""
 
-    facecolor: str = pd.Field(
+    facecolor: str = Field(
         "",
         title="Face color",
         description="Color applied to the faces in visualization.",
     )
 
-    edgecolor: Optional[str] = pd.Field(
+    edgecolor: Optional[str] = Field(
         "",
         title="Edge color",
         description="Color applied to the edges in visualization.",
     )
 
-    alpha: Optional[pd.confloat(ge=0.0, le=1.0)] = pd.Field(
+    alpha: Optional[float] = Field(
         1.0,
         title="Opacity",
         description="Opacity/alpha value in plotting between 0 and 1.",
+        ge=0,
+        le=1,
     )
 
-    @pd.validator("facecolor", always=True)
-    def validate_color(value: str) -> str:
+    @field_validator("facecolor")
+    def _validate_facecolor(value):
         return is_valid_color(value)
 
-    @pd.validator("edgecolor", always=True)
-    def validate_and_copy_color(value: str, values: Dict[str, Any]) -> str:
-        if (value == "") and "facecolor" in values:
-            return is_valid_color(values["facecolor"])
+    @field_validator("edgecolor")
+    def _validate_edgecolor(value, info):
+        if value == "" and "facecolor" in info.data:
+            value = info.data["facecolor"]
 
         return is_valid_color(value)
 

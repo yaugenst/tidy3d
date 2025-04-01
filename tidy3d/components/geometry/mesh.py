@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
-import pydantic.v1 as pydantic
+from pydantic import Field, field_validator, model_validator
 
 from ...constants import inf
 from ...exceptions import DataError, ValidationError
@@ -33,21 +33,21 @@ class TriangleMesh(base.Geometry, ABC):
     >>> stl_geom = TriangleMesh.from_vertices_faces(vertices, faces)
     """
 
-    mesh_dataset: Optional[TriangleMeshDataset] = pydantic.Field(
-        ...,
+    mesh_dataset: Optional[TriangleMeshDataset] = Field(
+        None,
         title="Surface mesh data",
         description="Surface mesh data.",
     )
 
     _no_nans_mesh = validate_no_nans("mesh_dataset")
 
-    @pydantic.root_validator(pre=True)
+    @model_validator(mode="before")
     @verify_packages_import(["trimesh"])
-    def _validate_trimesh_library(cls, values):
+    def _validate_trimesh_library(data):
         """Check if the trimesh package is imported as a validator."""
-        return values
+        return data
 
-    @pydantic.validator("mesh_dataset", pre=True, always=True)
+    @field_validator("mesh_dataset", mode="before")
     def _warn_if_none(cls, val: TriangleMeshDataset) -> TriangleMeshDataset:
         """Warn if the Dataset fails to load."""
         if isinstance(val, dict):
@@ -56,8 +56,7 @@ class TriangleMesh(base.Geometry, ABC):
                 return None
         return val
 
-    @pydantic.validator("mesh_dataset", always=True)
-    @verify_packages_import(["trimesh"])
+    @field_validator("mesh_dataset")
     def _check_mesh(cls, val: TriangleMeshDataset) -> TriangleMeshDataset:
         """Check that the mesh is valid."""
         if val is None:
@@ -150,7 +149,7 @@ class TriangleMesh(base.Geometry, ABC):
         cls,
         filename: str,
         scale: float = 1.0,
-        origin: Tuple[float, float, float] = (0, 0, 0),
+        origin: tuple[float, float, float] = (0, 0, 0),
         solid_index: int = None,
         **kwargs,
     ) -> Union[TriangleMesh, base.GeometryGroup]:
@@ -168,7 +167,7 @@ class TriangleMesh(base.Geometry, ABC):
             The length scale for the loaded geometry (um).
             For example, a scale of 10.0 means that a vertex (1, 0, 0) will be placed at
             x = 10 um.
-        origin : Tuple[float, float, float] = (0, 0, 0)
+        origin : tuple[float, float, float] = (0, 0, 0)
             The origin of the loaded geometry, in units of ``scale``.
             Translates from (0, 0, 0) to this point after applying the scaling.
         solid_index : int = None
@@ -339,7 +338,7 @@ class TriangleMesh(base.Geometry, ABC):
 
         Returns
         -------
-        Tuple[float, float, float], Tuple[float, float float]
+        tuple[float, float, float], tuple[float, float float]
             Min and max bounds packaged as ``(minx, miny, minz), (maxx, maxy, maxz)``.
         """
         if self.mesh_dataset is None:
@@ -348,7 +347,7 @@ class TriangleMesh(base.Geometry, ABC):
 
     def intersections_tilted_plane(
         self, normal: Coordinate, origin: Coordinate, to_2D: MatrixReal4x4
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Return a list of shapely geometries at the plane specified by normal and origin.
 
         Parameters
@@ -362,7 +361,7 @@ class TriangleMesh(base.Geometry, ABC):
 
         Returns
         -------
-        List[shapely.geometry.base.BaseGeometry]
+        list[shapely.geometry.base.BaseGeometry]
             List of 2D shapes that intersect plane.
             For more details refer to
             `Shapely's Documentation <https://shapely.readthedocs.io/en/stable/project.html>`_.
@@ -375,7 +374,7 @@ class TriangleMesh(base.Geometry, ABC):
 
     def intersections_plane(
         self, x: float = None, y: float = None, z: float = None
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Returns list of shapely geometries at plane specified by one non-None value of x,y,z.
 
         Parameters
@@ -389,7 +388,7 @@ class TriangleMesh(base.Geometry, ABC):
 
         Returns
         -------
-        List[shapely.geometry.base.BaseGeometry]
+        list[shapely.geometry.base.BaseGeometry]
             List of 2D shapes that intersect plane.
             For more details refer to
             `Shapely's Documentaton <https://shapely.readthedocs.io/en/stable/project.html>`_.

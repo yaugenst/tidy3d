@@ -1,14 +1,13 @@
 """Abstract bases for classes that define how data is recorded from simulation."""
 
 from abc import ABC, abstractmethod
-from typing import Tuple
 
 import numpy as np
-import pydantic.v1 as pd
+from pydantic import Field
 
 from ..base import cached_property
 from ..geometry.base import Box
-from ..types import ArrayFloat1D, Axis, Numpy
+from ..types import ArrayFloat1D, Axis
 from ..validators import _warn_unsupported_traced_argument
 from ..viz import PlotParams, plot_params_monitor
 
@@ -16,8 +15,7 @@ from ..viz import PlotParams, plot_params_monitor
 class AbstractMonitor(Box, ABC):
     """Abstract base class for steady-state monitors."""
 
-    name: str = pd.Field(
-        ...,
+    name: str = Field(
         title="Name",
         description="Unique name for monitor.",
         min_length=1,
@@ -59,20 +57,20 @@ class AbstractMonitor(Box, ABC):
             Number of bytes to be stored in monitor.
         """
 
-    def downsample(self, arr: Numpy, axis: Axis) -> Numpy:
+    def downsample(self, arr: np.ndarray, axis: Axis) -> np.ndarray:
         """Downsample a 1D array making sure to keep the first and last entries, based on the
         spatial interval defined for the ``axis``.
 
         Parameters
         ----------
-        arr : Numpy
+        arr : np.ndarray
             A 1D array of arbitrary type.
         axis : Axis
             Axis for which to select the interval_space defined for the monitor.
 
         Returns
         -------
-        Numpy
+        np.ndarray
             Downsampled array.
         """
 
@@ -88,7 +86,7 @@ class AbstractMonitor(Box, ABC):
             inds = np.append(inds, size - 1)
         return arr[inds]
 
-    def downsampled_num_cells(self, num_cells: Tuple[int, int, int]) -> Tuple[int, int, int]:
+    def downsampled_num_cells(self, num_cells: tuple[int, int, int]) -> tuple[int, int, int]:
         """Given a tuple of the number of cells spanned by the monitor along each dimension,
         return the number of cells one would have after downsampling based on ``interval_space``.
         """

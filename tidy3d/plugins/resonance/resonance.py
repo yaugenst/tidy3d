@@ -1,20 +1,20 @@
 """Find resonances in time series data"""
 
 from functools import partial
-from typing import List, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 import scipy.linalg
 import xarray as xr
-from pydantic.v1 import Field, NonNegativeFloat, PositiveInt, validator
+from pydantic import Field, NonNegativeFloat, PositiveInt, field_validator
 
-from ...components.base import Tidy3dBaseModel
-from ...components.data.data_array import ScalarFieldTimeDataArray
-from ...components.data.monitor_data import FieldTimeData
-from ...components.types import ArrayComplex1D, ArrayComplex2D, ArrayComplex3D, ArrayFloat1D
-from ...constants import HERTZ
-from ...exceptions import SetupError, ValidationError
-from ...log import log
+from tidy3d.components.base import Tidy3dBaseModel
+from tidy3d.components.data.data_array import ScalarFieldTimeDataArray
+from tidy3d.components.data.monitor_data import FieldTimeData
+from tidy3d.components.types import ArrayComplex1D, ArrayComplex2D, ArrayComplex3D, ArrayFloat1D
+from tidy3d.constants import HERTZ
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.log import log
 
 INIT_NUM_FREQS = 200
 
@@ -27,12 +27,19 @@ RCOND = 1e-4
 class ResonanceData(Tidy3dBaseModel):
     """Data class for storing objects computed while running the resonance finder."""
 
-    eigvals: ArrayComplex1D = Field(..., title="Eigenvalues", description="Resonance eigenvalues.")
-    complex_amplitudes: ArrayComplex1D = Field(
-        None, title="Complex amplitudes", description="Complex resonance amplitudes"
+    eigvals: ArrayComplex1D = Field(
+        title="Eigenvalues",
+        description="Resonance eigenvalues.",
     )
-    errors: ArrayFloat1D = Field(
-        None, title="Errors", description="Rough eigenvalue error estimate."
+    complex_amplitudes: Optional[ArrayComplex1D] = Field(
+        None,
+        title="Complex amplitudes",
+        description="Complex resonance amplitudes",
+    )
+    errors: Optional[ArrayFloat1D] = Field(
+        None,
+        title="Errors",
+        description="Rough eigenvalue error estimate.",
     )
 
 
@@ -69,8 +76,7 @@ class ResonanceFinder(Tidy3dBaseModel):
     ... # A given dataframe
     """
 
-    freq_window: Tuple[float, float] = Field(
-        ...,
+    freq_window: tuple[float, float] = Field(
         title="Window ``[fmin, fmax]``",
         description="Window ``[fmin, fmax]`` for the initial frequencies. "
         "The resonance finder is initialized with an even grid of frequencies between "
@@ -101,8 +107,8 @@ class ResonanceFinder(Tidy3dBaseModel):
         "Making this closer to zero will typically return more resonances.",
     )
 
-    @validator("freq_window", always=True)
-    def _check_freq_window(cls, val):
+    @field_validator("freq_window")
+    def _check_freq_window(val):
         """Validate ``freq_window``"""
         if val[1] < val[0]:
             raise ValidationError(
@@ -110,7 +116,7 @@ class ResonanceFinder(Tidy3dBaseModel):
             )
         return val
 
-    def run(self, signals: Union[FieldTimeData, Tuple[FieldTimeData, ...]]) -> xr.Dataset:
+    def run(self, signals: Union[FieldTimeData, tuple[FieldTimeData, ...]]) -> xr.Dataset:
         """Finds resonances in a :class:`.FieldTimeData` or a Tuple of such.
         The time coordinates must be uniformly spaced, and the spacing must be the same
         across all supplied data. The resonance finder runs on the sum of the
@@ -158,13 +164,13 @@ class ResonanceFinder(Tidy3dBaseModel):
         signal, dt = self._validate_scalar_field_time(signal)
         return self.run_raw_signal(signal, dt)
 
-    def run_raw_signal(self, signal: List[complex], time_step: float) -> xr.Dataset:
+    def run_raw_signal(self, signal: list[complex], time_step: float) -> xr.Dataset:
         """Finds resonances in a time series.
         Note that the signal should start after the sources have turned off.
 
         Parameters
         ----------
-        signal : List[complex]
+        signal : list[complex]
             One-dimensional array holding the complex-valued time series data
             to search for resonances.
         time_step : float
@@ -207,7 +213,7 @@ class ResonanceFinder(Tidy3dBaseModel):
 
     def _validate_scalar_field_time(
         self, signal: ScalarFieldTimeDataArray
-    ) -> Tuple[ArrayComplex1D, float]:
+    ) -> tuple[ArrayComplex1D, float]:
         """Validates a :class:`.ScalarFieldTimeDataArray` and returns the time step
         as well as underlying data array."""
         dts = np.diff(signal.t)
@@ -227,7 +233,7 @@ class ResonanceFinder(Tidy3dBaseModel):
         return np.squeeze(signal.data), dt
 
     def _aggregate_field_time_comps(
-        self, signals: Tuple[FieldTimeData, ...], comps
+        self, signals: tuple[FieldTimeData, ...], comps
     ) -> ScalarFieldTimeDataArray:
         """Aggregates the given components from several :class:`.FieldTimeData`."""
         total_signal = None
@@ -261,7 +267,7 @@ class ResonanceFinder(Tidy3dBaseModel):
         )
 
     def _aggregate_field_time(
-        self, signals: Union[FieldTimeData, Tuple[FieldTimeData, ...]]
+        self, signals: Union[FieldTimeData, tuple[FieldTimeData, ...]]
     ) -> ScalarFieldTimeDataArray:
         """Aggregates several :class:`.FieldTimeData` into a single
         :class:`.ScalarFieldTimeDataArray`."""
@@ -345,7 +351,7 @@ class ResonanceFinder(Tidy3dBaseModel):
 
     def _solve_gen_eig_prob(
         self, a_matrix: ArrayComplex2D, b_matrix: ArrayComplex2D, rcond: float
-    ) -> Tuple[ArrayComplex1D, ArrayComplex2D]:
+    ) -> tuple[ArrayComplex1D, ArrayComplex2D]:
         """Solve a generalized eigenvalue problem of the form
 
         .. math::

@@ -3,45 +3,41 @@
 from typing import Optional, Union
 
 import numpy as np
-import pydantic.v1 as pd
+from pydantic import Field, NonNegativeInt, model_validator
 
-from ....components.base import cached_property, skip_if_fields_missing
-from ....components.data.data_array import FreqDataArray, FreqModeDataArray
-from ....components.data.monitor_data import ModeData
-from ....components.data.sim_data import SimulationData
-from ....components.geometry.base import Box
-from ....components.grid.grid import Grid
-from ....components.monitor import ModeMonitor
-from ....components.simulation import Simulation
-from ....components.source.field import ModeSource, ModeSpec
-from ....components.source.time import GaussianPulse
-from ....components.types import Bound, Direction, FreqArray
-from ....exceptions import ValidationError
-from ...microwave import (
-    CurrentIntegralTypes,
-    ImpedanceCalculator,
-    VoltageIntegralTypes,
-)
-from ...mode import ModeSolver
+from tidy3d.components.base import cached_property
+from tidy3d.components.data.data_array import FreqDataArray, FreqModeDataArray
+from tidy3d.components.data.monitor_data import ModeData
+from tidy3d.components.data.sim_data import SimulationData
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.grid.grid import Grid
+from tidy3d.components.monitor import ModeMonitor
+from tidy3d.components.simulation import Simulation
+from tidy3d.components.source.field import ModeSource, ModeSpec
+from tidy3d.components.source.time import GaussianPulse
+from tidy3d.components.types import Bound, Direction, FreqArray
+from tidy3d.exceptions import ValidationError
+from tidy3d.plugins.microwave import CurrentIntegralTypes, ImpedanceCalculator, VoltageIntegralTypes
+from tidy3d.plugins.mode import ModeSolver
+
 from .base_terminal import AbstractTerminalPort
 
 
 class WavePort(AbstractTerminalPort, Box):
     """Class representing a single wave port"""
 
-    direction: Direction = pd.Field(
-        ...,
+    direction: Direction = Field(
         title="Direction",
         description="'+' or '-', defining which direction is considered 'input'.",
     )
 
-    mode_spec: ModeSpec = pd.Field(
-        ModeSpec(),
+    mode_spec: ModeSpec = Field(
+        default_factory=ModeSpec,
         title="Mode Specification",
         description="Parameters to feed to mode solver which determine modes measured by monitor.",
     )
 
-    mode_index: pd.NonNegativeInt = pd.Field(
+    mode_index: NonNegativeInt = Field(
         0,
         title="Mode Index",
         description="Index into the collection of modes returned by mode solver. "
@@ -50,13 +46,13 @@ class WavePort(AbstractTerminalPort, Box):
         "``num_modes`` in the solver will be set to ``mode_index + 1``.",
     )
 
-    voltage_integral: Optional[VoltageIntegralTypes] = pd.Field(
+    voltage_integral: Optional[VoltageIntegralTypes] = Field(
         None,
         title="Voltage Integral",
         description="Definition of voltage integral used to compute voltage and the characteristic impedance.",
     )
 
-    current_integral: Optional[CurrentIntegralTypes] = pd.Field(
+    current_integral: Optional[CurrentIntegralTypes] = Field(
         None,
         title="Current Integral",
         description="Definition of current integral used to compute current and the characteristic impedance.",
@@ -192,42 +188,35 @@ class WavePort(AbstractTerminalPort, Box):
         bound_max = np.array(port_bounds[1])
         return (bound_min <= path_min).all() and (bound_max >= path_max).all()
 
-    @pd.validator("voltage_integral", "current_integral")
-    def _validate_path_integrals_within_port(cls, val, values):
-        """Raise ``ValidationError`` when the supplied path integrals are not within the port bounds."""
-        center = values["center"]
-        size = values["size"]
-        box = Box(center=center, size=size)
-        if val and not WavePort._within_port_bounds(val.bounds, box.bounds):
-            raise ValidationError(
-                f"'{cls.__name__}' must be setup with all path integrals defined within the bounds "
-                f"of the port. Path bounds are '{val.bounds}', but port bounds are '{box.bounds}'."
-            )
-        return val
+    @model_validator(mode="after")
+    def _validate_integrals_within_port(self):
+        box = Box(center=self.center, size=self.size)
 
-    @pd.validator("current_integral", always=True)
-    @skip_if_fields_missing(["voltage_integral"])
-    def _check_voltage_or_current(cls, val, values):
+        for name in ("voltage_integral", "current_integral"):
+            val = getattr(self, name)
+            if val and not self._within_port_bounds(val.bounds, box.bounds):
+                raise ValueError(
+                    f"{name} bounds {val.bounds!r} must be inside port bounds {box.bounds!r}"
+                )
+        return self
+
+    @model_validator(mode="after")
+    def _check_voltage_or_current(self):
         """Raise validation error if both ``voltage_integral`` and ``current_integral``
         were not provided."""
-        if values.get("voltage_integral") is None and val is None:
+        if self.voltage_integral is None and self.current_integral is None:
             raise ValidationError(
                 "At least one of 'voltage_integral' or 'current_integral' must be provided."
             )
-        return val
+        return self
 
-    @pd.validator("current_integral", always=True)
-    def validate_current_integral_sign(cls, val, values):
-        """
-        Validate that the sign of ``current_integral`` matches the port direction.
-        """
-        if val is None:
-            return val
-
-        direction = values.get("direction")
-        name = values.get("name")
-        if val.sign != direction:
+    @model_validator(mode="after")
+    def validate_current_integral_sign(self):
+        """Validate that the sign of ``current_integral`` matches the port direction."""
+        if self.current_integral is None:
+            return self
+        if self.current_integral.sign != self.direction:
             raise ValidationError(
-                f"'current_integral' sign must match the '{name}' direction '{direction}'."
+                f"'current_integral' sign must match the '{self.name}' direction '{self.direction}'."
             )
-        return val
+        return self

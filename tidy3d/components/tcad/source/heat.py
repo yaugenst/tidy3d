@@ -1,10 +1,8 @@
 """Defines heat-charge material specifications for 'HeatChargeSimulation'"""
 
-from __future__ import annotations
-
 from typing import Union
 
-import pydantic.v1 as pd
+import pydantic as pd
 
 from tidy3d.components.tcad.source.abstract import StructureBasedHeatChargeSource
 from tidy3d.constants import VOLUMETRIC_HEAT_RATE

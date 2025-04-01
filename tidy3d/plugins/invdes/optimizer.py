@@ -1,13 +1,13 @@
 # specification for running the optimizer
 
 import abc
-import typing
 from copy import deepcopy
+from typing import Callable, Optional
 
 import autograd as ag
 import autograd.numpy as anp
 import numpy as np
-import pydantic.v1 as pd
+from pydantic import Field, PositiveFloat, PositiveInt
 
 import tidy3d as td
 from tidy3d.components.types import TYPE_TAG_STR
@@ -20,32 +20,29 @@ from .result import InverseDesignResult
 class AbstractOptimizer(InvdesBaseModel, abc.ABC):
     """Specification for an optimization."""
 
-    design: InverseDesignType = pd.Field(
-        ...,
+    design: InverseDesignType = Field(
         title="Inverse Design Specification",
         description="Specification describing the inverse design problem we wish to optimize.",
         discriminator=TYPE_TAG_STR,
     )
 
-    learning_rate: pd.PositiveFloat = pd.Field(
-        ...,
+    learning_rate: PositiveFloat = Field(
         title="Learning Rate",
         description="Step size for the gradient descent optimizer.",
     )
 
-    maximize: bool = pd.Field(
+    maximize: bool = Field(
         True,
         title="Direction of Optimization",
         description="If ``True``, the optimizer will maximize the objective function. If ``False``, the optimizer will minimize the objective function.",
     )
 
-    num_steps: pd.PositiveInt = pd.Field(
-        ...,
+    num_steps: PositiveInt = Field(
         title="Number of Steps",
         description="Number of steps in the gradient descent optimizer.",
     )
 
-    results_cache_fname: str = pd.Field(
+    results_cache_fname: Optional[str] = Field(
         None,
         title="History Storage File",
         description="If specified, will save the optimization state to a local ``.pkl`` file "
@@ -57,7 +54,7 @@ class AbstractOptimizer(InvdesBaseModel, abc.ABC):
         "``optimizer.continue_run(result)``. ",
     )
 
-    store_full_results: bool = pd.Field(
+    store_full_results: bool = Field(
         True,
         title="Store Full Results",
         description="If ``True``, stores the full history for the vector fields, specifically "
@@ -83,9 +80,7 @@ class AbstractOptimizer(InvdesBaseModel, abc.ABC):
         print(f"\tpost_process_val = {result.post_process_val[-1]:.3e}")
         print(f"\tpenalty = {result.penalty[-1]:.3e}")
 
-    def initialize_result(
-        self, params0: typing.Optional[anp.ndarray] = None
-    ) -> InverseDesignResult:
+    def initialize_result(self, params0: Optional[anp.ndarray] = None) -> InverseDesignResult:
         """
         Create an initially empty `InverseDesignResult` from the starting parameters.
 
@@ -110,8 +105,8 @@ class AbstractOptimizer(InvdesBaseModel, abc.ABC):
 
     def run(
         self,
-        post_process_fn: typing.Optional[typing.Callable] = None,
-        callback: typing.Optional[typing.Callable] = None,
+        post_process_fn: Optional[Callable] = None,
+        callback: Optional[Callable] = None,
         params0: anp.ndarray = None,
     ) -> InverseDesignResult:
         """Run this inverse design problem from an optional initial set of parameters.
@@ -140,8 +135,8 @@ class AbstractOptimizer(InvdesBaseModel, abc.ABC):
         self,
         result: InverseDesignResult,
         num_steps: int = None,
-        post_process_fn: typing.Optional[typing.Callable] = None,
-        callback: typing.Optional[typing.Callable] = None,
+        post_process_fn: Optional[Callable] = None,
+        callback: Optional[Callable] = None,
     ) -> InverseDesignResult:
         """Run optimizer for a series of steps with an initialized state.
 
@@ -230,8 +225,8 @@ class AbstractOptimizer(InvdesBaseModel, abc.ABC):
         self,
         fname: str,
         num_steps: int = None,
-        post_process_fn: typing.Optional[typing.Callable] = None,
-        callback: typing.Optional[typing.Callable] = None,
+        post_process_fn: Optional[Callable] = None,
+        callback: Optional[Callable] = None,
     ) -> InverseDesignResult:
         """Continue the optimization run from a ``.pkl`` file with an ``InverseDesignResult``."""
         result = InverseDesignResult.from_file(fname)
@@ -245,8 +240,8 @@ class AbstractOptimizer(InvdesBaseModel, abc.ABC):
     def continue_run_from_history(
         self,
         num_steps: int = None,
-        post_process_fn: typing.Optional[typing.Callable] = None,
-        callback: typing.Optional[typing.Callable] = None,
+        post_process_fn: Optional[Callable] = None,
+        callback: Optional[Callable] = None,
     ) -> InverseDesignResult:
         """Continue the optimization run from a ``.pkl`` file with an ``InverseDesignResult``."""
         return self.continue_run_from_file(
@@ -260,7 +255,7 @@ class AbstractOptimizer(InvdesBaseModel, abc.ABC):
 class AdamOptimizer(AbstractOptimizer):
     """Specification for an optimization."""
 
-    beta1: float = pd.Field(
+    beta1: float = Field(
         0.9,
         ge=0.0,
         le=1.0,
@@ -268,7 +263,7 @@ class AdamOptimizer(AbstractOptimizer):
         description="Beta 1 parameter in the Adam optimization method.",
     )
 
-    beta2: float = pd.Field(
+    beta2: float = Field(
         0.999,
         ge=0.0,
         le=1.0,
@@ -276,7 +271,7 @@ class AdamOptimizer(AbstractOptimizer):
         description="Beta 2 parameter in the Adam optimization method.",
     )
 
-    eps: pd.PositiveFloat = pd.Field(
+    eps: PositiveFloat = Field(
         1e-8,
         title="Epsilon",
         description="Epsilon parameter in the Adam optimization method.",

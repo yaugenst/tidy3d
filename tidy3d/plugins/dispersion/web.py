@@ -4,21 +4,20 @@ from __future__ import annotations
 
 import ssl
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Optional
 
-import pydantic.v1 as pydantic
 import requests
-from pydantic.v1 import Field, NonNegativeFloat, PositiveFloat, PositiveInt, validator
+from pydantic import Field, NonNegativeFloat, PositiveFloat, PositiveInt, model_validator
 
+from tidy3d.components.base import Tidy3dBaseModel
+from tidy3d.components.medium import PoleResidue
+from tidy3d.components.types import Literal
+from tidy3d.constants import HERTZ, MICROMETER
+from tidy3d.exceptions import SetupError, Tidy3dError, WebError
+from tidy3d.log import log
 from tidy3d.web.core.environment import Env
 from tidy3d.web.core.http_util import get_headers
 
-from ...components.base import Tidy3dBaseModel, skip_if_fields_missing
-from ...components.medium import PoleResidue
-from ...components.types import Literal
-from ...constants import HERTZ, MICROMETER
-from ...exceptions import SetupError, Tidy3dError, WebError
-from ...log import log
 from .fit import DispersionFitter
 
 BOUND_MAX_FACTOR = 10
@@ -40,7 +39,7 @@ class ExceptionCodes(Enum):
 class AdvancedFitterParam(Tidy3dBaseModel):
     """Advanced fitter parameters"""
 
-    bound_amp: NonNegativeFloat = Field(
+    bound_amp: Optional[NonNegativeFloat] = Field(
         None,
         title="Upper bound of oscillator strength",
         description="Upper bound of real and imagniary part of oscillator "
@@ -48,7 +47,7 @@ class AdvancedFitterParam(Tidy3dBaseModel):
         "automatic setup based on the frequency range of interest).",
         units=HERTZ,
     )
-    bound_f: NonNegativeFloat = Field(
+    bound_f: Optional[NonNegativeFloat] = Field(
         None,
         title="Upper bound of pole frequency",
         description="Upper bound of real and imaginary part of ``a`` that corresponds to pole "
@@ -96,39 +95,38 @@ class AdvancedFitterParam(Tidy3dBaseModel):
         lt=2**32,
     )
 
-    @validator("bound_f_lower", always=True)
-    @skip_if_fields_missing(["bound_f"])
-    def _validate_lower_frequency_bound(cls, val, values):
+    @model_validator(mode="after")
+    def _validate_lower_frequency_bound(self):
         """bound_f_lower cannot be larger than bound_f."""
-        if values["bound_f"] is not None and val > values["bound_f"]:
+        if self.bound_f is not None and self.bound_f_lowerval > self.bound_f:
             raise SetupError(
                 "The upper bound 'bound_f' cannot be smaller "
                 "than the lower bound 'bound_f_lower'."
             )
-        return val
+        return self
 
 
 class FitterData(AdvancedFitterParam):
     """Data class for request body of Fitter where dipsersion data is input through tuple."""
 
-    wvl_um: Tuple[float, ...] = Field(
-        ...,
+    wvl_um: tuple[float, ...] = Field(
         title="Wavelengths",
         description="A set of wavelengths for dispersion data.",
         units=MICROMETER,
     )
-    n_data: Tuple[float, ...] = Field(
-        ...,
+    n_data: tuple[float, ...] = Field(
         title="Index of refraction",
         description="Real part of the complex index of refraction at each wavelength.",
     )
-    k_data: Tuple[float, ...] = Field(
+    k_data: Optional[tuple[float, ...]] = Field(
         None,
         title="Extinction coefficient",
         description="Imaginary part of the complex index of refraction at each wavelength.",
     )
     num_poles: PositiveInt = Field(
-        1, title="Number of poles", description="Number of poles in model."
+        1,
+        title="Number of poles",
+        description="Number of poles in model.",
     )
     num_tries: PositiveInt = Field(
         50,
@@ -255,12 +253,12 @@ class FitterData(AdvancedFitterParam):
 
         return get_headers()
 
-    def run(self) -> Tuple[PoleResidue, float]:
+    def run(self) -> tuple[PoleResidue, float]:
         """Execute the data fit using the stable fitter in the server.
 
         Returns
         -------
-        Tuple[:class:`.PoleResidue`, float]
+        tuple[:class:`.PoleResidue`, float]
             Best results of multiple fits: (dispersive medium, RMS error).
         """
 
@@ -317,7 +315,7 @@ def run(
     num_tries: PositiveInt = 50,
     tolerance_rms: NonNegativeFloat = 1e-2,
     advanced_param: AdvancedFitterParam = AdvancedFitterParam(),
-) -> Tuple[PoleResidue, float]:
+) -> tuple[PoleResidue, float]:
     """Execute the data fit using the stable fitter in the server.
 
     Parameters
@@ -335,7 +333,7 @@ def run(
 
     Returns
     -------
-    Tuple[:class:`.PoleResidue`, float]
+    tuple[:class:`.PoleResidue`, float]
         Best results of multiple fits: (dispersive medium, RMS error).
     """
     task = FitterData.create(fitter, num_poles, num_tries, tolerance_rms, advanced_param)
@@ -345,13 +343,13 @@ def run(
 class StableDispersionFitter(DispersionFitter):
     """Deprecated."""
 
-    @pydantic.root_validator()
-    def _deprecate_stable_fitter(cls, values):
+    @model_validator(mode="before")
+    def _deprecate_stable_fitter(data):
         log.warning(
             "'StableDispersionFitter' has been deprecated. Use 'DispersionFitter' with "
             "'tidy3d.plugins.dispersion.web.run' to access the stable fitter from the web server."
         )
-        return values
+        return data
 
     def fit(
         self,
@@ -360,6 +358,6 @@ class StableDispersionFitter(DispersionFitter):
         tolerance_rms: NonNegativeFloat = 1e-2,
         guess: PoleResidue = None,
         advanced_param: AdvancedFitterParam = AdvancedFitterParam(),
-    ) -> Tuple[PoleResidue, float]:
+    ) -> tuple[PoleResidue, float]:
         """Deprecated."""
         return run(self, num_poles, num_tries, tolerance_rms, advanced_param)

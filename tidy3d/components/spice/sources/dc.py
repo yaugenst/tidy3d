@@ -21,7 +21,7 @@ Examples:
 
 from typing import Optional, Union
 
-import pydantic.v1 as pd
+from pydantic import Field, FiniteFloat
 
 from tidy3d.components.base import Tidy3dBaseModel
 from tidy3d.constants import AMP, VOLT
@@ -44,8 +44,8 @@ class DCVoltageSource(Tidy3dBaseModel):
     >>> voltage_source = td.DCVoltageSource(voltage=voltages)
     """
 
-    name: Optional[str]
-    voltage: Union[pd.FiniteFloat, list[pd.FiniteFloat]] = pd.Field(
+    name: Optional[str] = None
+    voltage: Union[FiniteFloat, list[FiniteFloat]] = Field(
         title="Voltage",
         description="DC voltage usually used as source in 'VoltageBC' boundary conditions.",
     )
@@ -62,8 +62,8 @@ class DCCurrentSource(Tidy3dBaseModel):
     >>> current_source = td.DCCurrentSource(current=0.4)
     """
 
-    name: Optional[str]
-    current: pd.FiniteFloat = pd.Field(
+    name: Optional[str] = None
+    current: FiniteFloat = Field(
         title="Current",
         description="DC current usually used as source in 'CurrentBC' boundary conditions.",
     )

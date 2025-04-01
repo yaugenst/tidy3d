@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-import pydantic.v1 as pd
+from pydantic import Field
 
 from .base import Expression
 from .types import NumberType
@@ -37,7 +37,7 @@ class Variable(Expression):
     10
     """
 
-    name: Optional[str] = pd.Field(
+    name: Optional[str] = Field(
         None,
         title="Name",
         description="The name of the variable used for lookup during evaluation.",
@@ -80,8 +80,7 @@ class Constant(Variable):
     5
     """
 
-    value: NumberType = pd.Field(
-        ...,
+    value: NumberType = Field(
         title="Value",
         description="The fixed value of the constant.",
     )

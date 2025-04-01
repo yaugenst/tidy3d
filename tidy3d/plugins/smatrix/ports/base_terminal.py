@@ -3,18 +3,17 @@
 from abc import ABC, abstractmethod
 from typing import Union
 
-import pydantic.v1 as pd
+from pydantic import Field, model_validator
 
+from tidy3d.components.base import Tidy3dBaseModel, cached_property
+from tidy3d.components.data.data_array import FreqDataArray
+from tidy3d.components.data.sim_data import SimulationData
+from tidy3d.components.grid.grid import Grid
+from tidy3d.components.monitor import FieldMonitor, ModeMonitor
+from tidy3d.components.source.base import Source
+from tidy3d.components.source.time import GaussianPulse
+from tidy3d.components.types import FreqArray
 from tidy3d.log import log
-
-from ....components.base import Tidy3dBaseModel, cached_property
-from ....components.data.data_array import FreqDataArray
-from ....components.data.sim_data import SimulationData
-from ....components.grid.grid import Grid
-from ....components.monitor import FieldMonitor, ModeMonitor
-from ....components.source.base import Source
-from ....components.source.time import GaussianPulse
-from ....components.types import FreqArray
 
 
 class AbstractTerminalPort(Tidy3dBaseModel, ABC):
@@ -23,8 +22,7 @@ class AbstractTerminalPort(Tidy3dBaseModel, ABC):
     terminals, and the current flowing from one terminal into the other.
     """
 
-    name: str = pd.Field(
-        ...,
+    name: str = Field(
         title="Name",
         description="Unique name for the port.",
         min_length=1,
@@ -65,10 +63,10 @@ class AbstractTerminalPort(Tidy3dBaseModel, ABC):
     def compute_current(self, sim_data: SimulationData) -> FreqDataArray:
         """Helper to compute current flowing into the port."""
 
-    @pd.root_validator(pre=False)
-    def _warn_rf_license(cls, values):
+    @model_validator(mode="before")
+    def _warn_rf_license(data):
         log.warning(
             "ℹ️ ⚠️ RF simulations are subject to new license requirements in the future. You have instantiated at least one RF-specific component.",
             log_once=True,
         )
-        return values
+        return data

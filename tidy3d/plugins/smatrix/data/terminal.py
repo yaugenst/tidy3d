@@ -1,14 +1,9 @@
 """Storing data associated with results from the TerminalComponentModeler"""
 
-from __future__ import annotations
+from pydantic import model_validator
 
-import pydantic.v1 as pd
-
+from tidy3d.components.data.data_array import DataArray
 from tidy3d.log import log
-
-from ....components.data.data_array import (
-    DataArray,
-)
 
 
 class PortDataArray(DataArray):
@@ -27,13 +22,13 @@ class PortDataArray(DataArray):
     __slots__ = ()
     _dims = ("f", "port")
 
-    @pd.root_validator(pre=False)
-    def _warn_rf_license(cls, values):
+    @model_validator(mode="before")
+    def _warn_rf_license(data):
         log.warning(
             "ℹ️ ⚠️ RF simulations are subject to new license requirements in the future. You have instantiated at least one RF-specific component.",
             log_once=True,
         )
-        return values
+        return data
 
 
 class TerminalPortDataArray(DataArray):
@@ -54,10 +49,10 @@ class TerminalPortDataArray(DataArray):
     _dims = ("f", "port_out", "port_in")
     _data_attrs = {"long_name": "terminal-based port matrix element"}
 
-    @pd.root_validator(pre=False)
-    def _warn_rf_license(cls, values):
+    @model_validator(mode="before")
+    def _warn_rf_license(data):
         log.warning(
             "ℹ️ ⚠️ RF simulations are subject to new license requirements in the future. You have instantiated at least one RF-specific component.",
             log_once=True,
         )
-        return values
+        return data

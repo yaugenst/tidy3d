@@ -1,9 +1,10 @@
 """Defines jax-compatible datasets."""
 
-import pydantic.v1 as pd
 from jax.tree_util import register_pytree_node_class
+from pydantic import Field
 
-from .....components.data.dataset import PermittivityDataset
+from tidy3d.components.data.dataset import PermittivityDataset
+
 from ..base import JaxObject
 from .data_array import JaxDataArray
 
@@ -14,20 +15,17 @@ class JaxPermittivityDataset(PermittivityDataset, JaxObject):
 
     _tidy3d_class = PermittivityDataset
 
-    eps_xx: JaxDataArray = pd.Field(
-        ...,
+    eps_xx: JaxDataArray = Field(
         title="Epsilon xx",
         description="Spatial distribution of the xx-component of the relative permittivity.",
         jax_field=True,
     )
-    eps_yy: JaxDataArray = pd.Field(
-        ...,
+    eps_yy: JaxDataArray = Field(
         title="Epsilon yy",
         description="Spatial distribution of the yy-component of the relative permittivity.",
         jax_field=True,
     )
-    eps_zz: JaxDataArray = pd.Field(
-        ...,
+    eps_zz: JaxDataArray = Field(
         title="Epsilon zz",
         description="Spatial distribution of the zz-component of the relative permittivity.",
         jax_field=True,

@@ -1,17 +1,12 @@
 """Defines heat simulation data class"""
 
-from __future__ import annotations
-
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
-import pydantic.v1 as pd
+from pydantic import Field, model_validator
 
 from tidy3d.components.base_sim.data.sim_data import AbstractSimulationData
-from tidy3d.components.data.data_array import (
-    SpatialDataArray,
-    SteadyVoltageDataArray,
-)
+from tidy3d.components.data.data_array import SpatialDataArray, SteadyVoltageDataArray
 from tidy3d.components.data.utils import (
     TetrahedralGridDataset,
     TriangularGridDataset,
@@ -24,7 +19,7 @@ from tidy3d.components.tcad.data.types import (
 )
 from tidy3d.components.tcad.simulation.heat import HeatSimulation
 from tidy3d.components.tcad.simulation.heat_charge import HeatChargeSimulation
-from tidy3d.components.types import Ax, Literal, RealFieldVal, annotate_type
+from tidy3d.components.types import Ax, Literal, RealFieldVal, discriminated_union
 from tidy3d.components.viz import add_ax_if_none, equal_aspect
 from tidy3d.exceptions import DataError
 from tidy3d.log import log
@@ -53,21 +48,21 @@ class DeviceCharacteristics(Tidy3dBaseModel):
 
     """
 
-    steady_dc_hole_capacitance: Optional[SteadyVoltageDataArray] = pd.Field(
+    steady_dc_hole_capacitance: Optional[SteadyVoltageDataArray] = Field(
         None,
         title="Steady DC hole capacitance",
         description="Device steady DC capacitance data based on holes. If the simulation "
         "has converged, these result should be close to that of electrons.",
     )
 
-    steady_dc_electron_capacitance: Optional[SteadyVoltageDataArray] = pd.Field(
+    steady_dc_electron_capacitance: Optional[SteadyVoltageDataArray] = Field(
         None,
         title="Steady DC electron capacitance",
         description="Device steady DC capacitance data based on electrons. If the simulation "
         "has converged, these result should be close to that of holes.",
     )
 
-    steady_dc_current_voltage: Optional[SteadyVoltageDataArray] = pd.Field(
+    steady_dc_current_voltage: Optional[SteadyVoltageDataArray] = Field(
         None,
         title="Steady DC current-voltage",
         description="Device steady DC current-voltage relation for the device.",
@@ -118,19 +113,18 @@ class HeatChargeSimulationData(AbstractSimulationData):
     ... )
     """
 
-    simulation: HeatChargeSimulation = pd.Field(
+    simulation: HeatChargeSimulation = Field(
         title="Heat-Charge Simulation",
         description="Original :class:`.HeatChargeSimulation` associated with the data.",
     )
 
-    data: Tuple[annotate_type(TCADMonitorDataType), ...] = pd.Field(
-        ...,
+    data: tuple[discriminated_union(TCADMonitorDataType), ...] = Field(
         title="Monitor Data",
         description="List of :class:`.MonitorData` instances "
         "associated with the monitors of the original :class:`.Simulation`.",
     )
 
-    device_characteristics: Optional[DeviceCharacteristics] = pd.Field(
+    device_characteristics: Optional[DeviceCharacteristics] = Field(
         None,
         title="Device characteristics",
         description="Data characterizing the device. Current characteristics include: "
@@ -356,16 +350,16 @@ class HeatSimulationData(HeatChargeSimulationData):
         Consider using :class:`HeatChargeSimulationData` instead.
     """
 
-    simulation: HeatSimulation = pd.Field(
+    simulation: HeatSimulation = Field(
         title="Heat Simulation",
         description="Original :class:`HeatSimulation` associated with the data.",
     )
 
-    @pd.root_validator(skip_on_failure=True)
-    def issue_warning_deprecated(cls, values):
+    @model_validator(mode="before")
+    def issue_warning_deprecated(data):
         """Issue warning for 'HeatSimulations'."""
         log.warning(
             "'HeatSimulationData' is deprecated and will be discontinued. You can use "
             "'HeatChargeSimulationData' instead"
         )
-        return values
+        return data

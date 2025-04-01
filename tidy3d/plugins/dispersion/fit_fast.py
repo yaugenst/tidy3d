@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Tuple
-
 import numpy as np
-from pydantic.v1 import NonNegativeFloat, PositiveInt
+from pydantic import NonNegativeFloat, PositiveInt
 
-from ...components.dispersion_fitter import AdvancedFastFitterParam, fit
-from ...components.medium import PoleResidue
-from ...constants import C_0, HBAR
+from tidy3d.components.dispersion_fitter import AdvancedFastFitterParam, fit
+from tidy3d.components.medium import PoleResidue
+from tidy3d.constants import C_0, HBAR
+
 from .fit import DispersionFitter
 
 # numerical tolerance for pole relocation for fast fitter
@@ -44,7 +43,7 @@ class FastDispersionFitter(DispersionFitter):
         eps_inf: float = None,
         tolerance_rms: NonNegativeFloat = DEFAULT_TOLERANCE_RMS,
         advanced_param: AdvancedFastFitterParam = None,
-    ) -> Tuple[PoleResidue, float]:
+    ) -> tuple[PoleResidue, float]:
         """Fit data using a fast fitting algorithm.
 
         Note
@@ -87,7 +86,7 @@ class FastDispersionFitter(DispersionFitter):
 
         Returns
         -------
-        Tuple[:class:`.PoleResidue`, float]
+        tuple[:class:`.PoleResidue`, float]
             Best fitting result: (dispersive medium, weighted RMS error).
         """
 
@@ -117,7 +116,7 @@ class FastDispersionFitter(DispersionFitter):
         cls,
         eps_real: float,
         loss_tangent: float,
-        frequency_range: Tuple[float, float],
+        frequency_range: tuple[float, float],
         max_num_poles: PositiveInt = DEFAULT_MAX_POLES,
         number_sampling_frequency: PositiveInt = 10,
         tolerance_rms: NonNegativeFloat = DEFAULT_TOLERANCE_RMS,
@@ -130,7 +129,7 @@ class FastDispersionFitter(DispersionFitter):
             Real part of permittivity
         loss_tangent : float
             Loss tangent.
-        frequency_range : Tuple[float, float]
+        frequency_range : tuple[float, float]
             Freqquency range for the material to exhibit constant loss tangent response.
         max_num_poles : PositiveInt, optional
             Maximum number of poles in the model.

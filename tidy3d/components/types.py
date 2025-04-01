@@ -1,183 +1,150 @@
 """Defines 'types' that various fields can be"""
 
-from typing import (
-    Literal,  # We support py3.9+, so direct typing import is fine.
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import Annotated, Any, Literal, Optional, Union
 
-import autograd.numpy as np
-import pydantic.v1 as pydantic
+import numpy as np
+from pydantic import (
+    BeforeValidator,
+    Field,
+    NonNegativeFloat,
+    PositiveFloat,
+)
+from pydantic.functional_serializers import PlainSerializer
 
 try:
     from matplotlib.axes import Axes
 except ImportError:
     Axes = None
-from shapely.geometry.base import BaseGeometry
-from typing_extensions import Annotated
 
-from ..exceptions import ValidationError
+from shapely.geometry.base import BaseGeometry
 
 # type tag default name
 TYPE_TAG_STR = "type"
 
 
-def annotate_type(UnionType):
-    """Annotated union type using TYPE_TAG_STR as discriminator."""
-    return Annotated[UnionType, pydantic.Field(discriminator=TYPE_TAG_STR)]
+def discriminated_union(union, discriminator=TYPE_TAG_STR):
+    return Annotated[union, Field(discriminator=discriminator)]
 
 
 """ Numpy Arrays """
 
 
-def _totuple(arr: np.ndarray) -> tuple:
-    """Convert a numpy array to a nested tuple."""
-    if arr.ndim > 1:
-        return tuple(_totuple(val) for val in arr)
-    return tuple(arr)
+def _from_complex_dict(v):
+    if isinstance(v, dict) and "real" in v and "imag" in v:
+        return np.asarray(v["real"]) + 1j * np.asarray(v["imag"])
+    return v
 
 
-# generic numpy array
-Numpy = np.ndarray
+def _coerce(v, *, dtype, ndim, shape, forbid_nan):
+    """Convert input to a NumPy array with constraints.
+
+    Raises
+    ------
+    ValueError
+        - If conversion to an array fails.
+        - If the array ends up with dtype=object (unsupported element type).
+        - If the number of dimensions or shape does not match the expectations.
+        - If ``forbid_nan`` is ``True`` and the array contains NaN values.
+    """
+    try:
+        arr = np.asarray(v) if dtype is None else np.asarray(v, dtype=dtype)
+    except Exception as e:
+        raise ValueError(f"cannot convert {type(v).__name__!r} to a NumPy array") from e
+    if arr.dtype == np.dtype("object"):
+        raise ValueError(f"unsupported element type {type(v).__name__!r} for array coercion")
+
+    if ndim is not None and arr.ndim != ndim:
+        raise ValueError(f"expected {ndim}-D, got {arr.ndim}-D")
+    if shape is not None and tuple(arr.shape) != shape:
+        raise ValueError(f"expected shape {shape}, got {tuple(arr.shape)}")
+    if forbid_nan and np.any(np.isnan(arr)):
+        raise ValueError("array contains NaN")
+    return arr
 
 
-class ArrayLike:
-    """Type that stores a numpy array."""
-
-    ndim = None
-    dtype = None
-    shape = None
-
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.load_complex
-        yield cls.convert_to_numpy
-        yield cls.check_dims
-        yield cls.check_shape
-        yield cls.assert_non_null
-
-    @classmethod
-    def load_complex(cls, val):
-        """Special handling to load a complex-valued np.ndarray saved to file."""
-        if not isinstance(val, dict):
-            return val
-        if "real" not in val or "imag" not in val:
-            raise ValueError("ArrayLike real and imaginary parts not stored properly.")
-        arr_real = np.array(val["real"])
-        arr_imag = np.array(val["imag"])
-        return arr_real + 1j * arr_imag
-
-    @classmethod
-    def convert_to_numpy(cls, val):
-        """Convert the value to np.ndarray and provide some casting."""
-        arr_numpy = np.array(val, ndmin=1, dtype=cls.dtype, copy=True)
-        return arr_numpy
-
-    @classmethod
-    def check_dims(cls, val):
-        """Make sure the number of dimensions is correct."""
-        if cls.ndim and val.ndim != cls.ndim:
-            raise ValidationError(f"Expected {cls.ndim} dimensions for ArrayLike, got {val.ndim}.")
-        return val
-
-    @classmethod
-    def check_shape(cls, val):
-        """Make sure the shape is correct."""
-        if cls.shape and val.shape != cls.shape:
-            raise ValidationError(f"Expected shape {cls.shape} for ArrayLike, got {val.shape}.")
-        return val
-
-    @classmethod
-    def assert_non_null(cls, val):
-        """Make sure array is not None."""
-        if np.any(np.isnan(val)):
-            raise ValidationError("'ArrayLike' field contained None or nan values.")
-        return val
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        """Sets the schema of DataArray object."""
-
-        schema = dict(
-            type="ArrayLike",
-        )
-        field_schema.update(schema)
+def _auto_serializer(a, _):
+    """Serializes numpy arrays and scalars for JSON."""
+    if isinstance(a, complex) or (
+        hasattr(np, "complexfloating") and isinstance(a, np.complexfloating)
+    ):
+        return {"real": float(a.real), "imag": float(a.imag)}
+    if isinstance(a, np.ndarray):
+        if np.iscomplexobj(a):
+            return {"real": a.real.tolist(), "imag": a.imag.tolist()}
+        else:
+            return a.tolist()
+    if isinstance(a, float) or (hasattr(np, "floating") and isinstance(a, np.floating)):
+        return float(a)  # Ensure basic Python float
+    if isinstance(a, int) or (hasattr(np, "integer") and isinstance(a, np.integer)):
+        return int(a)  # Ensure basic Python int
+    if hasattr(np, "number") and isinstance(a, np.number):
+        return a.item()
+    return a
 
 
-def constrained_array(
-    dtype: type = None, ndim: int = None, shape: Tuple[pydantic.NonNegativeInt, ...] = None
-) -> type:
-    """Generate an ArrayLike sub-type with constraints built in."""
+def array_alias(
+    *,
+    dtype: Optional[type] = None,
+    ndim: Optional[int] = None,
+    shape: Optional[tuple[int, ...]] = None,
+    forbid_nan: bool = True,
+):
+    """Return an `Annotated[np.ndarray, ...]` with checks."""
+    validators = [
+        BeforeValidator(_from_complex_dict),
+        BeforeValidator(
+            lambda v: _coerce(
+                v,
+                dtype=np.dtype(dtype) if dtype is not None else None,
+                ndim=ndim,
+                shape=shape,
+                forbid_nan=forbid_nan,
+            )
+        ),
+    ]
 
-    # note, a unique name is required for each subclass of ArrayLike with constraints
-    type_name = "ArrayLike"
+    serializer = PlainSerializer(_auto_serializer, when_used="json")
 
-    meta_args = []
-    if dtype is not None:
-        meta_args.append(f"dtype={dtype.__name__}")
-    if ndim is not None:
-        meta_args.append(f"ndim={ndim}")
-    if shape is not None:
-        meta_args.append(f"shape={shape}")
-    type_name += "[" + ", ".join(meta_args) + "]"
-
-    return type(type_name, (ArrayLike,), dict(dtype=dtype, ndim=ndim, shape=shape))
+    return Annotated[np.ndarray, *validators, serializer]
 
 
-# pre-define a set of commonly used array like instances for import and use in type hints
-ArrayInt1D = constrained_array(dtype=int, ndim=1)
-ArrayFloat1D = constrained_array(dtype=float, ndim=1)
-ArrayFloat2D = constrained_array(dtype=float, ndim=2)
-ArrayFloat3D = constrained_array(dtype=float, ndim=3)
-ArrayFloat4D = constrained_array(dtype=float, ndim=4)
-ArrayComplex1D = constrained_array(dtype=complex, ndim=1)
-ArrayComplex2D = constrained_array(dtype=complex, ndim=2)
-ArrayComplex3D = constrained_array(dtype=complex, ndim=3)
-ArrayComplex4D = constrained_array(dtype=complex, ndim=4)
+ArrayLike = array_alias()
 
-TensorReal = constrained_array(dtype=float, ndim=2, shape=(3, 3))
-MatrixReal4x4 = constrained_array(dtype=float, ndim=2, shape=(4, 4))
+ArrayInt1D = array_alias(dtype=int, ndim=1)
+
+ArrayFloat = array_alias(dtype=float)
+ArrayFloat1D = array_alias(dtype=float, ndim=1)
+ArrayFloat2D = array_alias(dtype=float, ndim=2)
+ArrayFloat3D = array_alias(dtype=float, ndim=3)
+ArrayFloat4D = array_alias(dtype=float, ndim=4)
+
+ArrayComplex = array_alias(dtype=complex)
+ArrayComplex1D = array_alias(dtype=complex, ndim=1)
+ArrayComplex2D = array_alias(dtype=complex, ndim=2)
+ArrayComplex3D = array_alias(dtype=complex, ndim=3)
+ArrayComplex4D = array_alias(dtype=complex, ndim=4)
+
+TensorReal = array_alias(dtype=float, ndim=2, shape=(3, 3))
+MatrixReal4x4 = array_alias(dtype=float, ndim=2, shape=(4, 4))
 
 """ Complex Values """
 
 
-class ComplexNumber(pydantic.BaseModel):
-    """Complex number with a well defined schema."""
-
-    real: float
-    imag: float
-
-    @property
-    def as_complex(self):
-        """return complex representation of ComplexNumber."""
-        return self.real + 1j * self.imag
+def _parse_complex(v: Any) -> complex:
+    if isinstance(v, dict) and "real" in v and "imag" in v:
+        return complex(v["real"], v["imag"])
+    return v
 
 
-class tidycomplex(complex):
-    """complex type that we can use in our models."""
-
-    @classmethod
-    def __get_validators__(cls):
-        """Defines which validator function to use for ComplexNumber."""
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, value):
-        """What gets called when you construct a tidycomplex."""
-
-        if isinstance(value, ComplexNumber):
-            return value.as_complex
-        if isinstance(value, dict):
-            c = ComplexNumber(**value)
-            return c.as_complex
-        return cls(value)
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        """Sets the schema of ComplexNumber."""
-        field_schema.update(ComplexNumber.schema())
-
+Complex = Annotated[
+    complex,
+    BeforeValidator(_parse_complex),
+    PlainSerializer(
+        lambda z, _: {"real": z.real, "imag": z.imag},
+        when_used="json",
+        return_type=dict,
+    ),
+]
 
 """ symmetry """
 
@@ -186,13 +153,13 @@ ScalarSymmetry = Literal[0, 1]
 
 """ geometric """
 
-Size1D = pydantic.NonNegativeFloat
-Size = Tuple[Size1D, Size1D, Size1D]
-Coordinate = Tuple[float, float, float]
-CoordinateOptional = Tuple[Optional[float], Optional[float], Optional[float]]
-Coordinate2D = Tuple[float, float]
-Bound = Tuple[Coordinate, Coordinate]
-GridSize = Union[pydantic.PositiveFloat, Tuple[pydantic.PositiveFloat, ...]]
+Size1D = NonNegativeFloat
+Size = tuple[Size1D, Size1D, Size1D]
+Coordinate = tuple[float, float, float]
+CoordinateOptional = tuple[Optional[float], Optional[float], Optional[float]]
+Coordinate2D = tuple[float, float]
+Bound = tuple[Coordinate, Coordinate]
+GridSize = Union[PositiveFloat, tuple[PositiveFloat, ...]]
 Axis = Literal[0, 1, 2]
 Axis2D = Literal[0, 1]
 Shapely = BaseGeometry
@@ -206,14 +173,11 @@ LengthUnit = Literal["nm", "μm", "um", "mm", "cm", "m"]
 # custom medium
 InterpMethod = Literal["nearest", "linear"]
 
-# Complex = Union[complex, ComplexNumber]
-Complex = Union[tidycomplex, ComplexNumber]
-PoleAndResidue = Tuple[Complex, Complex]
-
-# PoleAndResidue = Tuple[Tuple[float, float], Tuple[float, float]]
+PoleAndResidue = tuple[Complex, Complex]
+PolesAndResidues = tuple[PoleAndResidue, ...]
 FreqBoundMax = float
 FreqBoundMin = float
-FreqBound = Tuple[FreqBoundMin, FreqBoundMax]
+FreqBound = tuple[FreqBoundMin, FreqBoundMax]
 
 PermittivityComponent = Literal["xx", "xy", "xz", "yx", "yy", "yz", "zx", "zy", "zz"]
 
@@ -226,8 +190,8 @@ Direction = Literal["+", "-"]
 
 EMField = Literal["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"]
 FieldType = Literal["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"]
-FreqArray = Union[Tuple[float, ...], ArrayFloat1D]
-ObsGridArray = Union[Tuple[float, ...], ArrayFloat1D]
+FreqArray = Union[tuple[float, ...]]
+ObsGridArray = Union[tuple[float, ...]]
 PolarizationBasis = Literal["linear", "circular"]
 AuxField = Literal["Nfx", "Nfy", "Nfz"]
 

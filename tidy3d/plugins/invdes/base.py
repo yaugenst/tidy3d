@@ -1,10 +1,8 @@
 # base class for all of the invdes fields
-from __future__ import annotations
+from abc import ABC
 
-import abc
-
-import tidy3d as td
+from tidy3d.components.base import Tidy3dBaseModel
 
 
-class InvdesBaseModel(td.components.base.Tidy3dBaseModel, abc.ABC):
+class InvdesBaseModel(Tidy3dBaseModel, ABC):
     """Base class for ``invdes`` components, in case we need it."""

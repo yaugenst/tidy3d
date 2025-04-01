@@ -1,6 +1,8 @@
 """Holds the reference materials for Tidy3D material library."""
 
-import pydantic.v1 as pd
+from typing import Optional
+
+from pydantic import Field
 
 from ..components.base import Tidy3dBaseModel
 
@@ -8,23 +10,23 @@ from ..components.base import Tidy3dBaseModel
 class ReferenceData(Tidy3dBaseModel):
     """Reference data."""
 
-    doi: str = pd.Field(None, title="DOI", description="DOI of the reference.")
-    journal: str = pd.Field(
+    doi: Optional[str] = Field(None, title="DOI", description="DOI of the reference.")
+    journal: Optional[str] = Field(
         None,
         title="Journal publication info",
         description="Publication info in the order of author, title, journal volume, and year.",
     )
-    url: str = pd.Field(
+    url: Optional[str] = Field(
         None,
         title="URL link",
         description="Some reference can be accessed through a url link to its pdf etc.",
     )
-    manufacturer: str = pd.Field(
+    manufacturer: Optional[str] = Field(
         None,
         title="Manufacturer",
         description="Name of the manufacturer, e.g., Rogers, Arlon.",
     )
-    datasheet_title: str = pd.Field(
+    datasheet_title: Optional[str] = Field(
         None,
         title="Datasheet Title",
         description="Title of the datasheet.",

@@ -1,11 +1,7 @@
 """Defines heat simulation class
 NOTE: Keeping this class for backward compatibility only"""
 
-from __future__ import annotations
-
-from typing import Tuple
-
-import pydantic.v1 as pd
+from pydantic import model_validator
 
 from tidy3d.components.tcad.simulation.heat_charge import HeatChargeSimulation
 from tidy3d.components.types import Ax
@@ -47,14 +43,14 @@ class HeatSimulation(HeatChargeSimulation):
     ... )
     """
 
-    @pd.root_validator(skip_on_failure=True)
-    def issue_warning_deprecated(cls, values):
+    @model_validator(mode="before")
+    def issue_warning_deprecated(data):
         """Issue warning for 'HeatSimulations'."""
         log.warning(
             "Setting up deprecated 'HeatSimulation'. "
             "Consider defining 'HeatChargeSimulation' instead."
         )
-        return values
+        return data
 
     @equal_aspect
     @add_ax_if_none
@@ -68,8 +64,8 @@ class HeatSimulation(HeatChargeSimulation):
         source_alpha: float = None,
         monitor_alpha: float = None,
         colorbar: str = "conductivity",
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
     ) -> Ax:
         """Plot each of simulation's components on a plane defined by one nonzero x,y,z coordinate.
 

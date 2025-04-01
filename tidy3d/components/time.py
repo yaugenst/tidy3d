@@ -1,11 +1,9 @@
 """Defines time dependence"""
 
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
 
 import numpy as np
-import pydantic.v1 as pydantic
+from pydantic import Field, NonNegativeFloat
 
 from ..constants import RADIAN
 from ..exceptions import SetupError
@@ -20,11 +18,11 @@ DFT_CUTOFF = 1e-8
 class AbstractTimeDependence(ABC, Tidy3dBaseModel):
     """Base class describing time dependence."""
 
-    amplitude: pydantic.NonNegativeFloat = pydantic.Field(
+    amplitude: NonNegativeFloat = Field(
         1.0, title="Amplitude", description="Real-valued maximum amplitude of the time dependence."
     )
 
-    phase: float = pydantic.Field(
+    phase: float = Field(
         0.0, title="Phase", description="Phase shift of the time dependence.", units=RADIAN
     )
 

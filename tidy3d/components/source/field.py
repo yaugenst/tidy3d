@@ -3,25 +3,19 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
-import pydantic.v1 as pydantic
+from pydantic import Field, NonNegativeInt, PositiveFloat, field_validator, model_validator
 
 from ...constants import GLANCING_CUTOFF, MICROMETER, RADIAN, inf
 from ...exceptions import SetupError
 from ...log import log
-from ..base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
+from ..base import Tidy3dBaseModel, cached_property
 from ..data.dataset import FieldDataset
 from ..data.validators import validate_can_interpolate, validate_no_nans
 from ..mode_spec import ModeSpec
-from ..types import (
-    TYPE_TAG_STR,
-    Ax,
-    Axis,
-    Coordinate,
-    Direction,
-)
+from ..types import TYPE_TAG_STR, Ax, Axis, Coordinate, Direction
 from ..validators import (
     assert_plane,
     assert_single_freq_in_range,
@@ -75,15 +69,14 @@ class VolumeSource(Source, ABC):
 class DirectionalSource(FieldSource, ABC):
     """A Field source that propagates in a given direction."""
 
-    direction: Direction = pydantic.Field(
-        ...,
+    direction: Direction = Field(
         title="Direction",
         description="Specifies propagation in the positive or negative direction of the injection "
         "axis.",
     )
 
     @cached_property
-    def _dir_vector(self) -> Tuple[float, float, float]:
+    def _dir_vector(self) -> tuple[float, float, float]:
         """Returns a vector indicating the source direction for arrow plotting, if not None."""
         if self._injection_axis is None:
             return None
@@ -96,7 +89,7 @@ class BroadbandSource(Source, ABC):
     """A source with frequency dependent field distributions."""
 
     # Default as for analytic beam sources; overwrriten for ModeSource below
-    num_freqs: int = pydantic.Field(
+    num_freqs: int = Field(
         3,
         title="Number of Frequency Points",
         description="Number of points used to approximate the frequency dependence of the injected "
@@ -121,8 +114,8 @@ class BroadbandSource(Source, ABC):
         cheb_points = np.cos(np.pi * np.flip(uni_points))
         return freq_avg + freq_diff * cheb_points
 
-    @pydantic.validator("num_freqs", always=True, allow_reuse=True)
-    def _warn_if_large_number_of_freqs(cls, val):
+    @field_validator("num_freqs")
+    def _warn_if_large_number_of_freqs(val):
         """Warn if a large number of frequency points is requested."""
 
         if val is None:
@@ -235,8 +228,8 @@ class CustomFieldSource(FieldSource, PlanarSource):
         * `Defining spatially-varying sources <../../notebooks/CustomFieldSource.html>`_
     """
 
-    field_dataset: Optional[FieldDataset] = pydantic.Field(
-        ...,
+    field_dataset: Optional[FieldDataset] = Field(
+        None,
         title="Field Dataset",
         description=":class:`.FieldDataset` containing the desired frequency-domain "
         "fields patterns to inject. At least one tangential field component must be specified.",
@@ -247,20 +240,19 @@ class CustomFieldSource(FieldSource, PlanarSource):
     _field_dataset_single_freq = assert_single_freq_in_range("field_dataset")
     _can_interpolate = validate_can_interpolate("field_dataset")
 
-    @pydantic.validator("field_dataset", always=True)
-    @skip_if_fields_missing(["size"])
-    def _tangential_component_defined(cls, val: FieldDataset, values: dict) -> FieldDataset:
+    @model_validator(mode="after")
+    def _tangential_component_defined(self) -> FieldDataset:
         """Assert that at least one tangential field component is provided."""
+        val = self.field_dataset
         if val is None:
-            return val
-        size = values.get("size")
-        normal_axis = size.index(0.0)
-        _, (cmp1, cmp2) = cls.pop_axis("xyz", axis=normal_axis)
+            return self
+        normal_axis = self.size.index(0.0)
+        _, (cmp1, cmp2) = self.pop_axis("xyz", axis=normal_axis)
         for field in "EH":
             for cmp_name in (cmp1, cmp2):
                 tangential_field = field + cmp_name
                 if tangential_field in val.field_components:
-                    return val
+                    return self
         raise SetupError("No tangential field found in the suppled 'field_dataset'.")
 
 
@@ -281,14 +273,14 @@ class AngledFieldSource(DirectionalSource, ABC):
 
     """
 
-    angle_theta: float = pydantic.Field(
+    angle_theta: float = Field(
         0.0,
         title="Polar Angle",
         description="Polar angle of the propagation axis from the injection axis.",
         units=RADIAN,
     )
 
-    angle_phi: float = pydantic.Field(
+    angle_phi: float = Field(
         0.0,
         title="Azimuth Angle",
         description="Azimuth angle of the propagation axis in the plane orthogonal to the "
@@ -296,7 +288,7 @@ class AngledFieldSource(DirectionalSource, ABC):
         units=RADIAN,
     )
 
-    pol_angle: float = pydantic.Field(
+    pol_angle: float = Field(
         0,
         title="Polarization Angle",
         description="Specifies the angle between the electric field polarization of the "
@@ -310,8 +302,8 @@ class AngledFieldSource(DirectionalSource, ABC):
         units=RADIAN,
     )
 
-    @pydantic.validator("angle_theta", allow_reuse=True, always=True)
-    def glancing_incidence(cls, val):
+    @field_validator("angle_theta")
+    def glancing_incidence(val):
         """Warn if close to glancing incidence."""
         if np.abs(np.pi / 2 - val) < GLANCING_CUTOFF:
             log.warning(
@@ -322,7 +314,7 @@ class AngledFieldSource(DirectionalSource, ABC):
         return val
 
     @cached_property
-    def _dir_vector(self) -> Tuple[float, float, float]:
+    def _dir_vector(self) -> tuple[float, float, float]:
         """Source direction normal vector in cartesian coordinates."""
 
         # Propagation vector assuming propagation along z
@@ -335,7 +327,7 @@ class AngledFieldSource(DirectionalSource, ABC):
         return self.unpop_axis(dz, (dx, dy), axis=self._injection_axis)
 
     @cached_property
-    def _pol_vector(self) -> Tuple[float, float, float]:
+    def _pol_vector(self) -> tuple[float, float, float]:
         """Source polarization normal vector in cartesian coordinates."""
 
         # Polarization vector assuming propagation along z
@@ -412,13 +404,13 @@ class ModeSource(DirectionalSource, PlanarSource, BroadbandSource):
         * `Prelude to Integrated Photonics Simulation: Mode Injection <https://www.flexcompute.com/fdtd101/Lecture-4-Prelude-to-Integrated-Photonics-Simulation-Mode-Injection/>`_
     """
 
-    mode_spec: ModeSpec = pydantic.Field(
-        ModeSpec(),
+    mode_spec: ModeSpec = Field(
+        default_factory=ModeSpec,
         title="Mode Specification",
         description="Parameters to feed to mode solver which determine modes measured by monitor.",
     )
 
-    mode_index: pydantic.NonNegativeInt = pydantic.Field(
+    mode_index: NonNegativeInt = Field(
         0,
         title="Mode Index",
         description="Index into the collection of modes returned by mode solver. "
@@ -427,7 +419,7 @@ class ModeSource(DirectionalSource, PlanarSource, BroadbandSource):
         "``num_modes`` in the solver will be set to ``mode_index + 1``.",
     )
 
-    num_freqs: int = pydantic.Field(
+    num_freqs: int = Field(
         1,
         title="Number of Frequency Points",
         description="Number of points used to approximate the frequency dependence of injected "
@@ -448,7 +440,7 @@ class ModeSource(DirectionalSource, PlanarSource, BroadbandSource):
         return self.mode_spec.angle_phi
 
     @cached_property
-    def _dir_vector(self) -> Tuple[float, float, float]:
+    def _dir_vector(self) -> tuple[float, float, float]:
         """Source direction normal vector in cartesian coordinates."""
         radius = 1.0 if self.direction == "+" else -1.0
         dx = radius * np.cos(self.angle_phi) * np.sin(self.angle_theta)
@@ -513,8 +505,8 @@ class PlaneWave(AngledFieldSource, PlanarSource, BroadbandSource):
         * `Using FDTD to Compute a Transmission Spectrum <https://www.flexcompute.com/fdtd101/Lecture-2-Using-FDTD-to-Compute-a-Transmission-Spectrum/>`__
     """
 
-    angular_spec: Union[FixedInPlaneKSpec, FixedAngleSpec] = pydantic.Field(
-        FixedInPlaneKSpec(),
+    angular_spec: Union[FixedInPlaneKSpec, FixedAngleSpec] = Field(
+        default_factory=FixedInPlaneKSpec,
         title="Angular Dependence Specification",
         description="Specification of plane wave propagation direction dependence on wavelength.",
         discriminator=TYPE_TAG_STR,
@@ -580,14 +572,14 @@ class GaussianBeam(AngledFieldSource, PlanarSource, BroadbandSource):
         * `Inverse taper edge coupler <../../notebooks/EdgeCoupler.html>`_
     """
 
-    waist_radius: pydantic.PositiveFloat = pydantic.Field(
+    waist_radius: PositiveFloat = Field(
         1.0,
         title="Waist Radius",
         description="Radius of the beam at the waist.",
         units=MICROMETER,
     )
 
-    waist_distance: float = pydantic.Field(
+    waist_distance: float = Field(
         0.0,
         title="Waist Distance",
         description="Distance from the beam waist along the propagation direction. "
@@ -628,14 +620,14 @@ class AstigmaticGaussianBeam(AngledFieldSource, PlanarSource, BroadbandSource):
     ...     waist_distances = (3.0, 4.0))
     """
 
-    waist_sizes: Tuple[pydantic.PositiveFloat, pydantic.PositiveFloat] = pydantic.Field(
+    waist_sizes: tuple[PositiveFloat, PositiveFloat] = Field(
         (1.0, 1.0),
         title="Waist sizes",
         description="Size of the beam at the waist in the local x and y directions.",
         units=MICROMETER,
     )
 
-    waist_distances: Tuple[float, float] = pydantic.Field(
+    waist_distances: tuple[float, float] = Field(
         (0.0, 0.0),
         title="Waist distances",
         description="Distance to the beam waist along the propagation direction "
@@ -681,8 +673,7 @@ class TFSF(AngledFieldSource, VolumeSource, BroadbandSource):
         * `Nanoparticle Scattering <../../notebooks/PlasmonicNanoparticle.html>`_: To force a uniform grid in the TFSF region and avoid the warnings, a mesh override structure can be used as illustrated here.
     """
 
-    injection_axis: Axis = pydantic.Field(
-        ...,
+    injection_axis: Axis = Field(
         title="Injection Axis",
         description="Specifies the injection axis. The plane of incidence is defined via this "
         "``injection_axis`` and the ``direction``. The popagation axis is defined with respect "

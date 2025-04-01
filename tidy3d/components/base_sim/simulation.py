@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple
+from typing import Literal, Optional
 
 import autograd.numpy as anp
-import pydantic.v1 as pd
+from pydantic import Field, model_validator
 
 from ...exceptions import Tidy3dKeyError
 from ...log import log
 from ...version import __version__
-from ..base import cached_property, skip_if_fields_missing
+from ..base import cached_property
 from ..geometry.base import Box
 from ..medium import Medium, MediumType3D
 from ..scene import Scene
@@ -22,20 +22,15 @@ from ..validators import (
     assert_objects_in_sim_bounds,
     assert_unique_names,
 )
-from ..viz import (
-    PlotParams,
-    add_ax_if_none,
-    equal_aspect,
-    plot_params_symmetry,
-)
+from ..viz import PlotParams, add_ax_if_none, equal_aspect, plot_params_symmetry
 from .monitor import AbstractMonitor
 
 
 class AbstractSimulation(Box, ABC):
     """Base class for simulation classes of different solvers."""
 
-    medium: MediumType3D = pd.Field(
-        Medium(),
+    medium: MediumType3D = Field(
+        default_factory=Medium,
         title="Background Medium",
         description="Background medium of simulation, defaults to vacuum if not specified.",
         discriminator=TYPE_TAG_STR,
@@ -44,7 +39,7 @@ class AbstractSimulation(Box, ABC):
     Background medium of simulation, defaults to vacuum if not specified.
     """
 
-    structures: Tuple[Structure, ...] = pd.Field(
+    structures: tuple[Structure, ...] = Field(
         (),
         title="Structures",
         description="Tuple of structures present in simulation. "
@@ -73,7 +68,7 @@ class AbstractSimulation(Box, ABC):
         )
     """
 
-    symmetry: Tuple[Symmetry, Symmetry, Symmetry] = pd.Field(
+    symmetry: tuple[Symmetry, Symmetry, Symmetry] = Field(
         (0, 0, 0),
         title="Symmetries",
         description="Tuple of integers defining reflection symmetry across a plane "
@@ -81,37 +76,37 @@ class AbstractSimulation(Box, ABC):
         "at the simulation center of each axis, respectively. ",
     )
 
-    sources: Tuple[None, ...] = pd.Field(
+    sources: tuple[None, ...] = Field(
         (),
         title="Sources",
         description="Sources in the simulation.",
     )
 
-    boundary_spec: None = pd.Field(
+    boundary_spec: Literal[None] = Field(
         None,
         title="Boundaries",
         description="Specification of boundary conditions.",
     )
 
-    monitors: Tuple[None, ...] = pd.Field(
+    monitors: tuple[None, ...] = Field(
         (),
         title="Monitors",
         description="Monitors in the simulation. ",
     )
 
-    grid_spec: None = pd.Field(
+    grid_spec: Literal[None] = Field(
         None,
         title="Grid Specification",
         description="Specifications for the simulation grid.",
     )
 
-    version: str = pd.Field(
+    version: str = Field(
         __version__,
         title="Version",
         description="String specifying the front end version number.",
     )
 
-    plot_length_units: Optional[LengthUnit] = pd.Field(
+    plot_length_units: Optional[LengthUnit] = Field(
         "μm",
         title="Plot Units",
         description="When set to a supported ``LengthUnit``, "
@@ -121,17 +116,17 @@ class AbstractSimulation(Box, ABC):
 
     """ Validating setup """
 
-    @pd.root_validator(pre=True)
-    def _update_simulation(cls, values):
+    @model_validator(mode="before")
+    @classmethod
+    def _update_simulation(cls, data):
         """Update the simulation if it is an earlier version."""
-
         # dummy upgrade of version number
         # this should be overriden by each simulation class if needed
-        current_version = values.get("version")
+        current_version = data.get("version")
         if current_version != __version__ and current_version is not None:
             log.warning(f"updating {cls.__name__} from {current_version} to {__version__}")
-            values["version"] = __version__
-        return values
+            data["version"] = __version__
+        return data
 
     # make sure all names are unique
     _unique_monitor_names = assert_unique_names("monitors")
@@ -144,20 +139,19 @@ class AbstractSimulation(Box, ABC):
     _warn_traced_center = _warn_unsupported_traced_argument("center")
     _warn_traced_size = _warn_unsupported_traced_argument("size")
 
-    @pd.validator("structures", always=True)
-    @skip_if_fields_missing(["size", "center"])
-    def _structures_not_at_edges(cls, val, values):
+    @model_validator(mode="after")
+    def _structures_not_at_edges(self):
         """Warn if any structures lie at the simulation boundaries."""
 
-        if val is None:
-            return val
+        if self.structures is None:
+            return self
 
-        sim_box = Box(size=values.get("size"), center=values.get("center"))
+        sim_box = Box(size=self.size, center=self.center)
         sim_bound_min, sim_bound_max = sim_box.bounds
         sim_bounds = list(sim_bound_min) + list(sim_bound_max)
 
         with log as consolidated_logger:
-            for istruct, structure in enumerate(val):
+            for istruct, structure in enumerate(self.structures):
                 struct_bound_min, struct_bound_max = structure.geometry.bounds
                 struct_bounds = list(struct_bound_min) + list(struct_bound_max)
 
@@ -172,11 +166,11 @@ class AbstractSimulation(Box, ABC):
                         )
                         continue
 
-        return val
+        return self
 
     """ Post-init validators """
 
-    def _post_init_validators(self) -> None:
+    def _post_init_validators(self):
         """Call validators taking z`self` that get run after init."""
         _ = self.scene
 
@@ -233,8 +227,8 @@ class AbstractSimulation(Box, ABC):
         ax: Ax = None,
         source_alpha: float = None,
         monitor_alpha: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         fill_structures: bool = True,
         **patch_kwargs,
     ) -> Ax:
@@ -254,9 +248,9 @@ class AbstractSimulation(Box, ABC):
             Opacity of the monitors. If ``None``, uses Tidy3d default.
         ax : matplotlib.axes._subplots.Axes = None
             Matplotlib axes to plot on, if not specified, one is created.
-        hlim : Tuple[float, float] = None
+        hlim : tuple[float, float] = None
             The x range if plotting on xy or xz planes, y range if plotting on yz plane.
-        vlim : Tuple[float, float] = None
+        vlim : tuple[float, float] = None
             The z range if plotting on xz or yz planes, y plane if plotting on xy plane.
         fill_structures : bool = True
             Whether to fill structures with color or just draw outlines.
@@ -295,8 +289,8 @@ class AbstractSimulation(Box, ABC):
         x: float = None,
         y: float = None,
         z: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         alpha: float = None,
         ax: Ax = None,
     ) -> Ax:
@@ -310,9 +304,9 @@ class AbstractSimulation(Box, ABC):
             position of plane in y direction, only one of x, y, z must be specified to define plane.
         z : float = None
             position of plane in z direction, only one of x, y, z must be specified to define plane.
-        hlim : Tuple[float, float] = None
+        hlim : tuple[float, float] = None
             The x range if plotting on xy or xz planes, y range if plotting on yz plane.
-        vlim : Tuple[float, float] = None
+        vlim : tuple[float, float] = None
             The z range if plotting on xz or yz planes, y plane if plotting on xy plane.
         alpha : float = None
             Opacity of the sources, If ``None`` uses Tidy3d default.
@@ -343,8 +337,8 @@ class AbstractSimulation(Box, ABC):
         x: float = None,
         y: float = None,
         z: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         alpha: float = None,
         ax: Ax = None,
     ) -> Ax:
@@ -358,9 +352,9 @@ class AbstractSimulation(Box, ABC):
             position of plane in y direction, only one of x, y, z must be specified to define plane.
         z : float = None
             position of plane in z direction, only one of x, y, z must be specified to define plane.
-        hlim : Tuple[float, float] = None
+        hlim : tuple[float, float] = None
             The x range if plotting on xy or xz planes, y range if plotting on yz plane.
-        vlim : Tuple[float, float] = None
+        vlim : tuple[float, float] = None
             The z range if plotting on xz or yz planes, y plane if plotting on xy plane.
         alpha : float = None
             Opacity of the sources, If ``None`` uses Tidy3d default.
@@ -391,8 +385,8 @@ class AbstractSimulation(Box, ABC):
         x: float = None,
         y: float = None,
         z: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot each of simulation's symmetries on a plane defined by one nonzero x,y,z coordinate.
@@ -405,9 +399,9 @@ class AbstractSimulation(Box, ABC):
             position of plane in y direction, only one of x, y, z must be specified to define plane.
         z : float = None
             position of plane in z direction, only one of x, y, z must be specified to define plane.
-        hlim : Tuple[float, float] = None
+        hlim : tuple[float, float] = None
             The x range if plotting on xy or xz planes, y range if plotting on yz plane.
-        vlim : Tuple[float, float] = None
+        vlim : tuple[float, float] = None
             The z range if plotting on xz or yz planes, y plane if plotting on xy plane.
         ax : matplotlib.axes._subplots.Axes = None
             Matplotlib axes to plot on, if not specified, one is created.
@@ -501,8 +495,8 @@ class AbstractSimulation(Box, ABC):
         y: float = None,
         z: float = None,
         ax: Ax = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         fill: bool = True,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
@@ -517,9 +511,9 @@ class AbstractSimulation(Box, ABC):
             position of plane in z direction, only one of x, y, z must be specified to define plane.
         ax : matplotlib.axes._subplots.Axes = None
             Matplotlib axes to plot on, if not specified, one is created.
-        hlim : Tuple[float, float] = None
+        hlim : tuple[float, float] = None
             The x range if plotting on xy or xz planes, y range if plotting on yz plane.
-        vlim : Tuple[float, float] = None
+        vlim : tuple[float, float] = None
             The z range if plotting on xz or yz planes, y plane if plotting on xy plane.
         fill : bool = True
             Whether to fill structures with color or just draw outlines.
@@ -549,8 +543,8 @@ class AbstractSimulation(Box, ABC):
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
         The permittivity is plotted in grayscale based on its value at the specified frequency.
@@ -576,9 +570,9 @@ class AbstractSimulation(Box, ABC):
             Defaults to the structure default alpha.
         ax : matplotlib.axes._subplots.Axes = None
             Matplotlib axes to plot on, if not specified, one is created.
-        hlim : Tuple[float, float] = None
+        hlim : tuple[float, float] = None
             The x range if plotting on xy or xz planes, y range if plotting on yz plane.
-        vlim : Tuple[float, float] = None
+        vlim : tuple[float, float] = None
             The z range if plotting on xz or yz planes, y plane if plotting on xy plane.
 
         Returns
@@ -615,8 +609,8 @@ class AbstractSimulation(Box, ABC):
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
         The permittivity is plotted in grayscale based on its value at the specified frequency.
@@ -642,9 +636,9 @@ class AbstractSimulation(Box, ABC):
             Defaults to the structure default alpha.
         ax : matplotlib.axes._subplots.Axes = None
             Matplotlib axes to plot on, if not specified, one is created.
-        hlim : Tuple[float, float] = None
+        hlim : tuple[float, float] = None
             The x range if plotting on xy or xz planes, y range if plotting on yz plane.
-        vlim : Tuple[float, float] = None
+        vlim : tuple[float, float] = None
             The z range if plotting on xz or yz planes, y plane if plotting on xy plane.
 
         Returns

@@ -2,17 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Literal, Tuple
+from typing import Literal
 
-import pydantic.v1 as pd
+from pydantic import Field
 
 from ...base import cached_property
 from ...data.monitor_data import ModeSolverData, PermittivityData
 from ...data.sim_data import AbstractYeeGridSimulationData
-from ...types import (
-    Ax,
-    PlotScale,
-)
+from ...types import Ax, PlotScale
 from ..simulation import ModeSimulation
 
 ModeSimulationMonitorDataType = PermittivityData
@@ -21,17 +18,17 @@ ModeSimulationMonitorDataType = PermittivityData
 class ModeSimulationData(AbstractYeeGridSimulationData):
     """Data associated with a mode solver simulation."""
 
-    simulation: ModeSimulation = pd.Field(
-        ..., title="Mode simulation", description="Mode simulation associated with this data."
+    simulation: ModeSimulation = Field(
+        title="Mode simulation",
+        description="Mode simulation associated with this data.",
     )
 
-    modes_raw: ModeSolverData = pd.Field(
-        ...,
+    modes_raw: ModeSolverData = Field(
         title="Raw Modes",
         description=":class:`.ModeSolverData` containing the field and effective index on unexpanded grid.",
     )
 
-    data: Tuple[ModeSimulationMonitorDataType, ...] = pd.Field(
+    data: tuple[ModeSimulationMonitorDataType, ...] = Field(
         (),
         title="Monitor Data",
         description="List of monitor data "

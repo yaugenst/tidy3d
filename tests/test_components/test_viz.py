@@ -2,9 +2,9 @@
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import pydantic.v1 as pd
 import pytest
 import tidy3d as td
+from pydantic import ValidationError
 from tidy3d import Box, Medium, Simulation, Structure
 from tidy3d.components.viz import Polygon, set_default_labels_and_title
 from tidy3d.constants import inf
@@ -119,9 +119,9 @@ def test_unallowed_colors():
     """
     Tests validator for visualization spec for colors not recognized by matplotlib.
     """
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         _ = td.VisualizationSpec(facecolor="rr", edgecolor="green", alpha=0.5)
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         _ = td.VisualizationSpec(facecolor="red", edgecolor="gg", alpha=0.5)
 
 
@@ -129,9 +129,9 @@ def test_unallowed_alpha():
     """
     Tests validator for disallowed alpha values.
     """
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         _ = td.VisualizationSpec(facecolor="red", edgecolor="green", alpha=-0.5)
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         _ = td.VisualizationSpec(facecolor="red", edgecolor="green", alpha=2.5)
 
 
