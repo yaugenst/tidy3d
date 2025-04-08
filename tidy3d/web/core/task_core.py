@@ -22,7 +22,7 @@ from .file_util import read_simulation_from_hdf5
 from .http_util import http
 from .s3utils import download_file, download_gz_file, upload_file
 from .stub import TaskStub
-from .types import Queryable, ResourceLifecycle, Submittable, Tidy3DResource
+from .types import OptimizationType, Queryable, ResourceLifecycle, Submittable, Tidy3DResource
 
 
 class Folder(Tidy3DResource, Queryable, extra=Extra.allow):
@@ -198,6 +198,7 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
         simulation_type: str = "tidy3d",
         parent_tasks: List[str] = None,
         file_type: str = "Gz",
+        batch_id: str = None,
     ) -> SimulationTask:
         """Create a new task on the server.
 
@@ -218,7 +219,8 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
             List of related task ids.
         file_type: str
             the simulation file type Json, Hdf5, Gz
-
+        batch_id: str
+            batch id
         Returns
         -------
         :class:`SimulationTask`
@@ -240,6 +242,7 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
                 "simulationType": simulation_type,
                 "parentTasks": parent_tasks,
                 "fileType": file_type,
+                "batchId": batch_id,
             },
         )
         return SimulationTask(**resp, taskType=task_type, folder_name=folder_name)
@@ -648,3 +651,48 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
         return http.put(
             "tidy3d/tasks/abort", json={"taskType": self.task_type, "taskId": self.task_id}
         )
+
+
+class OptimizationBatch(ResourceLifecycle, extra=Extra.allow):
+    """OptimizationBatch."""
+
+    batch_id: Optional[str] = Field(
+        ...,
+        title="batch_id",
+        description="Batch ID number, set when the batch is uploaded, leave as None.",
+        alias="optimizationId",
+    )
+    batch_name: Optional[str] = Field(
+        None,
+        title="batch_name",
+        description="The name of batch, leave as None.",
+        alias="optimizationName",
+    )
+
+    @classmethod
+    def create(cls, batch_name: str, folder_id: str) -> str:
+        """Create batch from server.
+
+        Parameters
+        ----------
+        batch_name: str = None
+            batch name.
+        folder_id: str = None
+            folder id.
+
+        Returns
+        -------
+        batch id: str
+
+        """
+        if folder_id is None:
+            raise WebError("folder_id can't be None.")
+
+        resp = http.post(
+            "tidy3d/optimization",
+            json={"type": OptimizationType.BATCH.value, "name": batch_name, "folderId": folder_id},
+        )
+        return resp["optimizationId"]
+
+    def delete(self):
+        return http.delete("tidy3d/optimization", json={"batch_id": self.batch_id})
