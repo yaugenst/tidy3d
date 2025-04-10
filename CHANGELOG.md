@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Performance enhancement for adjoint gradient calculations by optimizing field interpolation.
+### Added
+- `priority` field in `Structure` and `MeshOverrideStructure` for setting the behavior in structure overlapping region. When its value is `None`, the priority is automatically decided based on the material property and simulation's `structure_priority_mode`.
 
 ## [2.8.2] - 2025-04-09
 

@@ -22,6 +22,7 @@ from ..types import (
     Axis,
     Coordinate,
     CoordinateOptional,
+    PriorityMode,
     Symmetry,
     annotate_type,
 )
@@ -940,6 +941,7 @@ class GridRefinement(Tidy3dBaseModel):
             dl=dl_list,
             shadow=False,
             drop_outside_sim=drop_outside_sim,
+            priority=-1,
         )
 
 
@@ -1397,6 +1399,7 @@ class LayerRefinementSpec(Box):
                     dl=self._unpop_axis(ax_coord=dl, plane_coord=None),
                     shadow=False,
                     drop_outside_sim=self.refinement_inside_sim_only,
+                    priority=-1,
                 )
             )
 
@@ -1729,10 +1732,11 @@ class GridSpec(Tidy3dBaseModel):
         wavelength: pd.PositiveFloat,
         sim_size: Tuple[float, 3],
         lumped_elements: List[LumpedElementType],
+        structure_priority_mode: PriorityMode = "equal",
         internal_override_structures: List[MeshOverrideStructure] = None,
     ) -> List[StructureType]:
-        """Internal and external mesh override structures. External override structures take higher priority.
-        So far, internal override structures all come from `layer_refinement_specs`.
+        """Internal and external mesh override structures sorted based on their priority. By default,
+        the priority of internal override structures is -1, and 0 for external ones.
 
         Parameters
         ----------
@@ -1744,22 +1748,23 @@ class GridSpec(Tidy3dBaseModel):
             Simulation domain size.
         lumped_elements : List[LumpedElementType]
             List of lumped elements.
+        structure_priority_mode : PriorityMode
+            Structure priority setting.
         internal_override_structures : List[MeshOverrideStructure]
             If `None`, recomputes internal override structures.
 
         Returns
         -------
         List[StructureType]
-            List of override structures.
+            List of sorted override structures.
         """
 
         if internal_override_structures is None:
-            return (
-                self.internal_override_structures(structures, wavelength, sim_size, lumped_elements)
-                + self.external_override_structures
+            internal_override_structures = self.internal_override_structures(
+                structures, wavelength, sim_size, lumped_elements
             )
-
-        return internal_override_structures + self.external_override_structures
+        all_structures = internal_override_structures + self.external_override_structures
+        return Structure._sort_structures(all_structures, structure_priority_mode)
 
     def _min_vacuum_dl_in_autogrid(self, wavelength: float, sim_size: Tuple[float, 3]) -> float:
         """Compute grid step size in vacuum for Autogrd. If AutoGrid is applied along more than 1 dimension,
@@ -1829,6 +1834,7 @@ class GridSpec(Tidy3dBaseModel):
         lumped_elements: List[LumpedElementType] = (),
         internal_override_structures: List[MeshOverrideStructure] = None,
         internal_snapping_points: List[CoordinateOptional] = None,
+        structure_priority_mode: PriorityMode = "equal",
     ) -> Grid:
         """Make the entire simulation grid based on some simulation parameters.
 
@@ -1850,6 +1856,8 @@ class GridSpec(Tidy3dBaseModel):
             If `None`, recomputes internal override structures.
         internal_snapping_points : List[CoordinateOptional]
             If `None`, recomputes internal snapping points.
+        structure_priority_mode : PriorityMode
+            Structure priority setting.
 
         Returns
         -------
@@ -1912,6 +1920,7 @@ class GridSpec(Tidy3dBaseModel):
             wavelength,
             sim_size,
             lumped_elements,
+            structure_priority_mode,
             internal_override_structures,
         )
 
