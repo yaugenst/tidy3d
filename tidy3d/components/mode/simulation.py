@@ -251,6 +251,9 @@ class ModeSimulation(AbstractYeeGridSimulation):
         """Run locally."""
         from .data.sim_data import ModeSimulationData
 
+        # repeat the calculation every time, in case use_local_subpixel changed
+        self._cached_properties.pop("_mode_solver", None)
+
         modes_raw = self._mode_solver.data_raw
         return ModeSimulationData(simulation=self, modes_raw=modes_raw)
 

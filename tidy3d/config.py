@@ -1,5 +1,7 @@
 """Sets the configuration of the script, can be changed with `td.config.config_name = new_val`."""
 
+from typing import Optional
+
 import pydantic.v1 as pd
 
 from .log import DEFAULT_LEVEL, LogLevel, set_log_suppression, set_logging_level
@@ -31,6 +33,13 @@ class Tidy3dConfig(pd.BaseModel):
         title="Log suppression",
         description="Enable or disable suppression of certain log messages when they are repeated "
         "for several elements.",
+    )
+
+    use_local_subpixel: Optional[bool] = pd.Field(
+        None,
+        title="Whether to use local subpixel averaging. If 'None', local subpixel "
+        "averaging will be used if 'tidy3d-extras' is installed and not used otherwise. "
+        "If 'True', will give a warning if 'tidy3d-extras' is not installed.",
     )
 
     @pd.validator("logging_level", pre=True, always=True)

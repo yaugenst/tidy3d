@@ -17,6 +17,7 @@ from matplotlib.patches import Rectangle
 from ...constants import C_0
 from ...exceptions import SetupError, ValidationError
 from ...log import log
+from ...packaging import supports_local_subpixel, tidy3d_extras
 from ..base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
 from ..boundary import PML, Absorber, Boundary, BoundarySpec, PECBoundary, StablePML
 from ..data.data_array import (
@@ -317,7 +318,7 @@ class ModeSolver(Tidy3dBaseModel):
             _, plane_inds = Box.pop_axis([0, 1, 2], normal_axis)
             for dim, sym in enumerate(solver_symmetry):
                 if sym != 0:
-                    span_inds[plane_inds[dim], 0] += np.diff(span_inds[plane_inds[dim]]) // 2
+                    span_inds[plane_inds[dim], 0] += np.diff(span_inds[plane_inds[dim]])[0] // 2
 
         return simulation._subgrid(span_inds=span_inds)
 
@@ -1356,18 +1357,21 @@ class ModeSolver(Tidy3dBaseModel):
 
     def _solver_eps(self, freq: float) -> ArrayComplex4D:
         """Diagonal permittivity in the shape needed by solver, with normal axis rotated to z."""
-
         # Get diagonal epsilon components in the plane
         eps_tensor = self._get_epsilon(freq)
         # tranformation
         return self._tensorial_material_profile_modal_plane_tranform(eps_tensor, self.normal_axis)
 
+    @supports_local_subpixel
     def _solve_all_freqs(
         self,
         coords: Tuple[ArrayFloat1D, ArrayFloat1D],
         symmetry: Tuple[Symmetry, Symmetry],
     ) -> Tuple[List[float], List[Dict[str, ArrayComplex4D]], List[EpsSpecType]]:
         """Call the mode solver at all requested frequencies."""
+        if tidy3d_extras["use_local_subpixel"]:
+            subpixel_ms = tidy3d_extras["mod"].SubpixelModeSolver.from_mode_solver(self)
+            return subpixel_ms._solve_all_freqs(coords=coords, symmetry=symmetry)
 
         fields = []
         n_complex = []
@@ -1381,6 +1385,7 @@ class ModeSolver(Tidy3dBaseModel):
             eps_spec.append(eps_spec_freq)
         return n_complex, fields, eps_spec
 
+    @supports_local_subpixel
     def _solve_all_freqs_relative(
         self,
         coords: Tuple[ArrayFloat1D, ArrayFloat1D],
@@ -1388,6 +1393,11 @@ class ModeSolver(Tidy3dBaseModel):
         basis_fields: List[Dict[str, ArrayComplex4D]],
     ) -> Tuple[List[float], List[Dict[str, ArrayComplex4D]], List[EpsSpecType]]:
         """Call the mode solver at all requested frequencies."""
+        if tidy3d_extras["use_local_subpixel"]:
+            subpixel_ms = tidy3d_extras["mod"].SubpixelModeSolver.from_mode_solver(self)
+            return subpixel_ms._solve_all_freqs_relative(
+                coords=coords, symmetry=symmetry, basis_fields=basis_fields
+            )
 
         fields = []
         n_complex = []
@@ -1453,22 +1463,26 @@ class ModeSolver(Tidy3dBaseModel):
         )
         return n_complex, fields, eps_spec
 
-    def _rotate_field_coords_inverse(self, field: FIELD) -> FIELD:
+    @classmethod
+    def _rotate_field_coords_inverse(
+        cls, field: FIELD, normal_axis: Axis, plane: MODE_PLANE_TYPE
+    ) -> FIELD:
         """Move the propagation axis to the z axis in the array."""
-        f_x, f_y, f_z = np.moveaxis(field, source=1 + self.normal_axis, destination=3)
-        f_n, f_ts = self.plane.pop_axis((f_x, f_y, f_z), axis=self.normal_axis)
-        return np.stack(self.plane.unpop_axis(f_n, f_ts, axis=2), axis=0)
+        f_x, f_y, f_z = np.moveaxis(field, source=1 + normal_axis, destination=3)
+        f_n, f_ts = plane.pop_axis((f_x, f_y, f_z), axis=normal_axis)
+        return np.stack(plane.unpop_axis(f_n, f_ts, axis=2), axis=0)
 
-    def _postprocess_solver_fields_inverse(self, fields):
+    @classmethod
+    def _postprocess_solver_fields_inverse(cls, fields, normal_axis: Axis, plane: MODE_PLANE_TYPE):
         """Convert ``fields`` to ``solver_fields``. Doesn't change gauge."""
         E = [fields[key] for key in ("Ex", "Ey", "Ez")]
         H = [fields[key] for key in ("Hx", "Hy", "Hz")]
 
-        (Ex, Ey, Ez) = self._rotate_field_coords_inverse(E)
-        (Hx, Hy, Hz) = self._rotate_field_coords_inverse(H)
+        (Ex, Ey, Ez) = cls._rotate_field_coords_inverse(E, normal_axis=normal_axis, plane=plane)
+        (Hx, Hy, Hz) = cls._rotate_field_coords_inverse(H, normal_axis=normal_axis, plane=plane)
 
         # apply -1 to H fields if a reflection was involved in the rotation
-        if self.normal_axis == 1:
+        if normal_axis == 1:
             Hx *= -1
             Hy *= -1
             Hz *= -1
@@ -1490,7 +1504,9 @@ class ModeSolver(Tidy3dBaseModel):
         if not LOCAL_SOLVER_IMPORTED:
             raise ImportError(IMPORT_ERROR_MSG)
 
-        solver_basis_fields = self._postprocess_solver_fields_inverse(basis_fields)
+        solver_basis_fields = self._postprocess_solver_fields_inverse(
+            fields=basis_fields, normal_axis=self.normal_axis, plane=self.plane
+        )
 
         solver_fields, n_complex, eps_spec = compute_modes(
             eps_cross=self._solver_eps(freq),

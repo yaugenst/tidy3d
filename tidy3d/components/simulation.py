@@ -22,6 +22,7 @@ import xarray as xr
 from ..constants import C_0, SECOND, fp_eps, inf
 from ..exceptions import SetupError, Tidy3dError, Tidy3dImportError, ValidationError
 from ..log import log
+from ..packaging import supports_local_subpixel, tidy3d_extras
 from ..updater import Updater
 from .base import cached_property, skip_if_fields_missing
 from .base_sim.simulation import AbstractSimulation
@@ -1459,11 +1460,9 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         sub_grid = self.discretize(box)
         return self.epsilon_on_grid(grid=sub_grid, coord_key=coord_key, freq=freq)
 
+    @supports_local_subpixel
     def epsilon_on_grid(
-        self,
-        grid: Grid,
-        coord_key: str = "centers",
-        freq: float = None,
+        self, grid: Grid, coord_key: str = "centers", freq: float = None
     ) -> xr.DataArray:
         """Get array of permittivity at a given freq on a given grid.
 
@@ -1489,6 +1488,10 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
             For details on xarray DataArray objects,
             refer to `xarray's Documentation <https://tinyurl.com/2zrzsp7b>`_.
         """
+
+        if tidy3d_extras["use_local_subpixel"]:
+            subpixel_sim = tidy3d_extras["mod"].SubpixelSimulation.from_simulation(self)
+            return subpixel_sim.epsilon_on_grid(grid=grid, coord_key=coord_key, freq=freq)
 
         grid_cells = np.prod(grid.num_cells)
         num_structures = len(self.structures)
