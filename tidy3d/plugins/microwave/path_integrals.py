@@ -238,6 +238,13 @@ class VoltageIntegralAxisAligned(AxisAlignedPathIntegral):
     @staticmethod
     def _set_data_array_attributes(data_array: IntegralResultTypes) -> IntegralResultTypes:
         """Add explanatory attributes to the data array."""
+        # Determine type based on coords present
+        if "mode_index" in data_array.coords:
+            data_array = FreqModeDataArray(data_array)
+        elif "f" in data_array.coords:
+            data_array = FreqDataArray(data_array)
+        else:
+            data_array = TimeDataArray(data_array)
         data_array.name = "V"
         return data_array.assign_attrs(units=VOLT, long_name="voltage")
 
@@ -494,6 +501,13 @@ class CurrentIntegralAxisAligned(AbstractAxesRH, Box):
     @staticmethod
     def _set_data_array_attributes(data_array: IntegralResultTypes) -> IntegralResultTypes:
         """Add explanatory attributes to the data array."""
+        # Determine type based on coords present
+        if "mode_index" in data_array.coords:
+            data_array = FreqModeDataArray(data_array)
+        elif "f" in data_array.coords:
+            data_array = FreqDataArray(data_array)
+        else:
+            data_array = TimeDataArray(data_array)
         data_array.name = "I"
         return data_array.assign_attrs(units=AMP, long_name="current")
 

@@ -109,6 +109,7 @@ class WavePort(AbstractTerminalPort, Box):
             mode_index=self.mode_index,
             direction=self.direction,
             name=self.name,
+            num_freqs=5,
         )
 
     def to_monitors(

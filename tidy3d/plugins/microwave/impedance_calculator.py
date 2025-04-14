@@ -8,9 +8,11 @@ import numpy as np
 import pydantic.v1 as pd
 
 from ...components.base import Tidy3dBaseModel
+from ...components.data.data_array import FreqDataArray, FreqModeDataArray, TimeDataArray
 from ...components.data.monitor_data import FieldTimeData
 from ...constants import OHM
 from ...exceptions import ValidationError
+from .auto_path_integrals import CompositeCurrentIntegral
 from .custom_path_integrals import CustomCurrentIntegral2D, CustomVoltageIntegral2D
 from .path_integrals import (
     AxisAlignedPathIntegral,
@@ -21,7 +23,9 @@ from .path_integrals import (
 )
 
 VoltageIntegralTypes = Union[VoltageIntegralAxisAligned, CustomVoltageIntegral2D]
-CurrentIntegralTypes = Union[CurrentIntegralAxisAligned, CustomCurrentIntegral2D]
+CurrentIntegralTypes = Union[
+    CurrentIntegralAxisAligned, CustomCurrentIntegral2D, CompositeCurrentIntegral
+]
 
 
 class ImpedanceCalculator(Tidy3dBaseModel):
@@ -58,9 +62,9 @@ class ImpedanceCalculator(Tidy3dBaseModel):
         AxisAlignedPathIntegral._check_monitor_data_supported(em_field=em_field)
 
         # If both voltage and current integrals have been defined then impedance is computed directly
-        if self.voltage_integral:
+        if self.voltage_integral is not None:
             voltage = self.voltage_integral.compute_voltage(em_field)
-        if self.current_integral:
+        if self.current_integral is not None:
             current = self.current_integral.compute_current(em_field)
 
         # If only one of the integrals has been provided, then the computation falls back to using
@@ -69,20 +73,23 @@ class ImpedanceCalculator(Tidy3dBaseModel):
         # a time signal, then it is real and flux corresponds to the instantaneous power. Otherwise
         # the input field is in frequency domain, where flux indicates the time-averaged power
         # 0.5*Re(V*conj(I)).
-        if not self.voltage_integral:
+        if self.voltage_integral is None:
             flux = em_field.flux
             if isinstance(em_field, FieldTimeData):
-                voltage = flux.abs / current
+                impedance = flux.abs / current**2
             else:
-                voltage = 2 * flux.abs / np.conj(current)
-        if not self.current_integral:
+                impedance = 2 * flux.abs / (current * np.conj(current))
+                # voltage = 2 * flux.abs / np.conj(current)
+        elif self.current_integral is None:
             flux = em_field.flux
             if isinstance(em_field, FieldTimeData):
-                current = flux.abs / voltage
+                impedance = voltage**2 / flux.abs
+                # current = flux.abs / voltage
             else:
-                current = np.conj(2 * flux.abs / voltage)
-
-        impedance = voltage / current
+                impedance = (voltage * np.conj(voltage)) / (2 * flux.abs)
+                # current = np.conj(2 * flux.abs / voltage)
+        else:
+            impedance = voltage / current
         impedance = ImpedanceCalculator._set_data_array_attributes(impedance)
         return impedance
 
@@ -99,5 +106,12 @@ class ImpedanceCalculator(Tidy3dBaseModel):
     @staticmethod
     def _set_data_array_attributes(data_array: IntegralResultTypes) -> IntegralResultTypes:
         """Helper to set additional metadata for ``IntegralResultTypes``."""
+        # Determine type based on coords present
+        if "mode_index" in data_array.coords:
+            data_array = FreqModeDataArray(data_array)
+        elif "f" in data_array.coords:
+            data_array = FreqDataArray(data_array)
+        else:
+            data_array = TimeDataArray(data_array)
         data_array.name = "Z0"
         return data_array.assign_attrs(units=OHM, long_name="characteristic impedance")

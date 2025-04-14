@@ -281,7 +281,7 @@ class AbstractComponentModeler(ABC, Tidy3dBaseModel):
                     "move the port away from the boundary."
                 )
 
-        new_pos = grid_centers[shifted_index]
+        new_pos = grid_boundaries[shifted_index]
         return new_pos - port_position
 
     def sim_data_by_task_name(self, task_name: str) -> SimulationData:

@@ -7,7 +7,7 @@ from math import isclose
 from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
-import pydantic as pydantic
+import pydantic.v1 as pd
 
 from ...constants import fp_eps
 from ...exceptions import SetupError, Tidy3dError
@@ -353,16 +353,23 @@ class SnapBehavior(Enum):
 class SnappingSpec(Tidy3dBaseModel):
     """Specifies how to apply grid snapping along each dimension."""
 
-    location: tuple[SnapLocation, SnapLocation, SnapLocation] = pydantic.Field(
+    location: tuple[SnapLocation, SnapLocation, SnapLocation] = pd.Field(
         ...,
         title="Location",
         description="Describes which positions in the grid will be considered for snapping.",
     )
 
-    behavior: tuple[SnapBehavior, SnapBehavior, SnapBehavior] = pydantic.Field(
+    behavior: tuple[SnapBehavior, SnapBehavior, SnapBehavior] = pd.Field(
         ...,
         title="Behavior",
         description="Describes how snapping positions will be chosen.",
+    )
+
+    margin: Optional[tuple[pd.NonNegativeInt, pd.NonNegativeInt, pd.NonNegativeInt]] = pd.Field(
+        (0, 0, 0),
+        title="Margin",
+        description="Number of additional grid points to consider when expanding or contracting "
+        "during snapping. Only applies when ``SnapBehavior`` is ``Expand`` or ``Contract``.",
     )
 
 
@@ -396,6 +403,8 @@ def snap_box_to_grid(grid: Grid, box: Box, snap_spec: SnappingSpec, rtol=fp_eps)
         using the index of the upper bound. If the test value is close to the upper
         bound, it assumes they are equal, and in that case the upper bound is returned.
         """
+        upper_bound_idx = min(upper_bound_idx, len(coords))
+        upper_bound_idx = max(upper_bound_idx, 0)
         if upper_bound_idx == len(coords):
             return coords[upper_bound_idx - 1]
         if upper_bound_idx == 0 or isclose(coords[upper_bound_idx], test, rel_tol=rel_tol):
@@ -409,6 +418,8 @@ def snap_box_to_grid(grid: Grid, box: Box, snap_spec: SnappingSpec, rtol=fp_eps)
         using the index of the upper bound. If the test value is close to the lower
         bound, it assumes they are equal, and in that case the lower bound is returned.
         """
+        upper_bound_idx = min(upper_bound_idx, len(coords))
+        upper_bound_idx = max(upper_bound_idx, 0)
         if upper_bound_idx == len(coords):
             return coords[upper_bound_idx - 1]
         if upper_bound_idx > 0 and isclose(coords[upper_bound_idx - 1], test, rel_tol=rel_tol):
@@ -416,7 +427,11 @@ def snap_box_to_grid(grid: Grid, box: Box, snap_spec: SnappingSpec, rtol=fp_eps)
         return coords[upper_bound_idx]
 
     def find_snapping_locations(
-        interval_min: float, interval_max: float, coords: np.ndarray, snap_type: SnapBehavior
+        interval_min: float,
+        interval_max: float,
+        coords: np.ndarray,
+        snap_type: SnapBehavior,
+        snap_margin: pd.NonNegativeInt,
     ) -> tuple[float, float]:
         """Helper that snaps a supplied interval [interval_min, interval_max] to a
         sorted array representing coordinate values.
@@ -428,9 +443,15 @@ def snap_box_to_grid(grid: Grid, box: Box, snap_spec: SnappingSpec, rtol=fp_eps)
             min_snap = get_closest_value(interval_min, coords, min_upper_bound_idx)
             max_snap = get_closest_value(interval_max, coords, max_upper_bound_idx)
         elif snap_type == SnapBehavior.Expand:
+            min_upper_bound_idx -= snap_margin
+            max_upper_bound_idx += snap_margin
             min_snap = get_lower_bound(interval_min, coords, min_upper_bound_idx, rel_tol=rtol)
             max_snap = get_upper_bound(interval_max, coords, max_upper_bound_idx, rel_tol=rtol)
         else:  # SnapType.Contract
+            min_upper_bound_idx += snap_margin
+            max_upper_bound_idx -= snap_margin
+            if max_upper_bound_idx < min_upper_bound_idx:
+                raise SetupError("The supplied 'snap_buffer' is too large for this contraction.")
             min_snap = get_upper_bound(interval_min, coords, min_upper_bound_idx, rel_tol=rtol)
             max_snap = get_lower_bound(interval_max, coords, max_upper_bound_idx, rel_tol=rtol)
         return (min_snap, max_snap)
@@ -442,6 +463,7 @@ def snap_box_to_grid(grid: Grid, box: Box, snap_spec: SnappingSpec, rtol=fp_eps)
     for axis in range(3):
         snap_location = snap_spec.location[axis]
         snap_type = snap_spec.behavior[axis]
+        snap_margin = snap_spec.margin[axis]
         if snap_type == SnapBehavior.Off:
             continue
         if snap_location == SnapLocation.Boundary:
@@ -452,7 +474,9 @@ def snap_box_to_grid(grid: Grid, box: Box, snap_spec: SnappingSpec, rtol=fp_eps)
         box_min = min_b[axis]
         box_max = max_b[axis]
 
-        (new_min, new_max) = find_snapping_locations(box_min, box_max, snap_coords, snap_type)
+        (new_min, new_max) = find_snapping_locations(
+            box_min, box_max, snap_coords, snap_type, snap_margin
+        )
         min_b[axis] = new_min
         max_b[axis] = new_max
     return Box.from_bounds(min_b, max_b)
