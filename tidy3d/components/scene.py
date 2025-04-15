@@ -277,7 +277,7 @@ class Scene(Tidy3dBaseModel):
     @cached_property
     def all_structures(self) -> List[Structure]:
         """List of all structures in the simulation including the background."""
-        return [self.background_structure] + list(self.sorted_structures)
+        return [self.background_structure] + self.sorted_structures
 
     @staticmethod
     def intersecting_media(
@@ -1812,7 +1812,7 @@ class Scene(Tidy3dBaseModel):
         acceptors_lims = [1e50, -1e50]
         donors_lims = [1e50, -1e50]
 
-        for struct in [self.background_structure] + list(self.sorted_structures):
+        for struct in self.all_structures:
             if isinstance(struct.medium.charge, SemiconductorMedium):
                 electric_spec = struct.medium.charge
                 for doping, limits in zip(
