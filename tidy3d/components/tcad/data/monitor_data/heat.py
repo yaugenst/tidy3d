@@ -9,7 +9,6 @@ import pydantic.v1 as pd
 from tidy3d.components.base import skip_if_fields_missing
 from tidy3d.components.data.data_array import (
     DataArray,
-    IndexedDataArray,
     SpatialDataArray,
 )
 from tidy3d.components.data.utils import TetrahedralGridDataset, TriangularGridDataset
@@ -72,22 +71,6 @@ class TemperatureData(HeatChargeMonitorData):
                 f"No data is available for monitor '{mnt.name}'. This is typically caused by "
                 "monitor not intersecting any solid medium."
             )
-
-        return val
-
-    @pd.validator("temperature", always=True)
-    @skip_if_fields_missing(["monitor"])
-    def check_correct_data_type(cls, val, values):
-        """Issue error if incorrect data type is used"""
-
-        mnt = values.get("monitor")
-
-        if isinstance(val, TetrahedralGridDataset) or isinstance(val, TriangularGridDataset):
-            if not isinstance(val.values, IndexedDataArray):
-                raise ValueError(
-                    f"Monitor {mnt} of type 'TemperatureMonitor' cannot be associated with data arrays "
-                    "of type 'IndexVoltageDataArray'."
-                )
 
         return val
 

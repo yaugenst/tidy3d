@@ -85,6 +85,8 @@ from tidy3d.constants import VOLUMETRIC_HEAT_RATE, inf
 from tidy3d.exceptions import SetupError
 from tidy3d.log import log
 
+from ..analysis.heat_simulation_type import UnsteadyHeatAnalysis
+
 HEAT_CHARGE_BACK_STRUCTURE_STR = "<<<HEAT_CHARGE_BACKGROUND_STRUCTURE>>>"
 
 HeatBCTypes = (TemperatureBC, HeatFluxBC, ConvectionBC)
@@ -92,7 +94,7 @@ HeatSourceTypes = (UniformHeatSource, HeatSource, HeatFromElectricSource)
 ChargeSourceTypes = ()
 ElectricBCTypes = (VoltageBC, CurrentBC, InsulatingBC)
 
-AnalysisSpecType = ElectricalAnalysisType
+AnalysisSpecType = Union[ElectricalAnalysisType, UnsteadyHeatAnalysis]
 
 
 class TCADAnalysisTypes(str, Enum):
@@ -832,6 +834,30 @@ class HeatChargeSimulation(AbstractSimulation):
                 "the pipeline will be stopped. If this happens the grid specification "
                 "may need to be modified."
             )
+        return values
+
+    @pd.root_validator(skip_on_failure=True)
+    def check_temperature_monitor_in_unsteady_cases(cls, values):
+        """Make sure that the temperature monitor is unstructured in unsteady cases."""
+
+        analysis_type = values.get("analysis_spec")
+        if isinstance(analysis_type, UnsteadyHeatAnalysis):
+            monitors = values.get("monitors")
+            for mnt in monitors:
+                if isinstance(mnt, TemperatureMonitor):
+                    if not mnt.unstructured:
+                        raise SetupError(
+                            f"Unsteady simulations require the temperature monitor '{mnt.name}' to be unstructured."
+                        )
+            # additionaly check that the SolidSpec has capacitance defined
+            # NOTE: not sure this is needed. Is capacitance a required field in SolidMedium?
+            structures = values.get("structures")
+            for structure in structures:
+                if isinstance(structure.medium.heat, SolidMedium):
+                    if structure.medium.heat_spec.capacity is None:
+                        raise SetupError(
+                            f"Unsteady simulations require the medium '{structure.medium.name}' to have a capacitance defined."
+                        )
         return values
 
     @equal_aspect
@@ -1629,8 +1655,14 @@ class HeatChargeSimulation(AbstractSimulation):
 
         # NOTE: for the time being, if a simulation has SemiconductorMedium
         # then we consider it of being a 'TCADAnalysisTypes.CHARGE'
-        if self._check_if_semiconductor_present(self.structures):
-            return [TCADAnalysisTypes.CHARGE]
+        if isinstance(self.analysis_spec, ElectricalAnalysisType):
+            if self._check_if_semiconductor_present(self.structures):
+                return [TCADAnalysisTypes.CHARGE]
+
+        # check if unsteady heat
+        # NOTE: this won't work
+        if isinstance(self.analysis_spec, UnsteadyHeatAnalysis):
+            return [TCADAnalysisTypes.HEAT]
 
         heat_source_present = any(isinstance(s, HeatSourceTypes) for s in self.sources)
 
