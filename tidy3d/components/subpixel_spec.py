@@ -120,6 +120,13 @@ class PECConformal(AbstractSubpixelAveragingMethod):
         ge=0,
     )
 
+    edge_singularity_correction: bool = pd.Field(
+        True,
+        title="Enable Edge Singularity Correction",
+        description="Enable singularity correction model at metallic edges where the field "
+        "varies rapidly.",
+    )
+
     @cached_property
     def courant_ratio(self) -> float:
         """The scaling ratio applied to Courant number so that the courant number
