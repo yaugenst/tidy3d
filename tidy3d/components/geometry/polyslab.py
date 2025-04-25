@@ -47,9 +47,6 @@ _MAX_POLYSLAB_VERTICES_FOR_TRIANGULATION = 500
 
 _MIN_POLYGON_AREA = fp_eps
 
-# number of points per dimension when discretizing polyslab faces for slab bounds gradients
-_NUM_PTS_DIM_SLAB_BOUNDS = 30
-
 
 class PolySlab(base.Planar):
     """Polygon extruded with optional sidewall angle along axis direction.
@@ -1416,190 +1413,320 @@ class PolySlab(base.Planar):
     """ Autograd code """
 
     def compute_derivatives(self, derivative_info: DerivativeInfo) -> AutogradFieldMap:
-        """Compute the adjoint derivatives for this object."""
+        """
+        Return VJPs while handling several edge-cases:
 
-        vjps = {}
+        - If the slab volume does not overlap the simulation, all grads are zero
+          (one warning is issued).
+        - Faces that lie completely outside the simulation give zero ``slab_bounds``
+          gradients; this includes the +/- inf cases.
+        - A 2d simulation collapses the surface integral to a line integral
+        """
+        vjps: AutogradFieldMap = {}
 
-        for key in derivative_info.paths:
-            if key == ("vertices",):
-                vjp = self.compute_derivative_vertices(derivative_info=derivative_info)
-                vjps[key] = vjp
+        sim_min, sim_max = map(np.asarray, derivative_info.bounds_intersect)
+        extents = sim_max - sim_min
+        is_2d = np.isclose(extents[self.axis], 0.0)
 
-            elif key[0] == "slab_bounds":
-                min_max_index = key[1]
-                vjp_face = self.compute_derivative_slab_face(
-                    derivative_info=derivative_info, min_max_index=min_max_index
+        # early return if polyslab is not in simulation domain
+        slab_min, slab_max = self.slab_bounds
+        if (slab_max <= sim_min[self.axis]) or (slab_min >= sim_max[self.axis]):
+            log.warning("'PolySlab' lies completely outside the simulation domain.", log_once=True)
+            for p in derivative_info.paths:
+                vjps[p] = np.zeros_like(self.vertices) if p == ("vertices",) else 0.0
+            return vjps
+
+        for path in derivative_info.paths:
+            if path == ("vertices",):
+                vjps[path] = self.compute_derivative_vertices(
+                    derivative_info, sim_min, sim_max, is_2d
                 )
+            elif path[0] == "slab_bounds":
+                idx = path[1]
+                face_coord = self.slab_bounds[idx]
 
-                # for ``slab_bounds[0]``, the ``VJP_face`` gives VJP for shifting face out.
-                # corresponds to a decrease ``slab_bounds[0]``. So we need -1 sign.
-                if min_max_index == 0:
-                    vjp_face *= -1
+                # face entirely outside -> gradient 0
+                if (
+                    np.isinf(face_coord)
+                    or face_coord < sim_min[self.axis]
+                    or face_coord > sim_max[self.axis]
+                    or is_2d
+                ):
+                    vjps[path] = 0.0
+                    continue
 
-                vjps[key] = vjp_face
-
+                v = self.compute_derivative_slab_bounds(derivative_info, idx)
+                # outward-normal convention
+                if idx == 0:
+                    v *= -1
+                vjps[path] = v
             else:
-                raise ValueError(f"No derivative defined with respect to 'PolySlab' field '{key}'.")
+                raise ValueError(f"No derivative defined w.r.t. 'PolySlab' field '{path}'.")
 
         return vjps
 
-    def compute_derivative_slab_face(
+    def compute_derivative_slab_bounds(
         self, derivative_info: DerivativeInfo, min_max_index: int
-    ) -> TracedVertices:
-        """Derivative with respect to slab_bounds."""
+    ) -> float:
+        """VJP for one of the two horizontal faces of a ``PolySlab``.
 
-        rmin, rmax = derivative_info.bounds
-        ax_min, (r1_min, r2_min) = self.pop_axis(rmin, axis=self.axis)
-        ax_max, (r1_max, r2_max) = self.pop_axis(rmax, axis=self.axis)
+        The face is discretized into a Cartesian grid of small planar patches
+        whose linear size does not exceed ``_VJP_SAMPLE_SPACING``. The adjoint surface
+        integral is evaluated on every retained patch; the resulting derivative
+        is split equally between the two vertices that bound the edge segment.
+        """
+        # rmin/rmax over the geometry ∩ simulation box
+        rmin, rmax = derivative_info.bounds_intersect
+        _, (r1_min, r2_min) = self.pop_axis(rmin, axis=self.axis)
+        _, (r1_max, r2_max) = self.pop_axis(rmax, axis=self.axis)
+        ax_val = self.slab_bounds[min_max_index]
 
-        num_1 = 1 if r1_min == r1_max else _NUM_PTS_DIM_SLAB_BOUNDS
-        num_2 = 1 if r2_min == r2_max else _NUM_PTS_DIM_SLAB_BOUNDS
+        # planar grid resolution, clipped to polygon bounding box
+        face_verts = self.base_polygon if min_max_index == 0 else self.top_polygon
+        face_poly = shapely.Polygon(face_verts).buffer(fp_eps)
 
-        num_cells = num_1 * num_2
-        ones = np.ones(num_cells)
-        zeros = np.zeros(num_cells)
+        # limit the patch grid to the face that lives inside the simulation box
+        poly_min_r1, poly_min_r2, poly_max_r1, poly_max_r2 = face_poly.bounds
+        r1_min = max(r1_min, poly_min_r1)
+        r1_max = min(r1_max, poly_max_r1)
+        r2_min = max(r2_min, poly_min_r2)
+        r2_max = min(r2_max, poly_max_r2)
 
-        def meshgrid_flatten_stack(*args) -> np.ndarray:
-            """Take set of `d` coords, meshgrid them, flatten, and assemble in `(N, d)` array."""
-            coords = np.meshgrid(*args, indexing="ij")
-            coords = [c.flatten() for c in coords]
-            return np.stack(coords, axis=-1)
+        if (r1_max <= r1_min) and (r2_max <= r2_min):
+            # the polygon does not intersect the current simulation slice
+            return 0.0
 
-        # get center points and areas
-        r1_centers = np.linspace(r1_min, r1_max, 2 * num_1 + 1)[1::2]
-        r2_centers = np.linspace(r2_min, r2_max, 2 * num_2 + 1)[1::2]
-        planar_centers = meshgrid_flatten_stack(r1_centers, r2_centers)
+        # re-compute the extents after clipping to the polygon bounds
+        extents = np.array([r1_max - r1_min, r2_max - r2_min])
 
-        area = 1.0
-        for rmin, rmax in zip((r1_min, r2_min), (r1_max, r2_max)):
-            if rmin != rmax:
-                area *= rmax - rmin
+        # choose surface or line integral
+        integral_fun = (
+            self.compute_derivative_slab_bounds_line
+            if np.isclose(extents, 0).any()
+            else self.compute_derivative_slab_bounds_surface
+        )
+        return integral_fun(
+            derivative_info,
+            extents,
+            r1_min,
+            r1_max,
+            r2_min,
+            r2_max,
+            ax_val,
+            face_poly,
+            min_max_index,
+        )
 
-        areas = area * np.ones(num_cells) / num_cells
+    def compute_derivative_slab_bounds_line(
+        self,
+        derivative_info: DerivativeInfo,
+        extents: np.ndarray,
+        r1_min: float,
+        r1_max: float,
+        r2_min: float,
+        r2_max: float,
+        ax_val: float,
+        face_poly: shapely.Polygon,
+        min_max_index: int,
+    ) -> float:
+        """Handle degenerate line cross-section case"""
+        # determine the varying in-plane dimension
+        line_dim = 1 if np.isclose(extents[0], 0) else 0
 
-        def get_grad(min_max_index: int) -> float:
-            """Compute gradient for either min or max dimension."""
+        poly_min_r1, poly_min_r2, poly_max_r1, poly_max_r2 = face_poly.bounds
+        if line_dim == 0:  # x varies, y is fixed
+            l_min = max(r1_min, poly_min_r1)
+            l_max = min(r1_max, poly_max_r1)
+        else:  # y varies, x is fixed
+            l_min = max(r2_min, poly_min_r2)
+            l_max = min(r2_max, poly_max_r2)
 
-            # select the normal sign and the axis value
-            if min_max_index == 0:
-                ax_val = ax_min
-            else:
-                ax_val = ax_max
+        length = l_max - l_min
+        if np.isclose(length, 0):
+            return 0.0
 
-            edge_centers_xyz = self.unpop_axis_vect(ones * ax_val, planar_centers)
+        dx = derivative_info.adaptive_vjp_spacing()
+        n_seg = max(1, int(np.ceil(length / dx)))
+        coords = np.linspace(l_min, l_max, 2 * n_seg + 1)[1::2]
 
-            # construct basis functions
-            normals = self.unpop_axis_vect(ones, np.stack((zeros, zeros), axis=-1))
-            perps1 = self.unpop_axis_vect(zeros, np.stack((ones, zeros), axis=-1))
-            perps2 = self.unpop_axis_vect(zeros, np.stack((zeros, ones), axis=-1))
+        # build XY coordinates and in-plane direction vectors
+        if line_dim == 0:
+            xy = np.column_stack((coords, np.full_like(coords, r2_min)))
+            dir_vec_plane = np.column_stack((np.ones_like(coords), np.zeros_like(coords)))
+        else:
+            xy = np.column_stack((np.full_like(coords, r1_min), coords))
+            dir_vec_plane = np.column_stack((np.zeros_like(coords), np.ones_like(coords)))
 
-            rr1, rr2, axx_val = meshgrid_flatten_stack(r1_centers, r2_centers, ax_val).T
+        inside = shapely.contains_xy(face_poly, xy[:, 0], xy[:, 1])
+        if not inside.any():
+            return 0.0
 
-            xx, yy, zz = self.unpop_axis_vect(axx_val, np.stack((rr1, rr2), axis=-1)).T
+        xy = xy[inside]
+        dir_vec_plane = dir_vec_plane[inside]
+        n_pts = len(xy)
 
-            inside = self.inside(xx, yy, zz).squeeze().flatten()
+        centers_xyz = self.unpop_axis_vect(np.full(n_pts, ax_val), xy)
+        areas = np.full(n_pts, length / n_seg)  # patch length
 
-            areas_masked = areas * inside
+        normals_xyz = self.unpop_axis_vect(
+            np.full(n_pts, -1 if min_max_index == 0 else 1),
+            np.zeros_like(xy),
+        )
+        perps1_xyz = self.unpop_axis_vect(np.zeros(n_pts), dir_vec_plane)
+        perps2_xyz = self.unpop_axis_vect(np.zeros(n_pts), np.zeros_like(dir_vec_plane))
 
-            # compute DerivativeSurfaceMesh for each top and bottom.
-            surface_mesh = DerivativeSurfaceMesh(
-                centers=edge_centers_xyz,
-                areas=areas_masked,
-                normals=normals,
-                perps1=perps1,
-                perps2=perps2,
+        mesh = DerivativeSurfaceMesh(
+            centers=centers_xyz,
+            areas=areas,
+            normals=normals_xyz,
+            perps1=perps1_xyz,
+            perps2=perps2_xyz,
+        )
+        return np.real(np.sum(derivative_info.grad_surfaces(mesh))).item()
+
+    def compute_derivative_slab_bounds_surface(
+        self,
+        derivative_info: DerivativeInfo,
+        extents: np.ndarray,
+        r1_min: float,
+        r1_max: float,
+        r2_min: float,
+        r2_max: float,
+        ax_val: float,
+        face_poly: shapely.Polygon,
+        min_max_index: int,
+    ) -> float:
+        """2d surface integral on a cartesian patch grid"""
+        dx = derivative_info.adaptive_vjp_spacing()
+        n1, n2 = np.maximum(1, np.ceil(extents / dx).astype(int))
+
+        # clip grid centers to polygon bounding box
+        min_r1, min_r2, max_r1, max_r2 = face_poly.bounds
+        coords1 = np.linspace(r1_min, r1_max, 2 * n1 + 1)[1::2]
+        coords1 = coords1[(coords1 >= min_r1) & (coords1 <= max_r1)]
+        coords2 = np.linspace(r2_min, r2_max, 2 * n2 + 1)[1::2]
+        coords2 = coords2[(coords2 >= min_r2) & (coords2 <= max_r2)]
+
+        patch_area = (extents[0] / n1) * (extents[1] / n2)
+        accum_grad = 0.0
+
+        # intentionally not vectorized to limit memory use
+        for r1 in coords1:
+            pts = np.column_stack((np.full_like(coords2, r1), coords2))
+            in_face = shapely.contains_xy(face_poly, pts[:, 0], pts[:, 1])
+            if not in_face.any():
+                continue
+
+            xyz = self.unpop_axis_vect(np.full(in_face.sum(), ax_val), pts[in_face])
+            n_patches = xyz.shape[0]
+
+            normals_xyz = self.unpop_axis_vect(
+                np.full(n_patches, -1 if min_max_index == 0 else 1),
+                np.zeros((n_patches, 2)),
+            )
+            perps1_xyz = self.unpop_axis_vect(
+                np.zeros(n_patches),
+                np.column_stack((np.ones(n_patches), np.zeros(n_patches))),
+            )
+            perps2_xyz = self.unpop_axis_vect(
+                np.zeros(n_patches),
+                np.column_stack((np.zeros(n_patches), np.ones(n_patches))),
             )
 
-            grads = derivative_info.grad_surfaces(surface_mesh=surface_mesh)
-            vjp = np.real(np.sum(grads).item())
+            mesh = DerivativeSurfaceMesh(
+                centers=xyz,
+                areas=np.full(n_patches, patch_area),
+                normals=normals_xyz,
+                perps1=perps1_xyz,
+                perps2=perps2_xyz,
+            )
+            accum_grad += np.real(np.sum(derivative_info.grad_surfaces(mesh))).item()
 
-            return vjp
+        return accum_grad
 
-        return get_grad(min_max_index)
+    def compute_derivative_vertices(
+        self,
+        derivative_info: DerivativeInfo,
+        sim_min: np.ndarray,
+        sim_max: np.ndarray,
+        is_2d: bool = False,
+    ) -> np.ndarray:
+        """VJP for the vertices of a ``PolySlab``.
 
-    def compute_derivative_slab_face_single_pt(
-        self, derivative_info: DerivativeInfo, min_max_index: int
-    ) -> TracedVertices:
-        """Derivative with respect to slab faces (single point approximation)."""
+        Each side-wall is sliced in the **in-plane** direction (along the edge)
+        and, when applicable, in the **out-of-plane** direction (along the
+        extrusion axis) so that every rectangular surface patch is no larger
+        than ``_VJP_SAMPLE_SPACING`` in any dimension.  The adjoint surface
+        integral is evaluated on every retained patch; the resulting force is
+        split (weighted) between the two vertices that bound the edge segment.
 
-        self_static = self.to_static()
+        Special cases:
+        - Pure 2d simulations - integral collapses to a line; only one z-slice is taken.
+        - Partial overlap with the simulation box - patches falling
+          outside ``[sim_min, sim_max]`` are skipped.
+        - Degenerate edges (zero length) - ignored.
+        """
+        vertices = np.asarray(self.vertices)
+        next_v = np.roll(vertices, -1, axis=0)
+        basis = self.edge_basis_vectors(next_v - vertices)
+        dx = derivative_info.adaptive_vjp_spacing()
 
-        center_r1, center_r2 = np.mean(self_static.vertices, axis=0)
-        center_axis = self_static.slab_bounds[min_max_index]
-        center_xyz = self.unpop_axis(center_axis, (center_r1, center_r2), axis=self.axis)
+        # compute z‐slices
+        z0 = max(self.slab_bounds[0], sim_min[self.axis])
+        z1 = min(self.slab_bounds[1], sim_max[self.axis])
 
-        area = self_static._area(self_static.vertices)
+        # early return if no z-slices
+        if (not is_2d) and z1 <= z0:
+            return np.zeros_like(vertices)
 
-        norm = self.unpop_axis(1, (0, 0), axis=self.axis)
-        perp1 = self.unpop_axis(0, (0, 1), axis=self.axis)
-        perp2 = self.unpop_axis(0, (1, 0), axis=self.axis)
+        if is_2d:
+            z_centers = np.array([self.center_axis])
+            dz_surf = 1.0
+        else:
+            n_z = max(1, int(np.ceil((z1 - z0) / dx)))
+            dz = (z1 - z0) / n_z
+            dz_surf = dz / np.cos(self.sidewall_angle)
+            z_centers = np.linspace(z0 + dz / 2, z1 - dz / 2, n_z)
 
-        surface_mesh = DerivativeSurfaceMesh(
-            centers=[center_xyz],
-            areas=[area],
-            normals=[norm],
-            perps1=[perp1],
-            perps2=[perp2],
-        )
+        vjp_per_vertex = np.zeros_like(vertices, dtype=float)
+        normals_2d = np.delete(basis["norm"], self.axis, axis=1)
 
-        grads = derivative_info.grad_surfaces(surface_mesh=surface_mesh)
-        vjp = np.real(np.sum(grads).item())
+        # not vectorized over edges to limit memory use
+        for ei, (v0, v1) in enumerate(zip(vertices, next_v)):
+            edge_vec = v1 - v0
+            L = np.linalg.norm(edge_vec)
+            if np.isclose(L, 0.0):
+                continue
+            n_xy = max(1, int(np.ceil(L / dx)))
+            s = (np.arange(n_xy) + 0.5) / n_xy
+            pts2d = v0 + np.outer(s, edge_vec)
+            patch_area = (L / n_xy) * (dz_surf if not is_2d else 1.0)
 
-        return vjp
+            for zc in z_centers:
+                xyz = self.unpop_axis_vect(np.full(n_xy, zc), pts2d)
+                mask = np.all((xyz >= sim_min) & (xyz <= sim_max), axis=1)
+                if not mask.any():
+                    continue
 
-    def compute_derivative_vertices(self, derivative_info: DerivativeInfo) -> TracedVertices:
-        # derivative w.r.t each edge
+                mesh = DerivativeSurfaceMesh(
+                    centers=xyz[mask],
+                    areas=np.full(mask.sum(), patch_area),
+                    normals=np.repeat(basis["norm"][ei][None], mask.sum(), axis=0),
+                    perps1=np.repeat(basis["perp1"][ei][None], mask.sum(), axis=0),
+                    perps2=np.repeat(basis["perp2"][ei][None], mask.sum(), axis=0),
+                )
+                patch_vjps = derivative_info.grad_surfaces(mesh).values.real
 
-        vertices = np.array(self.vertices)
-        num_vertices, _ = vertices.shape
+                w0 = 1.0 - s[mask]
+                w1 = s[mask]
 
-        # compute edges between vertices
+                contrib0 = (w0 * patch_vjps)[:, None] * normals_2d[ei]
+                contrib1 = (w1 * patch_vjps)[:, None] * normals_2d[ei]
 
-        vertices_next = np.roll(self.vertices, axis=0, shift=-1)
-        edges = vertices_next - vertices
+                vjp_per_vertex[ei] += contrib0.sum(axis=0)
+                vjp_per_vertex[(ei + 1) % len(vertices)] += contrib1.sum(axis=0)
 
-        # compute center positions between each edge
-        edge_centers_plane = (vertices_next + vertices) / 2.0
-        edge_centers_axis = self.center_axis * np.ones(num_vertices)
-        edge_centers_xyz = self.unpop_axis_vect(edge_centers_axis, edge_centers_plane)
-
-        if edge_centers_xyz.shape != (num_vertices, 3):
-            raise AssertionError("something bad happened")
-
-        # get basis vectors for every edge segment
-        basis_vectors = self.edge_basis_vectors(edges=edges)
-
-        # scale by edge area
-        edge_lengths = np.linalg.norm(edges, axis=-1)
-        edge_areas = edge_lengths
-
-        # correction to edge area based on sidewall distance along slab axis
-        slab_height = abs(float(np.squeeze(np.diff(self.slab_bounds))))
-        if not np.isinf(slab_height):
-            edge_areas *= slab_height
-
-        surface_mesh = DerivativeSurfaceMesh(
-            centers=edge_centers_xyz,
-            areas=edge_areas,
-            normals=basis_vectors["norm"],
-            perps1=basis_vectors["perp1"],
-            perps2=basis_vectors["perp2"],
-        )
-
-        vjps_edges = derivative_info.grad_surfaces(surface_mesh=surface_mesh)
-
-        _, normal_vectors_in_plane = self.pop_axis_vect(basis_vectors["norm"])
-
-        vjps_edges_in_plane = vjps_edges.values.reshape((num_vertices, 1)) * normal_vectors_in_plane
-
-        vjps_vertices = vjps_edges_in_plane + np.roll(vjps_edges_in_plane, axis=0, shift=1)
-        vjps_vertices /= 2.0  # each vertex is effected only 1/2 by each edge
-
-        # sign change if counter clockwise, because normal direction is flipped
-        if self.is_ccw:
-            vjps_vertices *= -1
-
-        return vjps_vertices.real
+        return vjp_per_vertex
 
     def edge_basis_vectors(
         self,
@@ -1623,10 +1750,9 @@ class PolySlab(base.Planar):
         slabs_norm_xyz = self.unpop_axis_vect(slabs_axis_components, slab_normal_in_plane)
 
         # normalized vectors pointing in normal direction of edge
-        normals_norm_xyz = np.cross(edges_norm_xyz, slabs_norm_xyz)
-
-        if self.axis != 1:
-            normals_norm_xyz *= -1
+        # cross yields inward normal when the extrusion axis is y, so negate once for axis==1
+        sign = (-1 if self.axis == 1 else 1) * (-1 if not self.is_ccw else 1)
+        normals_norm_xyz = sign * np.cross(edges_norm_xyz, slabs_norm_xyz)
 
         return dict(norm=normals_norm_xyz, perp1=edges_norm_xyz, perp2=slabs_norm_xyz)
 

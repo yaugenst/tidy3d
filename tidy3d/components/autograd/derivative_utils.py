@@ -5,7 +5,7 @@ import numpy as np
 import pydantic.v1 as pd
 import xarray as xr
 
-from ...constants import LARGE_NUMBER
+from ...constants import C_0, LARGE_NUMBER
 from ..base import Tidy3dBaseModel
 from ..data.data_array import ScalarFieldDataArray, SpatialDataArray
 from ..types import ArrayLike, Bound, tidycomplex
@@ -359,6 +359,32 @@ class DerivativeInfo(Tidy3dBaseModel):
         for coeffs, dim in zip(basis_vector.T, "xyz"):
             value += coeffs * der_dataset[f"E{dim}"]
         return value
+
+    def adaptive_vjp_spacing(
+        self,
+        wl_fraction: float = 0.1,
+        min_allowed_spacing: float = 1e-2,
+    ) -> float:
+        """Return an adaptive finite-difference spacing for VJP evaluation."""
+        eps = np.asarray(self.eps_in, dtype=np.complex128)
+        eps_real = np.real(eps)
+
+        dx_candidates = []
+
+        # wavelength-based sampling for dielectrics
+        if np.any(eps_real > 0):
+            eps_max = eps_real[eps_real > 0].max()
+            lambda_min = C_0 / (self.frequency * np.sqrt(eps_max))
+            dx_candidates.append(wl_fraction * lambda_min)
+
+        # for metals, base sampling on the skin depth
+        if np.any(eps_real <= 0):
+            omega = 2 * np.pi * self.frequency
+            eps_neg = eps_real[eps_real <= 0]
+            delta_min = C_0 / (omega * np.sqrt(np.abs(eps_neg).max()))
+            dx_candidates.append(wl_fraction * delta_min)
+
+        return max(min(dx_candidates), min_allowed_spacing)
 
 
 # TODO: could we move this into a DataArray method?

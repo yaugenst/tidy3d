@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed issue with `CustomMedium` gradients where other frequencies would wrongly contribute to the gradient.
 - Fixed bug when computing `PolySlab` bounds in plotting functions.
+### Changed
+- Finer sampling along `PolySlab` edges in VJP for more accurate gradients.
 
 ## [2.8.3] - 2025-04-24
 
