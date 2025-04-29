@@ -32,13 +32,6 @@ class UnsteadySpec(Tidy3dBaseModel):
         description="Specifies the total number of time steps run during the simulation.",
     )
 
-    output_fr: pd.PositiveInt = pd.Field(
-        1,
-        title="Output frequency",
-        description="Determines how often output files will be written. I.e., an output "
-        "file will be written every 'output_fr' time steps.",
-    )
-
 
 class UnsteadyHeatAnalysis(Tidy3dBaseModel):
     """

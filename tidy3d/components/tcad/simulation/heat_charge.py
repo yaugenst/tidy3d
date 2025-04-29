@@ -1660,7 +1660,6 @@ class HeatChargeSimulation(AbstractSimulation):
                 return [TCADAnalysisTypes.CHARGE]
 
         # check if unsteady heat
-        # NOTE: this won't work
         if isinstance(self.analysis_spec, UnsteadyHeatAnalysis):
             return [TCADAnalysisTypes.HEAT]
 
