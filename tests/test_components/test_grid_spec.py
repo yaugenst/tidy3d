@@ -704,8 +704,6 @@ def test_abc_boundary():
             boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary()),
         )
 
-
-
     # disallow ABC boundaries in zero dimensions
     with pytest.raises(pydantic.ValidationError):
         _ = td.Simulation(
@@ -719,6 +717,60 @@ def test_abc_boundary():
             structures=[box_crossing_boundary],
             run_time=1e-20,
             boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary()),
+        )
+
+    # need to define frequence for ABCModeSpec
+    # manually
+    _ = td.Simulation(
+        center=[0, 0, 0],
+        size=[1, 1, 1],
+        grid_spec=td.GridSpec.auto(
+            min_steps_per_wvl=10,
+            wavelength=wvl_um,
+        ),
+        sources=[],
+        run_time=1e-20,
+        boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0), frequency=freq0))),
+    )
+    # or at least one source
+    _ = td.Simulation(
+        center=[0, 0, 0],
+        size=[1, 1, 1],
+        grid_spec=td.GridSpec.auto(
+            min_steps_per_wvl=10,
+            wavelength=wvl_um,
+        ),
+        sources=[mode_source],
+        run_time=1e-20,
+        boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0)))),
+    )
+    # multiple sources with different central freqs is still ok, but show warning
+    with AssertLogLevel("WARNING", contains_str="The central frequency of the first source will be used"):
+        _ = td.Simulation(
+            center=[0, 0, 0],
+            size=[1, 1, 1],
+            grid_spec=td.GridSpec.auto(
+                min_steps_per_wvl=10,
+                wavelength=wvl_um,
+            ),
+            sources=[mode_source, mode_source.updated_copy(source_time=td.GaussianPulse(freq0=2 * freq0, fwidth=0.2 * freq0))],
+            run_time=1e-20,
+            boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0)))),
+        )
+
+    # error otherwise
+    with pytest.raises(pydantic.ValidationError):
+        _ = td.Simulation(
+            center=[0, 0, 0],
+            size=[1, 1, 1],
+            grid_spec=td.GridSpec.auto(
+                min_steps_per_wvl=10,
+                wavelength=wvl_um,
+            ),
+            sources=[],
+            structures=[box_crossing_boundary],
+            run_time=1e-20,
+            boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0)))),
         )
 
         

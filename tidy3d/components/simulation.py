@@ -36,6 +36,7 @@ from .boundary import (
     Periodic,
     PMCBoundary,
     StablePML,
+    ABCModeSpec,
 )
 from .data.data_array import (
     FreqDataArray,
@@ -2838,6 +2839,32 @@ class Simulation(AbstractYeeGridSimulation):
 
         return val
 
+    @pydantic.validator("boundary_spec", always=True)
+    @skip_if_fields_missing(["sources"])
+    def _validate_frequency_mode_abc(cls, val, values):
+        """Error if ABCModalSpec expects a frequency from a source, but no sources are given."""
+        boundaries = val.to_list
+        need_wavelength = any(isinstance(edge, ABCBoundary) and isinstance(edge.permittivity, ABCModeSpec) and edge.permittivity.frequency is None for edge in np.ravel(boundaries))
+
+        if need_wavelength:
+            sources = values.get("sources")
+
+            if len(sources) == 0:
+                raise SetupError(
+                    "Using 'ABCModeSpec' in 'ABCBoundary' requires specification of frequency at which the absorbed mode must be evaluated. "
+                    "Specify it via field 'frequency' in 'ABCModeSpec' or by providing at least one source."
+                )
+            
+            freq0s = [source.source_time.freq0 for source in sources]
+            if not all(math.isclose(freq0, freq0s[0]) for freq0 in freq0s):
+                log.warning(
+                    "At least one 'ABCModeSpec' in 'ABCBoundary' does not specify frequency at which the absorbed mode must be evaluated. "
+                    "The central frequency of the first source will be used.",
+                    capture=False,
+                )
+
+        return val
+
     @pydantic.validator("sources", always=True)
     def _validate_num_sources(cls, val):
         """Error if too many sources present."""
@@ -3128,6 +3155,36 @@ class Simulation(AbstractYeeGridSimulation):
 
         return val
     
+    @classmethod
+    def _get_mediums_on_abc(
+        cls, boundary_spec, medium, center, size, structures
+    ) -> Tuple[List[MediumType3D], List[MediumType3D], List[MediumType3D], List[MediumType3D], List[MediumType3D], List[MediumType3D]]:
+        """For each ABC boundary that needs an automatic medium detection (permittivity=None)
+        determine mediums it crosses.
+        """
+
+        # list of structures including background as a Box()
+        structure_bg = Structure(
+            geometry=Box(
+                size=size,
+                center=center,
+            ),
+            medium=medium,
+        )
+
+        surfaces = Box.surfaces(center=structure_bg.geometry.center, size=structure_bg.geometry.size)
+
+        total_structures = [structure_bg] + list(structures)
+
+        mediums = []
+        for boundary, surface in zip(np.ravel(boundary_spec.to_list), surfaces):
+            if isinstance(boundary, ABCBoundary) and boundary.permittivity is None:
+                mediums.append(Scene.intersecting_media(surface, total_structures))
+            else:
+                mediums.append(None)
+
+        return mediums
+    
 
     @pydantic.validator("boundary_spec", always=True)
     @skip_if_fields_missing(["medium", "center", "size", "structures"])
@@ -3136,26 +3193,19 @@ class Simulation(AbstractYeeGridSimulation):
 
         if val is None:
             return val
-
-        # list of structures including background as a Box()
-        structure_bg = Structure(
-            geometry=Box(
-                size=values.get("size"),
-                center=values.get("center"),
-            ),
+        
+        mediums_all_sides = cls._get_mediums_on_abc(
+            boundary_spec=val, 
             medium=values.get("medium"),
+            size=values.get("size"),
+            center=values.get("center"),
+            structures=values.get("structures") or []
         )
 
-        surfaces = Box.surfaces(center=structure_bg.geometry.center, size=structure_bg.geometry.size)
-
-        structures = values.get("structures") or []
-        total_structures = [structure_bg] + list(structures)
 
         with log as consolidated_logger:
-            for boundary, surface in zip(np.ravel(val.to_list), surfaces):
-                if isinstance(boundary, ABCBoundary) and boundary.permittivity is None:
-                    mediums = Scene.intersecting_media(surface, total_structures)
-                    
+            for mediums in mediums_all_sides:
+                if mediums is not None:
                     # make sure there is no more than one medium in the returned list
                     if len(mediums) > 1:
                         raise SetupError(
