@@ -51,10 +51,16 @@ class PMCBoundary(BoundaryEdge):
 class MurBoundary(BoundaryEdge):
     """Mur's absorbing boundary conditions"""
     
-    n_eff: Optional[pd.PositiveFloat] = pd.Field(
+    permittivity: Optional[pd.PositiveFloat] = pd.Field(
         ...,
-        title="Propagation Index",
-        description="Enforced propagation index.",
+        title="Effective Permittivity",
+        description="Enforced effective permittivity.",
+    )
+    
+    conductivity: Optional[float] = pd.Field(
+        ...,
+        title="Effective Conductivity",
+        description="Enforced effective conductivity.",
     )
 
 
