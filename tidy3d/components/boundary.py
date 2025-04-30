@@ -9,12 +9,15 @@ import numpy as np
 import pydantic.v1 as pd
 
 from ..constants import EPSILON_0, MU_0, PML_SIGMA
-from ..exceptions import DataError, SetupError
+from ..exceptions import DataError, SetupError, ValidationError
 from ..log import log
-from .base import Tidy3dBaseModel, cached_property
+from .base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
 from .medium import Medium
 from .source.field import TFSF, GaussianBeam, ModeSource, PlaneWave
+from .mode_spec import ModeSpec
+from .geometry.base import Box
 from .types import TYPE_TAG_STR, Axis, Complex
+from .validators import assert_plane
 
 MIN_NUM_PML_LAYERS = 6
 
@@ -47,21 +50,92 @@ class PECBoundary(BoundaryEdge):
 class PMCBoundary(BoundaryEdge):
     """Perfect magnetic conductor boundary condition class."""
 
-# PMC keyword
-class MurBoundary(BoundaryEdge):
-    """Mur's absorbing boundary conditions"""
+
+class ABCModeSpec(Box):
+    """Specification of the mode to absorb for ABC boundary conditions."""
+
+    mode_spec: ModeSpec = pd.Field(
+        ModeSpec(),
+        title="Mode Specification",
+        description="Parameters to feed to mode solver which determine modes measured by monitor.",
+    )
+
+    mode_index: pd.NonNegativeInt = pd.Field(
+        0,
+        title="Mode Index",
+        description="Index into the collection of modes returned by mode solver. "
+        " Specifies which mode to inject using this source. "
+        "If larger than ``mode_spec.num_modes``, "
+        "``num_modes`` in the solver will be set to ``mode_index + 1``.",
+    )
+
+    frequency: Optional[pd.PositiveFloat] = pd.Field(
+        None,
+        title="Frequency",
+        description="Frequency at which the absorbed mode is evaluated. If ``None``, then the central frequency of the souce is used.",
+    )
     
-    permittivity: Optional[pd.PositiveFloat] = pd.Field(
-        ...,
+    _plane_validator = assert_plane()
+
+    @classmethod
+    def from_source(cls, source: ModeSource) -> ABCModeSpec:
+        """Instantiate from a ``ModeSource``.
+
+        Parameters
+        ----------
+        source : :class:`ModeSource`
+            Mode source.
+
+        Returns
+        -------
+        :class:`ABCModeSpec`
+            Specification for the mode being absorbed.
+
+        Example
+        -------
+        >>> from tidy3d import GaussianPulse, ModeSource, inf
+        >>> pulse = GaussianPulse(freq0=200e12, fwidth=20e12)
+        >>> source = ModeSource(size=(1, 1, 0), source_time=pulse, direction='+')
+        >>> abs_mode_spec = ABCModeSpec.from_source(source=source)
+        """
+
+        return cls(
+            center=source.center, 
+            size=source.size, 
+            mode_spec=source.mode_spec, 
+            mode_index=source.mode_index, 
+            frequency=source.source_time.freq0,
+        )
+
+
+
+# ABC keyword
+class ABCBoundary(BoundaryEdge):
+    """One-way wave equation absorbing boundary conditions"""
+    
+    permittivity: Optional[Union[pd.PositiveFloat, ABCModeSpec]] = pd.Field(
+        None,
         title="Effective Permittivity",
         description="Enforced effective permittivity.",
     )
     
-    conductivity: Optional[float] = pd.Field(
-        ...,
+    conductivity: Optional[pd.NonNegativeFloat] = pd.Field(
+        None,
         title="Effective Conductivity",
         description="Enforced effective conductivity.",
     )
+
+    @pd.validator("conductivity", always=True)
+    @skip_if_fields_missing(["permittivity"])
+    def _conductivity_only_with_float_permittivity(cls, val, values):
+        """Validate that conductivity can be provided only with float permittivity."""
+        perm = values["permittivity"]
+        if val is not None and not isinstance(perm, float):
+            raise ValidationError(
+                "Field 'conductivity' in 'ABCBoundary' can only be provided "
+                "simultaneously with float 'permittivity'."
+            )
+        return val
 
 
 # """ Bloch boundary """
@@ -509,7 +583,7 @@ PMLTypes = Union[PML, StablePML, Absorber, None]
 # types of boundaries that can be used in Simulation
 
 BoundaryEdgeType = Union[
-    Periodic, PECBoundary, PMCBoundary, PML, StablePML, Absorber, BlochBoundary, MurBoundary
+    Periodic, PECBoundary, PMCBoundary, PML, StablePML, Absorber, BlochBoundary, ABCBoundary
 ]
 
 
@@ -573,8 +647,8 @@ class Boundary(Tidy3dBaseModel):
         plus = values.get("plus")
         minus = values.get("minus")
         num_pbc = isinstance(plus, Periodic) + isinstance(minus, Periodic)
-        num_pml = isinstance(plus, (PML, StablePML, Absorber)) + isinstance(
-            minus, (PML, StablePML, Absorber)
+        num_pml = isinstance(plus, (PML, StablePML, Absorber, ABCBoundary)) + isinstance(
+            minus, (PML, StablePML, Absorber, ABCBoundary)
         )
         if num_pbc == 1 and num_pml == 1:
             raise SetupError("Cannot have both PML and PBC along the same dimension.")
@@ -692,15 +766,15 @@ class Boundary(Tidy3dBaseModel):
         return cls(plus=plus, minus=minus)
 
     @classmethod
-    def mur(cls):
-        """PMC boundary specification on both sides along a dimension.
+    def abc(cls, permittivity: Optional[pd.PositiveFloat] = None, conductivity: Optional[pd.NonNegativeFloat] = None):
+        """ABC boundary specification on both sides along a dimension.
 
         Example
         -------
-        >>> pmc = Boundary.pmc()
+        >>> abc = Boundary.abc()
         """
-        plus = MurBoundary()
-        minus = MurBoundary()
+        plus = ABCBoundary(permittivity=permittivity, conductivity=conductivity)
+        minus = ABCBoundary(permittivity=permittivity, conductivity=conductivity)
         return cls(plus=plus, minus=minus)
 
     @classmethod

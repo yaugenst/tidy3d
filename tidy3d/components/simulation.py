@@ -26,6 +26,7 @@ from .base import cached_property, skip_if_fields_missing
 from .base_sim.simulation import AbstractSimulation
 from .boundary import (
     PML,
+    ABCBoundary,
     Absorber,
     AbsorberSpec,
     BlochBoundary,
@@ -2802,7 +2803,7 @@ class Simulation(AbstractYeeGridSimulation):
         for dim, (boundary, symmetry_dim, size_dim) in enumerate(zip(boundaries, symmetry, size)):
             if size_dim == 0:
                 axis = axis_names[dim]
-                num_absorbing_bdries = sum(isinstance(bnd, AbsorberSpec) for bnd in boundary)
+                num_absorbing_bdries = sum(isinstance(bnd, (AbsorberSpec, ABCBoundary)) for bnd in boundary)
                 num_bloch_bdries = sum(isinstance(bnd, BlochBoundary) for bnd in boundary)
 
                 if num_absorbing_bdries > 0:
@@ -3123,6 +3124,61 @@ class Simulation(AbstractYeeGridSimulation):
                             f"Nonuniform custom medium detected on plane intersecting a {monitor.type}. "
                             "Plane must be homogeneous. Make sure custom medium is uniform on the plane.",
                             custom_loc=["monitors", monitor_ind],
+                        )
+
+        return val
+    
+
+    @pydantic.validator("boundary_spec", always=True)
+    @skip_if_fields_missing(["medium", "center", "size", "structures"])
+    def _abc_boundaries_homogeneous(cls, val, values):
+        """Error if abc boundaries intersect multiple mediums or anisotropic mediums."""
+
+        if val is None:
+            return val
+
+        # list of structures including background as a Box()
+        structure_bg = Structure(
+            geometry=Box(
+                size=values.get("size"),
+                center=values.get("center"),
+            ),
+            medium=values.get("medium"),
+        )
+
+        surfaces = Box.surfaces(center=structure_bg.geometry.center, size=structure_bg.geometry.size)
+
+        structures = values.get("structures") or []
+        total_structures = [structure_bg] + list(structures)
+
+        with log as consolidated_logger:
+            for boundary, surface in zip(np.ravel(val.to_list), surfaces):
+                if isinstance(boundary, ABCBoundary) and boundary.permittivity is None:
+                    mediums = Scene.intersecting_media(surface, total_structures)
+                    
+                    # make sure there is no more than one medium in the returned list
+                    if len(mediums) > 1:
+                        raise SetupError(
+                            f"{len(mediums)} different mediums detected on an 'ABCBoundary'. Boundary must be homogeneous."
+                        )
+                    # 0 medium, something is wrong
+                    if len(mediums) < 1:
+                        raise SetupError(
+                            f"No medium detected on plane containing 'ABCBoundary', "
+                            "indicating an unexpected error. Please create a github issue so "
+                            "that the problem can be investigated."
+                        )
+                    # 1 medium, check if the medium is spatially uniform
+                    if not list(mediums)[0].is_spatially_uniform:
+                        consolidated_logger.warning(
+                            f"Nonuniform custom medium detected on an 'ABCBoundary'. "
+                            "Boundary must be homogeneous. Make sure custom medium is uniform on the boundary.",
+                        )
+
+                    if isinstance(list(mediums)[0], (AnisotropicMedium, FullyAnisotropicMedium)):
+                        raise SetupError(
+                            f"An anisotropic medium is detected on an 'ABCBoundary. "
+                            "Boundary medium must be homogeneous and isotropic."
                         )
 
         return val

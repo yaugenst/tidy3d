@@ -107,7 +107,8 @@ from .components.boundary import (
     PMLParams,
     PMLTypes,
     StablePML,
-    MurBoundary,
+    ABCBoundary,
+    ABCModeSpec,
 )
 
 # data
@@ -530,7 +531,8 @@ __all__ = [
     "Periodic",
     "PECBoundary",
     "PMCBoundary",
-    "MurBoundary",
+    "ABCBoundary",
+    "ABCModeSpec",
     "PML",
     "StablePML",
     "Absorber",
