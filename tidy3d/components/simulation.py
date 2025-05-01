@@ -3209,10 +3209,13 @@ class Simulation(AbstractYeeGridSimulation):
         if val is None:
             return val
 
+        # expand zero dimensions to make the treatment uniform
+        size = [fp_eps if s == 0 else s for s in values.get("size")]
+
         mediums_all_sides = cls._get_mediums_on_abc(
             boundary_spec=val,
             medium=values.get("medium"),
-            size=values.get("size"),
+            size=size,
             center=values.get("center"),
             structures=values.get("structures") or [],
         )
