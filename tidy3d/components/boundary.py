@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import List, Tuple, Union, Optional
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -12,10 +12,10 @@ from ..constants import EPSILON_0, MU_0, PML_SIGMA
 from ..exceptions import DataError, SetupError, ValidationError
 from ..log import log
 from .base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
-from .medium import Medium
-from .source.field import TFSF, GaussianBeam, ModeSource, PlaneWave
-from .mode_spec import ModeSpec
 from .geometry.base import Box
+from .medium import Medium
+from .mode_spec import ModeSpec
+from .source.field import TFSF, GaussianBeam, ModeSource, PlaneWave
 from .types import TYPE_TAG_STR, Axis, Complex
 from .validators import assert_plane
 
@@ -74,7 +74,7 @@ class ABCModeSpec(Box):
         title="Frequency",
         description="Frequency at which the absorbed mode is evaluated. If ``None``, then the central frequency of the souce is used.",
     )
-    
+
     _plane_validator = assert_plane()
 
     @classmethod
@@ -100,25 +100,24 @@ class ABCModeSpec(Box):
         """
 
         return cls(
-            center=source.center, 
-            size=source.size, 
-            mode_spec=source.mode_spec, 
-            mode_index=source.mode_index, 
+            center=source.center,
+            size=source.size,
+            mode_spec=source.mode_spec,
+            mode_index=source.mode_index,
             frequency=source.source_time.freq0,
         )
-
 
 
 # ABC keyword
 class ABCBoundary(BoundaryEdge):
     """One-way wave equation absorbing boundary conditions"""
-    
+
     permittivity: Optional[Union[pd.PositiveFloat, ABCModeSpec]] = pd.Field(
         None,
         title="Effective Permittivity",
         description="Enforced effective permittivity.",
     )
-    
+
     conductivity: Optional[pd.NonNegativeFloat] = pd.Field(
         None,
         title="Effective Conductivity",
@@ -766,7 +765,11 @@ class Boundary(Tidy3dBaseModel):
         return cls(plus=plus, minus=minus)
 
     @classmethod
-    def abc(cls, permittivity: Optional[pd.PositiveFloat] = None, conductivity: Optional[pd.NonNegativeFloat] = None):
+    def abc(
+        cls,
+        permittivity: Optional[pd.PositiveFloat] = None,
+        conductivity: Optional[pd.NonNegativeFloat] = None,
+    ):
         """ABC boundary specification on both sides along a dimension.
 
         Example

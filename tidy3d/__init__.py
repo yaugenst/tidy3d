@@ -91,6 +91,8 @@ from .components.beam import (
 # boundary
 from .components.boundary import (
     PML,
+    ABCBoundary,
+    ABCModeSpec,
     Absorber,
     AbsorberParams,
     BlochBoundary,
@@ -107,8 +109,6 @@ from .components.boundary import (
     PMLParams,
     PMLTypes,
     StablePML,
-    ABCBoundary,
-    ABCModeSpec,
 )
 
 # data

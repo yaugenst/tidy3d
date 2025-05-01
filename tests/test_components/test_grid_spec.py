@@ -520,7 +520,6 @@ def test_domain_mismatch():
 
 
 def test_abc_boundary():
-
     # check basic instance
     _ = td.ABCBoundary()
 
@@ -571,7 +570,6 @@ def test_abc_boundary():
             frequency=freq0,
         )
 
-
     # from mode source
     mode_source = td.ModeSource(
         size=(1, 1, 0),
@@ -591,7 +589,9 @@ def test_abc_boundary():
         _ = td.ABCBoundary(permittivity=abc_mode_spec, conductivity=0.1)
 
     # in Boundary
-    _ = td.Boundary(minus=td.ABCBoundary(permittivity=3), plus=td.ABCBoundary(permittivity=abc_mode_spec))
+    _ = td.Boundary(
+        minus=td.ABCBoundary(permittivity=3), plus=td.ABCBoundary(permittivity=abc_mode_spec)
+    )
     _ = td.Boundary.abc(permittivity=3, conductivity=1e-5)
 
     with pytest.raises(pydantic.ValidationError):
@@ -624,7 +624,6 @@ def test_abc_boundary():
             run_time=1e-20,
             boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary()),
         )
-
 
     # validate homogeneous medium when permittivity=None, that is, automatic detection
     box_crossing_boundary = td.Structure(
@@ -690,7 +689,9 @@ def test_abc_boundary():
     )
 
     # warning for possibly non-uniform custom medium
-    with AssertLogLevel("WARNING", contains_str="Nonuniform custom medium detected on an 'ABCBoundary'"):
+    with AssertLogLevel(
+        "WARNING", contains_str="Nonuniform custom medium detected on an 'ABCBoundary'"
+    ):
         _ = td.Simulation(
             center=[0, 0, 0],
             size=[1, 1, 1],
@@ -699,7 +700,9 @@ def test_abc_boundary():
                 wavelength=wvl_um,
             ),
             sources=[],
-            medium=td.CustomMedium(permittivity=td.SpatialDataArray([[[2, 3]]], coords=dict(x=[0], y=[0], z=[0, 1]))),
+            medium=td.CustomMedium(
+                permittivity=td.SpatialDataArray([[[2, 3]]], coords=dict(x=[0], y=[0], z=[0, 1]))
+            ),
             run_time=1e-20,
             boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary()),
         )
@@ -730,7 +733,9 @@ def test_abc_boundary():
         ),
         sources=[],
         run_time=1e-20,
-        boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0), frequency=freq0))),
+        boundary_spec=td.BoundarySpec.all_sides(
+            td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0), frequency=freq0))
+        ),
     )
     # or at least one source
     _ = td.Simulation(
@@ -742,10 +747,14 @@ def test_abc_boundary():
         ),
         sources=[mode_source],
         run_time=1e-20,
-        boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0)))),
+        boundary_spec=td.BoundarySpec.all_sides(
+            td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0)))
+        ),
     )
     # multiple sources with different central freqs is still ok, but show warning
-    with AssertLogLevel("WARNING", contains_str="The central frequency of the first source will be used"):
+    with AssertLogLevel(
+        "WARNING", contains_str="The central frequency of the first source will be used"
+    ):
         _ = td.Simulation(
             center=[0, 0, 0],
             size=[1, 1, 1],
@@ -753,9 +762,16 @@ def test_abc_boundary():
                 min_steps_per_wvl=10,
                 wavelength=wvl_um,
             ),
-            sources=[mode_source, mode_source.updated_copy(source_time=td.GaussianPulse(freq0=2 * freq0, fwidth=0.2 * freq0))],
+            sources=[
+                mode_source,
+                mode_source.updated_copy(
+                    source_time=td.GaussianPulse(freq0=2 * freq0, fwidth=0.2 * freq0)
+                ),
+            ],
             run_time=1e-20,
-            boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0)))),
+            boundary_spec=td.BoundarySpec.all_sides(
+                td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0)))
+            ),
         )
 
     # error otherwise
@@ -770,7 +786,7 @@ def test_abc_boundary():
             sources=[],
             structures=[box_crossing_boundary],
             run_time=1e-20,
-            boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0)))),
+            boundary_spec=td.BoundarySpec.all_sides(
+                td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0)))
+            ),
         )
-
-        

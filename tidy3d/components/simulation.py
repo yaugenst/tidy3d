@@ -27,6 +27,7 @@ from .base_sim.simulation import AbstractSimulation
 from .boundary import (
     PML,
     ABCBoundary,
+    ABCModeSpec,
     Absorber,
     AbsorberSpec,
     BlochBoundary,
@@ -36,7 +37,6 @@ from .boundary import (
     Periodic,
     PMCBoundary,
     StablePML,
-    ABCModeSpec,
 )
 from .data.data_array import (
     FreqDataArray,
@@ -2804,7 +2804,9 @@ class Simulation(AbstractYeeGridSimulation):
         for dim, (boundary, symmetry_dim, size_dim) in enumerate(zip(boundaries, symmetry, size)):
             if size_dim == 0:
                 axis = axis_names[dim]
-                num_absorbing_bdries = sum(isinstance(bnd, (AbsorberSpec, ABCBoundary)) for bnd in boundary)
+                num_absorbing_bdries = sum(
+                    isinstance(bnd, (AbsorberSpec, ABCBoundary)) for bnd in boundary
+                )
                 num_bloch_bdries = sum(isinstance(bnd, BlochBoundary) for bnd in boundary)
 
                 if num_absorbing_bdries > 0:
@@ -2844,7 +2846,12 @@ class Simulation(AbstractYeeGridSimulation):
     def _validate_frequency_mode_abc(cls, val, values):
         """Error if ABCModalSpec expects a frequency from a source, but no sources are given."""
         boundaries = val.to_list
-        need_wavelength = any(isinstance(edge, ABCBoundary) and isinstance(edge.permittivity, ABCModeSpec) and edge.permittivity.frequency is None for edge in np.ravel(boundaries))
+        need_wavelength = any(
+            isinstance(edge, ABCBoundary)
+            and isinstance(edge.permittivity, ABCModeSpec)
+            and edge.permittivity.frequency is None
+            for edge in np.ravel(boundaries)
+        )
 
         if need_wavelength:
             sources = values.get("sources")
@@ -2854,7 +2861,7 @@ class Simulation(AbstractYeeGridSimulation):
                     "Using 'ABCModeSpec' in 'ABCBoundary' requires specification of frequency at which the absorbed mode must be evaluated. "
                     "Specify it via field 'frequency' in 'ABCModeSpec' or by providing at least one source."
                 )
-            
+
             freq0s = [source.source_time.freq0 for source in sources]
             if not all(math.isclose(freq0, freq0s[0]) for freq0 in freq0s):
                 log.warning(
@@ -3154,11 +3161,18 @@ class Simulation(AbstractYeeGridSimulation):
                         )
 
         return val
-    
+
     @classmethod
     def _get_mediums_on_abc(
         cls, boundary_spec, medium, center, size, structures
-    ) -> Tuple[List[MediumType3D], List[MediumType3D], List[MediumType3D], List[MediumType3D], List[MediumType3D], List[MediumType3D]]:
+    ) -> Tuple[
+        List[MediumType3D],
+        List[MediumType3D],
+        List[MediumType3D],
+        List[MediumType3D],
+        List[MediumType3D],
+        List[MediumType3D],
+    ]:
         """For each ABC boundary that needs an automatic medium detection (permittivity=None)
         determine mediums it crosses.
         """
@@ -3172,7 +3186,9 @@ class Simulation(AbstractYeeGridSimulation):
             medium=medium,
         )
 
-        surfaces = Box.surfaces(center=structure_bg.geometry.center, size=structure_bg.geometry.size)
+        surfaces = Box.surfaces(
+            center=structure_bg.geometry.center, size=structure_bg.geometry.size
+        )
 
         total_structures = [structure_bg] + list(structures)
 
@@ -3184,7 +3200,6 @@ class Simulation(AbstractYeeGridSimulation):
                 mediums.append(None)
 
         return mediums
-    
 
     @pydantic.validator("boundary_spec", always=True)
     @skip_if_fields_missing(["medium", "center", "size", "structures"])
@@ -3193,15 +3208,14 @@ class Simulation(AbstractYeeGridSimulation):
 
         if val is None:
             return val
-        
+
         mediums_all_sides = cls._get_mediums_on_abc(
-            boundary_spec=val, 
+            boundary_spec=val,
             medium=values.get("medium"),
             size=values.get("size"),
             center=values.get("center"),
-            structures=values.get("structures") or []
+            structures=values.get("structures") or [],
         )
-
 
         with log as consolidated_logger:
             for mediums in mediums_all_sides:
@@ -3214,20 +3228,20 @@ class Simulation(AbstractYeeGridSimulation):
                     # 0 medium, something is wrong
                     if len(mediums) < 1:
                         raise SetupError(
-                            f"No medium detected on plane containing 'ABCBoundary', "
+                            "No medium detected on plane containing 'ABCBoundary', "
                             "indicating an unexpected error. Please create a github issue so "
                             "that the problem can be investigated."
                         )
                     # 1 medium, check if the medium is spatially uniform
                     if not list(mediums)[0].is_spatially_uniform:
                         consolidated_logger.warning(
-                            f"Nonuniform custom medium detected on an 'ABCBoundary'. "
+                            "Nonuniform custom medium detected on an 'ABCBoundary'. "
                             "Boundary must be homogeneous. Make sure custom medium is uniform on the boundary.",
                         )
 
                     if isinstance(list(mediums)[0], (AnisotropicMedium, FullyAnisotropicMedium)):
                         raise SetupError(
-                            f"An anisotropic medium is detected on an 'ABCBoundary. "
+                            "An anisotropic medium is detected on an 'ABCBoundary. "
                             "Boundary medium must be homogeneous and isotropic."
                         )
 
