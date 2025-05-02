@@ -2856,12 +2856,6 @@ class Simulation(AbstractYeeGridSimulation):
         if need_wavelength:
             sources = values.get("sources")
 
-            if len(sources) == 0:
-                raise SetupError(
-                    "Using 'ABCModeSpec' in 'ABCBoundary' requires specification of frequency at which the absorbed mode must be evaluated. "
-                    "Specify it via field 'frequency' in 'ABCModeSpec' or by providing at least one source."
-                )
-
             freq0s = [source.source_time.freq0 for source in sources]
             if not all(math.isclose(freq0, freq0s[0]) for freq0 in freq0s):
                 log.warning(
