@@ -35,7 +35,11 @@ from tidy3d.components.material.types import MultiPhysicsMedium, StructureMedium
 from tidy3d.components.medium import Medium
 from tidy3d.components.scene import Scene
 from tidy3d.components.spice.sources.dc import DCVoltageSource
-from tidy3d.components.spice.types import ElectricalAnalysisType
+from tidy3d.components.spice.types import (
+    ElectricalAnalysisType,
+    IsothermalSteadyChargeDCAnalysis,
+    SteadyChargeDCAnalysis,
+)
 from tidy3d.components.structure import Structure
 from tidy3d.components.tcad.boundary.specification import (
     HeatBoundarySpec,
@@ -832,6 +836,49 @@ class HeatChargeSimulation(AbstractSimulation):
                 "the pipeline will be stopped. If this happens the grid specification "
                 "may need to be modified."
             )
+        return values
+
+    @pd.root_validator(skip_on_failure=True)
+    def check_non_isothermal_is_possible(cls, values):
+        """Make sure that when a non-isothermal case is defined the structrures
+        have both electrical and thermal properties."""
+
+        analysis_spec = values.get("analysis_spec")
+        if isinstance(analysis_spec, SteadyChargeDCAnalysis) and not isinstance(
+            analysis_spec, IsothermalSteadyChargeDCAnalysis
+        ):
+            has_heat = False
+            has_elec = False
+            structures = values.get("structures")
+            for struct in structures:
+                if isinstance(struct.medium, SolidMedium):
+                    if struct.medium.heat_spec is not None:
+                        has_heat = True
+                if isinstance(struct.medium, SemiconductorMedium):
+                    has_elec = True
+                if isinstance(struct.medium, MultiPhysicsMedium):
+                    if struct.medium.heat is not None:
+                        if isinstance(struct.medium.heat, SolidMedium):
+                            has_heat = True
+                    if struct.medium.charge is not None:
+                        if isinstance(struct.medium.charge, SemiconductorMedium):
+                            has_elec = True
+
+            if not has_heat and has_elec:
+                raise SetupError(
+                    "The current simulation is defined as non-isothermal but no solid "
+                    "materials with heat properties have been defined. "
+                )
+            elif not has_elec and has_heat:
+                raise SetupError(
+                    "The current simulation is defined as non-isothermal but no "
+                    "semiconductor materials have been defined. "
+                )
+            elif not has_heat and not has_elec:
+                raise SetupError(
+                    "The current simulation is defined as non-isothermal but no "
+                    "solid or semiconductor materials have been defined. "
+                )
         return values
 
     @equal_aspect

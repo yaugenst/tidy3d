@@ -18,6 +18,7 @@ from tidy3d.components.microwave.data.monitor_data import (
 from tidy3d.components.spice.analysis.dc import (
     ChargeToleranceSpec,
     IsothermalSteadyChargeDCAnalysis,
+    SteadyChargeDCAnalysis,
 )
 from tidy3d.components.spice.sources.dc import DCCurrentSource, DCVoltageSource
 from tidy3d.components.spice.sources.types import VoltageSourceType
@@ -686,6 +687,7 @@ __all__ = [
     "DCCurrentSource",
     "VoltageSourceType",
     "IsothermalSteadyChargeDCAnalysis",
+    "SteadyChargeDCAnalysis",
     "ChargeToleranceSpec",
     "AntennaMetricsData",
 ]
