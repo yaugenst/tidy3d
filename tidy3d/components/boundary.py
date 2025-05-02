@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 import numpy as np
 import pydantic.v1 as pd
@@ -46,6 +46,16 @@ class PECBoundary(BoundaryEdge):
 # PMC keyword
 class PMCBoundary(BoundaryEdge):
     """Perfect magnetic conductor boundary condition class."""
+
+# PMC keyword
+class MurBoundary(BoundaryEdge):
+    """Mur's absorbing boundary conditions"""
+    
+    n_eff: Optional[pd.PositiveFloat] = pd.Field(
+        ...,
+        title="Propagation Index",
+        description="Enforced propagation index.",
+    )
 
 
 # """ Bloch boundary """
@@ -493,7 +503,7 @@ PMLTypes = Union[PML, StablePML, Absorber, None]
 # types of boundaries that can be used in Simulation
 
 BoundaryEdgeType = Union[
-    Periodic, PECBoundary, PMCBoundary, PML, StablePML, Absorber, BlochBoundary
+    Periodic, PECBoundary, PMCBoundary, PML, StablePML, Absorber, BlochBoundary, MurBoundary
 ]
 
 
@@ -673,6 +683,18 @@ class Boundary(Tidy3dBaseModel):
         """
         plus = PMCBoundary()
         minus = PMCBoundary()
+        return cls(plus=plus, minus=minus)
+
+    @classmethod
+    def mur(cls):
+        """PMC boundary specification on both sides along a dimension.
+
+        Example
+        -------
+        >>> pmc = Boundary.pmc()
+        """
+        plus = MurBoundary()
+        minus = MurBoundary()
         return cls(plus=plus, minus=minus)
 
     @classmethod
