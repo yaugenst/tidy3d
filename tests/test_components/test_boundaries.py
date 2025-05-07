@@ -204,35 +204,35 @@ def test_abc_boundary():
     with pytest.raises(pydantic.ValidationError):
         _ = td.ABCBoundary(permittivity=None, conductivity=-0.1)
 
-    # test abc mode spec
+    # test mode abc
     wvl_um = 1
     freq0 = td.C_0 / wvl_um
-    abc_mode_spec = td.ABCModeSpec(
-        size=(1, 1, 0),
+    mode_abc = td.ModeABCBoundary(
+        plane=td.Box(size=(1, 1, 0)),
         mode_spec=td.ModeSpec(num_modes=2),
         mode_index=1,
         frequency=freq0,
     )
 
     with pytest.raises(pydantic.ValidationError):
-        _ = td.ABCModeSpec(
-            size=(1, 1, 0),
+        _ = td.ModeABCBoundary(
+            plane=td.Box(size=(1, 1, 0)),
             mode_spec=td.ModeSpec(num_modes=2),
             mode_index=1,
             frequency=-1,
         )
 
     with pytest.raises(pydantic.ValidationError):
-        _ = td.ABCModeSpec(
-            size=(1, 1, 0),
+        _ = td.ModeABCBoundary(
+            plane=td.Box(size=(1, 1, 0)),
             mode_spec=td.ModeSpec(num_modes=2),
             mode_index=-1,
             frequency=freq0,
         )
 
     with pytest.raises(pydantic.ValidationError):
-        _ = td.ABCModeSpec(
-            size=(1, 1, 1),
+        _ = td.ModeABCBoundary(
+            plane=td.Box(size=(1, 1, 1)),
             mode_spec=td.ModeSpec(num_modes=2),
             mode_index=0,
             frequency=freq0,
@@ -246,24 +246,41 @@ def test_abc_boundary():
         mode_index=1,
         direction="+",
     )
+    mode_abc_from_source = td.ModeABCBoundary.from_source(mode_source)
+    assert mode_abc == mode_abc_from_source
 
-    abc_mode_spec_from_source = td.ABCModeSpec.from_source(mode_source)
-
-    assert abc_mode_spec == abc_mode_spec_from_source
-
-    _ = td.ABCBoundary(permittivity=abc_mode_spec)
-
-    with pytest.raises(pydantic.ValidationError):
-        _ = td.ABCBoundary(permittivity=abc_mode_spec, conductivity=0.1)
+    # from mode monitor
+    mode_monitor = td.ModeMonitor(
+        size=(1, 1, 0), mode_spec=td.ModeSpec(num_modes=2), freqs=[freq0], name="mnt"
+    )
+    mode_abc_from_monitor = td.ModeABCBoundary.from_monitor(
+        mode_monitor, mode_index=1, frequency=freq0
+    )
+    assert mode_abc == mode_abc_from_monitor
 
     # in Boundary
     _ = td.Boundary(
-        minus=td.ABCBoundary(permittivity=3), plus=td.ABCBoundary(permittivity=abc_mode_spec)
+        minus=td.ABCBoundary(permittivity=3), plus=td.ModeABCBoundary(plane=td.Box(size=(1, 1, 0)))
     )
     _ = td.Boundary.abc(permittivity=3, conductivity=1e-5)
+    abc_boundary = td.Boundary.mode_abc(
+        plane=td.Box(size=(1, 1, 0)),
+        mode_spec=td.ModeSpec(num_modes=2),
+        mode_index=1,
+        frequency=freq0,
+    )
+    abc_boundary_from_source = td.Boundary.mode_abc_from_source(mode_source)
+    abc_boundary_from_monitor = td.Boundary.mode_abc_from_monitor(
+        mode_monitor, mode_index=1, frequency=freq0
+    )
+    assert abc_boundary == abc_boundary_from_source
+    assert abc_boundary == abc_boundary_from_monitor
 
     with pytest.raises(pydantic.ValidationError):
-        _ = td.Boundary(minus=td.Periodic(), plus=td.ABCBoundary(permittivity=abc_mode_spec))
+        _ = td.Boundary(minus=td.Periodic(), plus=td.ABCBoundary())
+
+    with pytest.raises(pydantic.ValidationError):
+        _ = td.Boundary(minus=td.Periodic(), plus=td.ModeABCBoundary(plane=td.Box(size=(1, 1, 0))))
 
     # in Simulation
     _ = td.Simulation(
@@ -390,7 +407,7 @@ def test_abc_boundary():
             boundary_spec=td.BoundarySpec.all_sides(td.ABCBoundary()),
         )
 
-    # need to define frequence for ABCModeSpec
+    # need to define frequence for ModeABCBoundary
     # manually
     _ = td.Simulation(
         center=[0, 0, 0],
@@ -402,7 +419,7 @@ def test_abc_boundary():
         sources=[],
         run_time=1e-20,
         boundary_spec=td.BoundarySpec.all_sides(
-            td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0), frequency=freq0))
+            td.ModeABCBoundary(plane=td.Box(size=(1, 1, 0)), frequency=freq0)
         ),
     )
     # or at least one source
@@ -415,9 +432,7 @@ def test_abc_boundary():
         ),
         sources=[mode_source],
         run_time=1e-20,
-        boundary_spec=td.BoundarySpec.all_sides(
-            td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0)))
-        ),
+        boundary_spec=td.BoundarySpec.all_sides(td.ModeABCBoundary(plane=td.Box(size=(1, 1, 0)))),
     )
     # multiple sources with different central freqs is still ok, but show warning
     with AssertLogLevel(
@@ -438,6 +453,6 @@ def test_abc_boundary():
             ],
             run_time=1e-20,
             boundary_spec=td.BoundarySpec.all_sides(
-                td.ABCBoundary(permittivity=td.ABCModeSpec(size=(1, 1, 0)))
+                td.ModeABCBoundary(plane=td.Box(size=(1, 1, 0)))
             ),
         )

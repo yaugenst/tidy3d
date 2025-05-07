@@ -27,12 +27,12 @@ from .base_sim.simulation import AbstractSimulation
 from .boundary import (
     PML,
     ABCBoundary,
-    ABCModeSpec,
     Absorber,
     AbsorberSpec,
     BlochBoundary,
     Boundary,
     BoundarySpec,
+    ModeABCBoundary,
     PECBoundary,
     Periodic,
     PMCBoundary,
@@ -2805,7 +2805,8 @@ class Simulation(AbstractYeeGridSimulation):
             if size_dim == 0:
                 axis = axis_names[dim]
                 num_absorbing_bdries = sum(
-                    isinstance(bnd, (AbsorberSpec, ABCBoundary)) for bnd in boundary
+                    isinstance(bnd, (AbsorberSpec, ABCBoundary, ModeABCBoundary))
+                    for bnd in boundary
                 )
                 num_bloch_bdries = sum(isinstance(bnd, BlochBoundary) for bnd in boundary)
 
@@ -2844,12 +2845,10 @@ class Simulation(AbstractYeeGridSimulation):
     @pydantic.validator("boundary_spec", always=True)
     @skip_if_fields_missing(["sources"])
     def _validate_frequency_mode_abc(cls, val, values):
-        """Error if ABCModalSpec expects a frequency from a source, but no sources are given."""
+        """Warn if ModeABCBoundary expects a frequency from a source, but there are multiple sources with different central frequencies."""
         boundaries = val.to_list
         need_wavelength = any(
-            isinstance(edge, ABCBoundary)
-            and isinstance(edge.permittivity, ABCModeSpec)
-            and edge.permittivity.frequency is None
+            isinstance(edge, ModeABCBoundary) and edge.frequency is None
             for edge in np.ravel(boundaries)
         )
 
@@ -2859,7 +2858,7 @@ class Simulation(AbstractYeeGridSimulation):
             freq0s = [source.source_time.freq0 for source in sources]
             if not all(math.isclose(freq0, freq0s[0]) for freq0 in freq0s):
                 log.warning(
-                    "At least one 'ABCModeSpec' in 'ABCBoundary' does not specify frequency at which the absorbed mode must be evaluated. "
+                    "At least one 'ModeABCBoundary' does not specify frequency at which the absorbed mode must be evaluated. "
                     "The central frequency of the first source will be used.",
                     capture=False,
                 )

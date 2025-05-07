@@ -3,9 +3,7 @@
 import numpy as np
 import pytest
 import tidy3d as td
-import pydantic.v1 as pydantic
 from tidy3d.exceptions import SetupError
-from ..utils import AssertLogLevel
 
 
 def make_grid_spec():
