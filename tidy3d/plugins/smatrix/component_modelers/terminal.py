@@ -23,7 +23,7 @@ from ....components.simulation import Simulation
 from ....components.source.time import GaussianPulse
 from ....components.types import Ax
 from ....components.viz import add_ax_if_none, equal_aspect
-from ....constants import OHM
+from ....constants import C_0, OHM
 from ....exceptions import Tidy3dError, Tidy3dKeyError, ValidationError
 from ....web.api.container import BatchData
 from ..data.terminal import PortDataArray, TerminalPortDataArray
@@ -92,9 +92,9 @@ class TerminalComponentModeler(AbstractComponentModeler):
         # Apply the highest frequency in the simulation to define the grid, rather than the
         # source's central frequency, to ensure an accurate solution over the entire range
         grid_spec = self.simulation.grid_spec.copy(
-            # update={
-            #     "wavelength": C_0 / np.max(self.freqs),
-            # }
+            update={
+                "wavelength": C_0 / np.max(self.freqs),
+            }
         )
 
         # Make an initial simulation with new grid_spec to determine where LumpedPorts are snapped
