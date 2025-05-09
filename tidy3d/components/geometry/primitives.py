@@ -14,6 +14,7 @@ from ...constants import C_0, LARGE_NUMBER, MICROMETER
 from ...exceptions import SetupError, ValidationError
 from ...packaging import verify_packages_import
 from ..autograd import AutogradFieldMap, TracedSize1D
+from ..autograd.constants import PTS_PER_WVL_MAT_CYLINDER_DISCRETIZE
 from ..autograd.derivative_utils import DerivativeInfo
 from ..base import cached_property, skip_if_fields_missing
 from ..types import Axis, Bound, Coordinate, MatrixReal4x4, Shapely, Tuple
@@ -28,9 +29,6 @@ _N_SHAPELY_QUAD_SEGS = 200
 
 # Default number of points to discretize polyslab in `Cylinder.to_polyslab()`
 _N_PTS_CYLINDER_POLYSLAB = 51
-
-# Default number of points per wvl in material for discretizing cylinder in autograd derivative
-_PTS_PER_WVL_MAT_CYLINDER_DISCRETIZE = 10
 
 
 class Sphere(base.Centered, base.Circular):
@@ -288,7 +286,7 @@ class Cylinder(base.Centered, base.Circular, base.Planar):
         wvls_in_circumference = circumference / wvl_mat
 
         num_pts_circumference = int(
-            np.ceil(_PTS_PER_WVL_MAT_CYLINDER_DISCRETIZE * wvls_in_circumference)
+            np.ceil(PTS_PER_WVL_MAT_CYLINDER_DISCRETIZE * wvls_in_circumference)
         )
         num_pts_circumference = max(3, num_pts_circumference)
 

@@ -40,9 +40,6 @@ DATA_TYPE_MAP = {data.__fields__["monitor"].type_: data for data in MonitorDataT
 # maps monitor type (string) to the class of the corresponding data
 DATA_TYPE_NAME_MAP = {val.__fields__["monitor"].type_.__name__: val for val in MonitorDataTypes}
 
-# residuals below this are considered good fits for broadband adjoint source creation
-RESIDUAL_CUTOFF_ADJOINT = 1e-6
-
 
 class AdjointSourceInfo(Tidy3dBaseModel):
     """Stores information about the adjoint sources to pass to autograd pipeline."""
