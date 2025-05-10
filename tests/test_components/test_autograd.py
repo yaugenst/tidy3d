@@ -17,13 +17,13 @@ import tidy3d as td
 import tidy3d.web as web
 import xarray as xr
 from autograd.test_util import check_grads
+from tidy3d.components.autograd.constants import MAX_NUM_TRACED_STRUCTURES
 from tidy3d.components.autograd.derivative_utils import DerivativeInfo
 from tidy3d.components.autograd.utils import is_tidy_box
 from tidy3d.components.data.data_array import DataArray
 from tidy3d.exceptions import AdjointError
 from tidy3d.plugins.polyslab import ComplexPolySlab
 from tidy3d.web import run, run_async
-from tidy3d.web.api.autograd.autograd import MAX_NUM_TRACED_STRUCTURES
 from tidy3d.web.api.autograd.utils import FieldMap
 
 from ..utils import SIM_FULL, AssertLogLevel, run_emulated, tracer_arr
@@ -1782,11 +1782,6 @@ checks = list(MULT_FREQ_TEST_CASES.items())
 @pytest.mark.parametrize("structure_key", ("custom_med",))
 def test_multi_freq_edge_cases(use_emulated_run, structure_key, label, check_fn, monkeypatch):
     # test multi-frequency adjoint handling
-
-    import tidy3d.components.data.sim_data as sd
-
-    monkeypatch.setattr(sd, "RESIDUAL_CUTOFF_ADJOINT", 1)
-    reload(td)
 
     postprocess_fn = check_fn(structure_key=structure_key)
 
