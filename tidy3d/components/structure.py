@@ -13,11 +13,14 @@ import pydantic.v1 as pydantic
 from ..constants import MICROMETER
 from ..exceptions import SetupError, Tidy3dError, Tidy3dImportError
 from ..log import log
-from .autograd.constants import AUTOGRAD_MONITOR_INTERVAL_SPACE
+from .autograd.constants import (
+    AUTOGRAD_MONITOR_INTERVAL_SPACE_CUSTOM,
+    AUTOGRAD_MONITOR_INTERVAL_SPACE_POLY,
+)
 from .autograd.derivative_utils import DerivativeInfo
 from .autograd.types import AutogradFieldMap
 from .autograd.types import Box as AutogradBox
-from .autograd.utils import get_static
+from .autograd.utils import contains, get_static
 from .base import Tidy3dBaseModel, skip_if_fields_missing
 from .data.data_array import ScalarFieldDataArray
 from .geometry.base import Box, Geometry
@@ -267,13 +270,18 @@ class Structure(AbstractStructure):
         size = [get_static(x) for x in box.size]
         center = [get_static(x) for x in box.center]
 
+        if contains("medium", field_keys):
+            interval_space = AUTOGRAD_MONITOR_INTERVAL_SPACE_CUSTOM
+        else:
+            interval_space = AUTOGRAD_MONITOR_INTERVAL_SPACE_POLY
+
         mnt_fld = FieldMonitor(
             size=size,
             center=center,
             freqs=freqs,
             fields=("Ex", "Ey", "Ez"),
             name=self.get_monitor_name(index=index, data_type="fld"),
-            interval_space=AUTOGRAD_MONITOR_INTERVAL_SPACE,
+            interval_space=interval_space,
             colocate=False,
         )
 
@@ -282,7 +290,7 @@ class Structure(AbstractStructure):
             center=center,
             freqs=freqs,
             name=self.get_monitor_name(index=index, data_type="eps"),
-            interval_space=AUTOGRAD_MONITOR_INTERVAL_SPACE,
+            interval_space=interval_space,
             colocate=False,
         )
 

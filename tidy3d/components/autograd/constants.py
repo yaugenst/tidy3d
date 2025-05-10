@@ -1,5 +1,6 @@
 # interval space for adjoint monitors (half of sim resolution)
-AUTOGRAD_MONITOR_INTERVAL_SPACE = (2, 2, 2)
+AUTOGRAD_MONITOR_INTERVAL_SPACE_POLY = (2, 2, 2)
+AUTOGRAD_MONITOR_INTERVAL_SPACE_CUSTOM = (1, 1, 1)
 
 # default number of points per wvl in material for discretizing cylinder in autograd derivative
 PTS_PER_WVL_MAT_CYLINDER_DISCRETIZE = 10
