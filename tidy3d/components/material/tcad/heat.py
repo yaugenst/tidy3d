@@ -9,6 +9,7 @@ import pydantic.v1 as pd
 
 from tidy3d.components.base import Tidy3dBaseModel
 from tidy3d.constants import (
+    DENSITY,
     SPECIFIC_HEAT_CAPACITY,
     THERMAL_CONDUCTIVITY,
 )
@@ -78,6 +79,13 @@ class SolidMedium(AbstractHeatMedium):
         title="Thermal conductivity",
         description=f"Thermal conductivity of material in units of {THERMAL_CONDUCTIVITY}.",
         units=THERMAL_CONDUCTIVITY,
+    )
+
+    density: pd.PositiveFloat = pd.Field(
+        None,
+        title="Density",
+        description=f"Mass density of material in units of {DENSITY}.",
+        units=DENSITY,
     )
 
 

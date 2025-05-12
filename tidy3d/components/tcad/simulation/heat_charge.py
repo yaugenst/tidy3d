@@ -849,7 +849,7 @@ class HeatChargeSimulation(AbstractSimulation):
                         raise SetupError(
                             f"Unsteady simulations require the temperature monitor '{mnt.name}' to be unstructured."
                         )
-            # additionaly check that the SolidSpec has capacitance defined
+            # additionaly check that the SolidSpec has capacitance and density defined
             # NOTE: not sure this is needed. Is capacitance a required field in SolidMedium?
             structures = values.get("structures")
             for structure in structures:
@@ -857,6 +857,10 @@ class HeatChargeSimulation(AbstractSimulation):
                     if structure.medium.heat_spec.capacity is None:
                         raise SetupError(
                             f"Unsteady simulations require the medium '{structure.medium.name}' to have a capacitance defined."
+                        )
+                    if structure.medium.heat_spec.density is None:
+                        raise SetupError(
+                            f"Unsteady simulations require the medium '{structure.medium.name}' to have a density defined."
                         )
         return values
 
