@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Warn if more than 20 frequencies are used in EME, as this may lead to slower or more expensive simulations.
 - EME now supports 2D simulations.
 - 'EMESimulation' now supports 'PermittivityMonitor'.
+- Adjoint source frequency width is adjusted to decay sufficiently before zero frequency when possible to improve accuracy of simulation normalization when using custom current sources.
 
 ### Fixed
 - Fixed issue with `CustomMedium` gradients where other frequencies would wrongly contribute to the gradient.
