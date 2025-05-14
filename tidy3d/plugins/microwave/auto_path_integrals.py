@@ -1,5 +1,7 @@
 """Helpers for automatic setup of path integrals."""
 
+from __future__ import annotations
+
 from typing import Literal, Union
 
 import numpy as np
@@ -11,6 +13,7 @@ from ...components.geometry.base import Box
 from ...components.geometry.utils import SnapBehavior, SnapLocation, SnappingSpec, snap_box_to_grid
 from ...components.grid.grid import Grid
 from ...components.lumped_element import LinearLumpedElement
+from ...components.microwave.path_spec import AxisAlignedPathSpec, CompositePathSpec, PathSpec
 from ...components.types import Ax, Direction
 from ...components.viz import add_ax_if_none
 from ...exceptions import DataError
@@ -214,3 +217,19 @@ class CompositeCurrentIntegral(Box):
         for current_integral in self.current_integrals:
             ax = current_integral.plot(x=x, y=y, z=z, ax=ax, **path_kwargs)
         return ax
+
+    @staticmethod
+    def from_path_spec(composite_path_spec: CompositePathSpec) -> CompositeCurrentIntegral:
+        current_integrals = []
+        for path_spec in composite_path_spec.path_specs:
+            if isinstance(path_spec, AxisAlignedPathSpec):
+                current_integrals.append(
+                    CurrentIntegralAxisAligned(**path_spec.dict(exclude={"type"}))
+                )
+            elif isinstance(path_spec, PathSpec):
+                current_integrals.append(
+                    CustomCurrentIntegral2D(**path_spec.dict(exclude={"type"}))
+                )
+        field_dict = composite_path_spec.dict(exclude={"type", "path_specs"})
+        field_dict["current_integrals"] = current_integrals
+        return CompositeCurrentIntegral(**field_dict)

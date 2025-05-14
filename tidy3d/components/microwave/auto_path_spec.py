@@ -14,7 +14,7 @@ from ..geometry.utils import (
 from ..grid.grid import Grid
 from ..structure import Structure
 from ..types import Shapely
-from .path_spec import PathSpec
+from .path_spec import AxisAlignedPathSpec, CompositePathSpec
 
 
 class AutoPathSpec(Tidy3dBaseModel):
@@ -41,7 +41,7 @@ class AutoPathSpec(Tidy3dBaseModel):
     @staticmethod
     def _create_current_paths(
         mode_plane: Box, structures: list[Structure], grid: Grid, field_data_colocated: bool = False
-    ) -> tuple[list[PathSpec], list[Shapely]]:
+    ) -> tuple[CompositePathSpec, list[Shapely]]:
         """Creates the current path integrals that encompass each isolated conductor in the modal plane."""
 
         def bounding_box_from_shapely(geom: Shapely, normal_axis, normal_center):
@@ -77,7 +77,7 @@ class AutoPathSpec(Tidy3dBaseModel):
                 size = list(box.size)
                 box = box.updated_copy(size=size)
                 box_snapped = snap_box_to_grid(grid, box, snap_spec)
-                path_spec = PathSpec(
+                path_spec = AxisAlignedPathSpec(
                     center=box_snapped.center,
                     size=box_snapped.size,
                     sign="+",
@@ -90,7 +90,13 @@ class AutoPathSpec(Tidy3dBaseModel):
             assert not any(
                 AutoPathSpec._check_path_intersects_with_conductors(merged_geos, path_spec)
             ), "Cannot automate path setup."
-        return current_integral_specs, merged_geos
+        path_spec = CompositePathSpec(
+            center=mode_plane.center,
+            size=mode_plane.size,
+            path_specs=current_integral_specs,
+            sum_spec="split",
+        )
+        return path_spec, merged_geos
 
     @staticmethod
     def _check_path_intersects_with_conductors(geos: Shapely, path: Box) -> bool:

@@ -1,11 +1,11 @@
 """Specification for defining microwave terminals for the purpose of calculating transmission line impedance."""
 
-from typing import Optional
+from typing import Optional, Union
 
 import pydantic.v1 as pd
 
 from ..base import Tidy3dBaseModel
-from .path_spec import PathSpecTypes
+from .path_spec import CompositePathSpec, PathSpecTypes
 
 
 class TerminalSpec(Tidy3dBaseModel):
@@ -22,7 +22,7 @@ class TerminalSpec(Tidy3dBaseModel):
         description="Definition of path integral for computing voltage.",
     )
 
-    current_spec: Optional[PathSpecTypes] = pd.Field(
+    current_spec: Optional[Union[PathSpecTypes, CompositePathSpec]] = pd.Field(
         None,
         title="Current Integral",
         description="Definition of contour integral for computing current.",

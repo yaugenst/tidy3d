@@ -18,7 +18,7 @@ GROUP_INDEX_STEP = 0.005
 
 class ModeSpec(Tidy3dBaseModel):
     """
-    Stores specifications for the mode solver to find an electromagntic mode.
+    Stores specifications for the mode solver to find an electromagnetic mode.
 
     Notes
     -----
@@ -164,8 +164,8 @@ class ModeSpec(Tidy3dBaseModel):
     terminal_spec: Optional[TerminalSpec] = pd.Field(
         None,
         title="Terminal Specification",
-        description="Defines the terminals for the purposes of calculating "
-        "the tranmission line characterist impedance.",
+        description="Specifies the method for defining microwave terminals, which is required "
+        "for defining the characteristic impedance of a transmission line mode.",
     )
 
     @pd.validator("bend_axis", always=True)

@@ -17,6 +17,16 @@ from matplotlib.patches import Rectangle
 from ...constants import C_0
 from ...exceptions import SetupError, ValidationError
 from ...log import log
+from ...plugins.microwave.auto_path_integrals import CompositeCurrentIntegral
+from ...plugins.microwave.custom_path_integrals import (
+    CustomCurrentIntegral2D,
+    CustomVoltageIntegral2D,
+)
+from ...plugins.microwave.impedance_calculator import ImpedanceCalculator
+from ...plugins.microwave.path_integrals import (
+    CurrentIntegralAxisAligned,
+    VoltageIntegralAxisAligned,
+)
 from ..base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
 from ..boundary import PML, Absorber, Boundary, BoundarySpec, PECBoundary, StablePML
 from ..data.data_array import (
@@ -32,6 +42,8 @@ from ..eme.simulation import EMESimulation
 from ..geometry.base import Box
 from ..grid.grid import Coords, Grid
 from ..medium import FullyAnisotropicMedium, LossyMetalMedium
+from ..microwave.auto_path_spec import AutoPathSpec
+from ..microwave.path_spec import AxisAlignedPathSpec, CompositePathSpec, PathSpec
 from ..mode_spec import ModeSpec
 from ..monitor import ModeMonitor, ModeSolverMonitor
 from ..scene import Scene
@@ -1258,6 +1270,35 @@ class ModeSolver(Tidy3dBaseModel):
             ]:
                 data.values[..., ifreq, :] = data.values[..., ifreq, sort_inds]
 
+    def _add_mode_impedance(self, mode_solver_data: ModeSolverData):
+        """Calculate and add the characteristic impedance to ``mode_solver_data``."""
+        v_spec = self.mode_spec.terminal_spec.voltage_spec
+        v_integral = None
+        if v_spec is not None:
+            if isinstance(v_spec, AxisAlignedPathSpec):
+                v_integral = VoltageIntegralAxisAligned(**v_spec.dict(exclude={"type"}))
+            elif isinstance(v_spec, PathSpec):
+                v_integral = CustomVoltageIntegral2D(**v_spec.dict(exclude={"type"}))
+        i_spec = self.mode_spec.terminal_spec.current_spec
+        i_integral = None
+        if i_spec is not None:
+            if isinstance(i_spec, AxisAlignedPathSpec):
+                i_integral = CurrentIntegralAxisAligned(**i_spec.dict(exclude={"type"}))
+            elif isinstance(i_spec, PathSpec):
+                i_integral = CustomCurrentIntegral2D(**i_spec.dict(exclude={"type"}))
+            elif isinstance(i_spec, CompositePathSpec):
+                i_integral = CompositeCurrentIntegral.from_path_spec(i_spec)
+        if v_integral is None and i_integral is None:
+            i_spec, _ = AutoPathSpec._create_current_paths(
+                self.plane, self.simulation.structures, self.simulation.grid, self.colocate
+            )
+            i_integral = CompositeCurrentIntegral.from_path_spec(i_spec)
+        impedance_calc = ImpedanceCalculator(
+            voltage_integral=v_integral, current_integral=i_integral
+        )
+        Z0 = impedance_calc.compute_impedance(mode_solver_data)
+        return mode_solver_data.updated_copy(Z0=Z0)
+
     @cached_property
     def data(self) -> ModeSolverData:
         """:class:`.ModeSolverData` containing the field and effective index data.
@@ -1267,8 +1308,10 @@ class ModeSolver(Tidy3dBaseModel):
         ModeSolverData
             :class:`.ModeSolverData` object containing the effective index and mode fields.
         """
-        mode_solver_data = self.data_raw
-        return mode_solver_data.symmetry_expanded_copy
+        mode_solver_data = self.data_raw.symmetry_expanded_copy
+        if self.mode_spec.terminal_spec is not None:
+            mode_solver_data = self._add_mode_impedance(mode_solver_data)
+        return mode_solver_data
 
     @cached_property
     def sim_data(self) -> MODE_SIMULATION_DATA_TYPE:

@@ -1,6 +1,6 @@
 """Specifications for defining path integrals."""
 
-from typing import Union
+from typing import Literal, Union
 
 import pydantic.v1 as pd
 
@@ -63,3 +63,19 @@ class PathSpec(Tidy3dBaseModel):
 
 
 PathSpecTypes = Union[AxisAlignedPathSpec, PathSpec]
+
+
+class CompositePathSpec(Box):
+    path_specs: list[PathSpecTypes] = pd.Field(
+        ...,
+        title="Current Integral",
+        description="Definition of contour integral for computing current.",
+    )
+
+    sum_spec: Literal["sum", "split"] = pd.Field(
+        ...,
+        title="Sum Specification",
+        description="Determines the method used to combine the currents calculated by the different current integrals in ``current_integrals``."
+        "``sum`` simply adds all currents, while ``split`` keeps contributions with opposite phase separate, which allows for isolating "
+        "the current flowing in opposite directions. In ``split`` version, the current returned is the maximum of the two contributions.",
+    )

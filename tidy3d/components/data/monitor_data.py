@@ -5,7 +5,7 @@ from __future__ import annotations
 import warnings
 from abc import ABC
 from math import isclose
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import autograd.numpy as np
 import pydantic.v1 as pd
@@ -1413,9 +1413,15 @@ class ModeData(ModeSolverDataset, ElectromagneticFieldData):
 
     eps_spec: List[EpsSpecType] = pd.Field(
         None,
-        title="Permettivity Specification",
+        title="Permittivity Specification",
         description="Characterization of the permittivity profile on the plane where modes are "
         "computed. Possible values are 'diagonal', 'tensorial_real', 'tensorial_complex'.",
+    )
+
+    Z0: Optional[FreqModeDataArray] = pd.Field(
+        None,
+        title="Mode Characteristic Impedance",
+        description="Complex-valued mode impedance in units of ohms.",
     )
 
     @pd.validator("eps_spec", always=True)
@@ -1865,6 +1871,10 @@ class ModeData(ModeSolverDataset, ElectromagneticFieldData):
             info[f"TE (E{self._tangential_dims[0]}) fraction"] = self.pol_fraction["te"]
             info["wg TE fraction"] = self.pol_fraction_waveguide["te"]
             info["wg TM fraction"] = self.pol_fraction_waveguide["tm"]
+
+        if self.Z0 is not None:
+            info["Re(Z0)"] = self.Z0.real
+            info["Im(Z0)"] = self.Z0.imag
 
         return xr.Dataset(data_vars=info)
 
