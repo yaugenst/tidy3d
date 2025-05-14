@@ -1,7 +1,7 @@
 """Defines specification for mode solver."""
 
 from math import isclose
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -10,6 +10,7 @@ from ..constants import GLANCING_CUTOFF, MICROMETER, RADIAN, fp_eps
 from ..exceptions import SetupError, ValidationError
 from ..log import log
 from .base import Tidy3dBaseModel, skip_if_fields_missing
+from .microwave.terminal_spec import TerminalSpec
 from .types import Axis2D, Literal, TrackFreq
 
 GROUP_INDEX_STEP = 0.005
@@ -158,6 +159,13 @@ class ModeSpec(Tidy3dBaseModel):
         "set to a positive value, it sets the fractional frequency step used in the numerical "
         "differentiation of the effective index to compute the group index. If set to `True`, the "
         f"default of {GROUP_INDEX_STEP} is used.",
+    )
+
+    terminal_spec: Optional[TerminalSpec] = pd.Field(
+        None,
+        title="Terminal Specification",
+        description="Defines the terminals for the purposes of calculating "
+        "the tranmission line characterist impedance.",
     )
 
     @pd.validator("bend_axis", always=True)
