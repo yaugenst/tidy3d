@@ -1269,7 +1269,7 @@ class ModeSolver(Tidy3dBaseModel):
         i_integral = make_current_integral(i_spec)
 
         if v_integral is None and i_integral is None:
-            i_spec, _ = AutoPathSpec._create_current_paths(
+            i_spec, _ = AutoPathSpec.create_current_path_specs(
                 self.plane, self.simulation.structures, self.simulation.grid, self.colocate
             )
             i_integral = make_current_integral(i_spec)

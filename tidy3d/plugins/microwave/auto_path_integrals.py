@@ -29,6 +29,7 @@ def path_integrals_from_lumped_element(
     polarity : Direction
         Choice for defining voltage. When positive, the terminal of the lumped element with
         the greatest coordinate is considered the positive terminal.
+
     Returns
     -------
     VoltageIntegralAxisAligned
