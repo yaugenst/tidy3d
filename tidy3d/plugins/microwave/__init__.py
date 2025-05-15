@@ -6,6 +6,7 @@ from .array_factor import (
 )
 from .auto_path_integrals import path_integrals_from_lumped_element
 from .custom_path_integrals import (
+    CompositeCurrentIntegral,
     CustomCurrentIntegral2D,
     CustomPathIntegral2D,
     CustomVoltageIntegral2D,
@@ -23,6 +24,7 @@ __all__ = [
     "AxisAlignedPathIntegral",
     "CustomPathIntegral2D",
     "VoltageIntegralAxisAligned",
+    "CompositeCurrentIntegral",
     "CurrentIntegralAxisAligned",
     "CustomVoltageIntegral2D",
     "CustomCurrentIntegral2D",

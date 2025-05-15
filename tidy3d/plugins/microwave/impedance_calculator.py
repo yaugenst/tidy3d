@@ -12,8 +12,11 @@ from ...components.data.data_array import FreqDataArray, FreqModeDataArray, Time
 from ...components.data.monitor_data import FieldTimeData
 from ...constants import OHM
 from ...exceptions import ValidationError
-from .auto_path_integrals import CompositeCurrentIntegral
-from .custom_path_integrals import CustomCurrentIntegral2D, CustomVoltageIntegral2D
+from .custom_path_integrals import (
+    CompositeCurrentIntegral,
+    CustomCurrentIntegral2D,
+    CustomVoltageIntegral2D,
+)
 from .path_integrals import (
     AxisAlignedPathIntegral,
     CurrentIntegralAxisAligned,
@@ -79,15 +82,12 @@ class ImpedanceCalculator(Tidy3dBaseModel):
                 impedance = flux.abs / current**2
             else:
                 impedance = 2 * flux.abs / (current * np.conj(current))
-                # voltage = 2 * flux.abs / np.conj(current)
         elif self.current_integral is None:
             flux = em_field.flux
             if isinstance(em_field, FieldTimeData):
                 impedance = voltage**2 / flux.abs
-                # current = flux.abs / voltage
             else:
                 impedance = (voltage * np.conj(voltage)) / (2 * flux.abs)
-                # current = np.conj(2 * flux.abs / voltage)
         else:
             impedance = voltage / current
         impedance = ImpedanceCalculator._set_data_array_attributes(impedance)
