@@ -15,7 +15,6 @@ class UnsteadySpec(Tidy3dBaseModel):
     >>> time_spec = td.UnsteadySpec(
     ...     time_step=0.01,
     ...     total_time_steps=200,
-    ...     output_fr=50,
     ... )
     """
 
@@ -45,7 +44,6 @@ class UnsteadyHeatAnalysis(Tidy3dBaseModel):
     ...     unsteady_spec=td.UnsteadySpec(
     ...         time_step=0.01,
     ...         total_time_steps=200,
-    ...         output_fr=50,
     ...     ),
     ... )
     """

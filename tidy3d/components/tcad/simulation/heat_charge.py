@@ -96,6 +96,9 @@ ElectricBCTypes = (VoltageBC, CurrentBC, InsulatingBC)
 
 AnalysisSpecType = Union[ElectricalAnalysisType, UnsteadyHeatAnalysis]
 
+# define some limits for transient heat simulations
+TRANSIENT_HEAT_MAX_STEPS = 1000
+
 
 class TCADAnalysisTypes(str, Enum):
     """Enumeration of the types of simulations currently supported"""
@@ -301,8 +304,8 @@ class HeatChargeSimulation(AbstractSimulation):
     analysis_spec: AnalysisSpecType = pd.Field(
         None,
         title="Analysis specification.",
-        description="The `analysis_spec` is used to validate that the simulation parameters and tolerance settings "
-        "are correctly configured as desired by the user.",
+        description="The `analysis_spec` is used to specify the type of simulation. Currently, it is used to "
+        "specify Charge simulations or transient Heat simulations.",
     )
 
     @pd.validator("structures", always=True)
@@ -837,8 +840,8 @@ class HeatChargeSimulation(AbstractSimulation):
         return values
 
     @pd.root_validator(skip_on_failure=True)
-    def check_temperature_monitor_in_unsteady_cases(cls, values):
-        """Make sure that the temperature monitor is unstructured in unsteady cases."""
+    def check_transient_heat(cls, values):
+        """Make sure transient heat simulations can run."""
 
         analysis_type = values.get("analysis_spec")
         if isinstance(analysis_type, UnsteadyHeatAnalysis):
@@ -849,19 +852,53 @@ class HeatChargeSimulation(AbstractSimulation):
                         raise SetupError(
                             f"Unsteady simulations require the temperature monitor '{mnt.name}' to be unstructured."
                         )
-            # additionaly check that the SolidSpec has capacitance and density defined
-            # NOTE: not sure this is needed. Is capacitance a required field in SolidMedium?
+            # additionaly check that the SolidSpec has capacity and density defined
+            capacities = []
+            densities = []
+            conductivities = []
             structures = values.get("structures")
             for structure in structures:
                 if isinstance(structure.medium.heat, SolidMedium):
                     if structure.medium.heat_spec.capacity is None:
                         raise SetupError(
-                            f"Unsteady simulations require the medium '{structure.medium.name}' to have a capacitance defined."
+                            f"Unsteady simulations require the medium '{structure.medium.name}' to have capacity defined."
                         )
+                    else:
+                        capacities.append(structure.medium.heat_spec.capacity)
                     if structure.medium.heat_spec.density is None:
                         raise SetupError(
-                            f"Unsteady simulations require the medium '{structure.medium.name}' to have a density defined."
+                            f"Unsteady simulations require the medium '{structure.medium.name}' to have density defined."
                         )
+                    else:
+                        densities.append(structure.medium.heat_spec.density)
+
+                    conductivities.append(structure.medium.heat_spec.conductivity)
+
+            # check that we don't have too many time-steps
+            if analysis_type.unsteady_spec.total_time_steps > TRANSIENT_HEAT_MAX_STEPS:
+                raise SetupError(
+                    "Unsteady simulations require the number of time-steps to be less than "
+                    f"{TRANSIENT_HEAT_MAX_STEPS} but {analysis_type.unsteady_spec.total_time_steps} were provided."
+                )
+
+            # check simulation time
+            domain_length = np.max([d for d in values.get("size") if d != np.inf])
+            characteristic_time = (
+                domain_length**2
+                * np.mean(capacities)
+                * np.mean(densities)
+                / np.mean(conductivities)
+                * 1e-18
+            )
+            if (
+                analysis_type.unsteady_spec.time_step * analysis_type.unsteady_spec.total_time_steps
+                > 100 * characteristic_time
+            ):
+                log.warning(
+                    "The simulation time is larger than 100 times the estimated characteristic time of the system. "
+                    "This may lead to unnecessary long simulation times. "
+                    "Consider reducing the simulation time or the time step size."
+                )
         return values
 
     @equal_aspect
