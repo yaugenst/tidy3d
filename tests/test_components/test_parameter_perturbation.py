@@ -2,9 +2,9 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pydantic.v1 as pydantic
 import pytest
 import tidy3d as td
+from pydantic import ValidationError
 
 from ..utils import AssertLogLevel, cartesian_to_unstructured
 
@@ -38,14 +38,14 @@ def test_heat_perturbation():
     # test complex type detection
     assert not perturb.is_complex
 
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         perturb = td.LinearHeatPerturbation(
             coeff=0.01,
             temperature_ref=-300,
             temperature_range=(200, 400),
         )
 
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         perturb = td.LinearHeatPerturbation(
             coeff=0.01,
             temperature_ref=300,
@@ -134,7 +134,7 @@ def test_heat_perturbation():
         assert test_value_out == perturb_data.data[2]
 
     # test not allowed interpolation method
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         perturb = td.CustomHeatPerturbation(
             perturbation_values=perturb_data,
             interp_method="quadratic",
@@ -159,7 +159,7 @@ def test_charge_perturbation():
     # test complex type detection
     assert not perturb.is_complex
 
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         perturb = td.LinearChargePerturbation(
             electron_coeff=1e-21,
             electron_ref=0,
@@ -169,7 +169,7 @@ def test_charge_perturbation():
             hole_range=(0, 0.5e20),
         )
 
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         perturb = td.LinearChargePerturbation(
             electron_coeff=1e-21,
             electron_ref=0,
@@ -341,7 +341,7 @@ def test_charge_perturbation():
         assert test_value_out == perturb_data[-1, -1].item()
 
     # test not allowed interpolation method
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         perturb = td.CustomChargePerturbation(
             perturbation_values=perturb_data,
             interp_method="quadratic",

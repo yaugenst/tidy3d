@@ -3477,7 +3477,7 @@ def test_fixed_angle_sim():
             )
         )
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(KeyError):
         _ = sim.updated_copy(med=td.Medium(conductivity=0.001))
 
     anisotropic_med = td.FullyAnisotropicMedium(permittivity=[[2, 0, 0], [0, 1, 0], [0, 0, 3]])

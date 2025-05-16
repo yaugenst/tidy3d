@@ -760,10 +760,8 @@ def test_nonlinear_medium():
     modulated = td.Medium(permittivity=2, modulation_spec=modulation_spec)
     with pytest.raises(pd.ValidationError):
         td.Medium2D(ss=medium, tt=medium)
-    # with pytest.raises(pd.ValidationError):
-    #     td.Medium2D(ss=modulated, tt=modulated)
-    td.Medium2D(ss=modulated, tt=modulated)
-    return
+    with pytest.raises(pd.ValidationError):
+        td.Medium2D(ss=modulated, tt=modulated)
 
     # some parameters must be real now, unless we use old implementation
     _ = td.TwoPhotonAbsorption(beta=1j, use_complex_fields=True)

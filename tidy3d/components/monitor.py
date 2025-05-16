@@ -183,7 +183,7 @@ class TimeMonitor(Monitor, ABC):
                 )
 
             # set 'interval = 1' for backwards compatibility
-            val = 1
+            object.__setattr__(self, "interval", 1)
 
         return self
 

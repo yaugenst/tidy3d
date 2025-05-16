@@ -100,7 +100,7 @@ class Scene(Tidy3dBaseModel):
         discriminator=TYPE_TAG_STR,
     )
 
-    structures: tuple[Structure, ...] = Field(
+    structures: Optional[tuple[Structure, ...]] = Field(
         (),
         title="Structures",
         description="Tuple of structures present in scene. "
