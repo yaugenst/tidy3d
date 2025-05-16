@@ -21,6 +21,7 @@ Examples:
 
 from typing import Optional, Union
 
+import numpy as np
 import pydantic.v1 as pd
 
 from tidy3d.components.base import Tidy3dBaseModel
@@ -45,11 +46,19 @@ class DCVoltageSource(Tidy3dBaseModel):
     """
 
     name: Optional[str]
-    voltage: Union[pd.FiniteFloat, list[pd.FiniteFloat]] = pd.Field(
+    voltage: Union[pd.FiniteFloat, list[pd.FiniteFloat], np.ndarray] = pd.Field(
         title="Voltage",
         description="DC voltage usually used as source in 'VoltageBC' boundary conditions.",
     )
     units: str = VOLT
+
+    @pd.validator("voltage")
+    def check_voltage(cls, val):
+        if isinstance(val, np.ndarray):
+            for v in val:
+                if v == np.inf:
+                    raise ValueError(f"Voltages must be finite. Currently  voltage={val}.")
+        return val
 
 
 class DCCurrentSource(Tidy3dBaseModel):

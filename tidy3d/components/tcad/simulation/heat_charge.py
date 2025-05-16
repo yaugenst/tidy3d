@@ -428,15 +428,15 @@ class HeatChargeSimulation(AbstractSimulation):
         bounday_spec = values["boundary_spec"]
         monitors = values["monitors"]
 
+        ArrayType = (list, tuple, np.ndarray)
+
         is_capacitance_mnt = any(isinstance(mnt, SteadyCapacitanceMonitor) for mnt in monitors)
         voltage_array_present = False
         if is_capacitance_mnt:
             for bc in bounday_spec:
                 if isinstance(bc.condition, VoltageBC):
                     if isinstance(bc.condition.source, DCVoltageSource):
-                        if isinstance(bc.condition.source.voltage, list) or isinstance(
-                            bc.condition.source.voltage, tuple
-                        ):
+                        if isinstance(bc.condition.source.voltage, ArrayType):
                             if len(bc.condition.source.voltage) > 1:
                                 voltage_array_present = True
         if is_capacitance_mnt and not voltage_array_present:
