@@ -837,16 +837,13 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
                     "'NonlinearSusceptibility.numiters' is deprecated. "
                     "Please use 'NonlinearSpec.num_iters' instead."
                 )
-        return self
-
-    def _post_init_validators(self):
-        """Check compatibility with nonlinear_spec."""
-        if self.__class__.__name__ == "Medium2D" and any(
+        if self.type == "Medium2D" and any(
             comp.modulation_spec is not None for comp in [self.ss, self.tt]
         ):
             raise ValidationError(
                 "Time modulation is not currently supported for the components " "of a 2D medium."
             )
+        return self
 
     @model_validator(mode="after")
     def _check_either_modulation_or_nonlinear_spec(self):

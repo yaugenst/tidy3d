@@ -3688,17 +3688,20 @@ class Simulation(AbstractYeeGridSimulation):
 
     """ Post-init validators """
 
+    @property
     def _post_init_validators(self) -> None:
-        """Call validators taking z`self` that get run after init."""
-        _ = self.scene
-        self._validate_no_structures_pml()
-        self._validate_tfsf_nonuniform_grid()
-        self._validate_tfsf_aux_sources()
-        self._validate_nonlinear_specs()
-        self._validate_custom_source_time()
-        self._validate_mode_object_bends()
-        self._warn_mode_object_pml()
-        self._warn_rf_license()
+        """Return validators taking z`self` that get run after init."""
+        return (
+            lambda: self.scene,
+            self._validate_no_structures_pml,
+            self._validate_tfsf_nonuniform_grid,
+            self._validate_tfsf_aux_sources,
+            self._validate_nonlinear_specs,
+            self._validate_custom_source_time,
+            self._validate_mode_object_bends,
+            self._warn_mode_object_pml,
+            self._warn_rf_license,
+        )
 
     def _warn_rf_license(self):
         """

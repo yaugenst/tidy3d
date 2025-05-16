@@ -224,13 +224,16 @@ class ModeSimulation(AbstractYeeGridSimulation):
         object.__setattr__(self, "boundary_spec", boundary_spec)
         return self
 
+    @property
     def _post_init_validators(self):
-        """Call validators taking `self` that get run after init."""
-        validate_mode_plane_radius(
-            mode_spec=self.mode_spec, plane=self.plane, msg_prefix="'ModeSimulation'"
+        """Return validators taking `self` that get run after init."""
+        return (
+            lambda: validate_mode_plane_radius(
+                mode_spec=self.mode_spec, plane=self.plane, msg_prefix="'ModeSimulation'"
+            ),
+            lambda: self._mode_solver,
+            lambda: self.grid,
         )
-        _ = self._mode_solver
-        _ = self.grid
 
     @cached_property
     def _mode_solver(self) -> ModeSolver:

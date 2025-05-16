@@ -206,21 +206,23 @@ class ModeSolver(Tidy3dBaseModel):
             raise SetupError("'ModeSolver.plane' must intersect 'ModeSolver.simulation'.")
         return self
 
-    def _post_init_validators(self):
-        validate_mode_plane_radius(
-            mode_spec=self.mode_spec, plane=self.plane, msg_prefix="Mode solver"
+    @property
+    def _post_init_validators(self) -> tuple:
+        return (
+            lambda: validate_mode_plane_radius(
+                mode_spec=self.mode_spec, plane=self.plane, msg_prefix="Mode solver"
+            ),
+            lambda: self._warn_thick_pml(
+                simulation=self.simulation, plane=self.plane, mode_spec=self.mode_spec
+            ),
         )
-        self._warn_thick_pml(simulation=self.simulation, plane=self.plane, mode_spec=self.mode_spec)
 
     @classmethod
     def _warn_thick_pml(
         cls, simulation: Simulation, plane: Box, mode_spec: ModeSpec, warn_str: str = "'ModeSolver'"
     ):
         """Warn if the pml covers a significant portion of the mode plane."""
-        coord_0, coord_1 = cls._plane_grid(
-            simulation=simulation,
-            plane=plane,
-        )
+        coord_0, coord_1 = cls._plane_grid(simulation=simulation, plane=plane)
         num_cells = [len(coord_0), len(coord_1)]
         effective_num_pml = cls._effective_num_pml(
             simulation=simulation, plane=plane, mode_spec=mode_spec

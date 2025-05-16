@@ -67,11 +67,14 @@ class DesignRegion(InvdesBaseModel, abc.ABC):
         discriminator=TYPE_TAG_STR,
     )
 
+    @property
     def _post_init_validators(self):
-        """Automatically call any `_validate_XXX` method."""
+        """Return any `_validate_XXX` method."""
+        validators = []
         for attr_name in dir(self):
             if attr_name.startswith("_validate") and callable(getattr(self, attr_name)):
-                getattr(self, attr_name)()
+                validators.append(getattr(self, attr_name))
+        return tuple(validators)
 
     def _validate_eps_bounds(self):
         if self.eps_bounds[1] < self.eps_bounds[0]:

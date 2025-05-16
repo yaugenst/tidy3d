@@ -528,7 +528,11 @@ class PlaneWave(AngledFieldSource, PlanarSource, BroadbandSource):
             freq_min = max(freq_min, f_crit * CRITICAL_FREQUENCY_FACTOR)
         return self._chebyshev_freq_grid(freq_min, freq_max)
 
-    def _post_init_validators(self) -> None:
+    @property
+    def _post_init_validators(self) -> tuple:
+        return (self._validate_source_frequency_range,)
+
+    def _validate_source_frequency_range(self):
         """Error if a broadband plane wave with constant in-plane k is defined such that
         the source frequency range is entirely below ``f_crit * CRITICAL_FREQUENCY_FACTOR."""
         if self._is_fixed_angle or self.num_freqs == 1:

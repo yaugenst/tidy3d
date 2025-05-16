@@ -11,7 +11,17 @@ from collections import defaultdict
 from functools import total_ordering, wraps
 from math import ceil
 from pathlib import Path
-from typing import Any, Callable, Literal, Mapping, Optional, Sequence, Type, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Literal,
+    Mapping,
+    Optional,
+    Sequence,
+    Type,
+    TypeVar,
+    Union,
+)
 
 import h5py
 import numpy as np
@@ -28,7 +38,7 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from pydantic.functional_validators import ModelWrapValidatorHandler
+from pydantic_core import PydanticCustomError
 
 from ..compat import Self
 from ..exceptions import FileError
@@ -195,13 +205,23 @@ class Tidy3dBaseModel(BaseModel):
         return hashlib.sha256(bf.getvalue()).hexdigest()
 
     @model_validator(mode="wrap")
-    def _call_post_init_validators(data: Any, handler: ModelWrapValidatorHandler[Self]) -> Self:
+    def _call_post_init_validators(cls, data: Any, handler):
         obj = handler(data)
-        obj._post_init_validators()
+        for fn in obj._post_init_validators:
+            try:
+                fn()
+            except Exception as exc:
+                raise PydanticCustomError(
+                    "post_init_validator",
+                    'post-init validator "{validator}" failed: {msg}',
+                    {"validator": fn.__name__, "msg": str(exc)},
+                ) from exc
         return obj
 
-    def _post_init_validators(self):
-        """Override in subclasses"""
+    @property
+    def _post_init_validators(self) -> tuple[Callable[[Self], None], ...]:
+        """List of functions to run for post-init validation"""
+        return ()
 
     def copy(
         self, *, deep: bool = True, validate: bool = True, update: Mapping[str, Any] | None = None

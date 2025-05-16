@@ -170,9 +170,10 @@ class AbstractSimulation(Box, ABC):
 
     """ Post-init validators """
 
+    @property
     def _post_init_validators(self):
         """Call validators taking z`self` that get run after init."""
-        _ = self.scene
+        return (lambda: self.scene,)
 
     def validate_pre_upload(self) -> None:
         """Validate the fully initialized simulation is ok for upload to our servers."""

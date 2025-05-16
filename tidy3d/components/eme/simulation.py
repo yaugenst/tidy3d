@@ -574,17 +574,20 @@ class EMESimulation(AbstractYeeGridSimulation):
             normalize=self.normalize,
         )
 
+    @property
     def _post_init_validators(self) -> None:
-        """Call validators taking `self` that get run after init."""
-        self._validate_port_offsets()
-        _ = self.grid
-        _ = self.eme_grid
-        _ = self.mode_solver_monitors
-        _ = self._cell_index_pairs
-        self._validate_too_close_to_edges()
-        self._validate_sweep_spec()
-        self._validate_symmetry()
-        self._validate_monitor_setup()
+        """Return validators taking `self` that get run after init."""
+        return (
+            self._validate_port_offsets,
+            lambda: self.grid,
+            lambda: self.eme_grid,
+            lambda: self.mode_solver_monitors,
+            lambda: self._cell_index_pairs,
+            self._validate_too_close_to_edges,
+            self._validate_sweep_spec,
+            self._validate_symmetry,
+            self._validate_monitor_setup,
+        )
 
     def validate_pre_upload(self) -> None:
         """Validate the fully initialized EME simulation is ok for upload to our servers."""

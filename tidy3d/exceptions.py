@@ -1,6 +1,13 @@
 """Custom Tidy3D exceptions"""
 
+from pydantic_core import PydanticCustomError
+
 from .log import log
+
+
+class PostInitValidationError(PydanticCustomError):
+    code = "post_init_validator"
+    msg_template = 'post-init validator "{validator}" failed: {msg}'
 
 
 class Tidy3dError(ValueError):
