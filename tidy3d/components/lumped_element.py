@@ -188,7 +188,7 @@ class RectangularLumpedElement(LumpedElement, Box):
         snap_behavior = [SnapBehavior.Closest] * 3
         snap_location[self.lateral_axis] = SnapLocation.Center
         snap_behavior[self.lateral_axis] = SnapBehavior.Expand
-        return SnappingSpec(location=snap_location, behavior=snap_behavior)
+        return SnappingSpec(location=tuple(snap_location), behavior=tuple(snap_behavior))
 
     def to_mesh_overrides(self) -> list[MeshOverrideStructure]:
         """Creates a suggested :class:`.MeshOverrideStructure` list for mesh refinement both on the
@@ -1003,7 +1003,7 @@ class LinearLumpedElement(RectangularLumpedElement):
         if size[self.voltage_axis] == 0:
             behavior = list(snap_spec.behavior)
             behavior[self.voltage_axis] = SnapBehavior.Expand
-            snap_spec = snap_spec.updated_copy(behavior=behavior)
+            snap_spec = snap_spec.updated_copy(behavior=tuple(behavior))
 
         return snap_box_to_grid(grid, cell_box, snap_spec=snap_spec)
 

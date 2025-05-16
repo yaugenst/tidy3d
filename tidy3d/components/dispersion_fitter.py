@@ -310,7 +310,7 @@ class FastFitterData(AdvancedFastFitterParam):
             poles = -pole_range
         else:
             poles = -pole_range / 100 + 1j * pole_range
-        self.poles = poles
+        object.__setattr__(self, "poles", poles)
         return self
 
     @model_validator(mode="after")
@@ -320,7 +320,7 @@ class FastFitterData(AdvancedFastFitterParam):
             return self
         if self.poles is None:
             return self
-        self.residues = np.zeros(len(self.poles))
+        object.__setattr__(self, "residues", np.zeros(len(self.poles)))
         return self
 
     @classmethod

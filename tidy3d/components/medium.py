@@ -3534,7 +3534,7 @@ class PoleResidue(DispersiveMedium):
                     r_filtered.append(res)
                     p_filtered.append(pole)
 
-        poles_residues = list(zip(p_filtered, r_filtered))
+        poles_residues = tuple(zip(p_filtered, r_filtered))
         k_increasing_order = np.flip(k)
         return (poles_residues, k_increasing_order)
 
@@ -5473,7 +5473,7 @@ class LossyMetalMedium(Medium):
         "useful in some cases.",
     )
 
-    permittivity: Literal[1] = Field(
+    permittivity: Literal[1.0] = Field(
         1.0, title="Permittivity", description="Relative permittivity.", units=PERMITTIVITY
     )
 

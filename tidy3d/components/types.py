@@ -1,5 +1,6 @@
 """Defines 'types' that various fields can be"""
 
+import numbers
 from typing import Annotated, Any, Literal, Optional, Union
 
 import numpy as np
@@ -135,8 +136,24 @@ MatrixReal4x4 = array_alias(dtype=float, ndim=2, shape=(4, 4))
 
 
 def _parse_complex(v: Any) -> complex:
+    if isinstance(v, complex):
+        return v
+
     if isinstance(v, dict) and "real" in v and "imag" in v:
         return complex(v["real"], v["imag"])
+
+    if isinstance(v, numbers.Number):
+        return complex(v)
+
+    if hasattr(v, "__complex__"):
+        try:
+            return complex(v.__complex__())
+        except Exception:
+            pass
+
+    if isinstance(v, (list, tuple)) and len(v) == 2:
+        return complex(v[0], v[1])
+
     return v
 
 

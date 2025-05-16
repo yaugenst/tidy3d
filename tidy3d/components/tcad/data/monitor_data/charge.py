@@ -135,6 +135,7 @@ class SteadyFreeCarrierData(HeatChargeMonitorData):
                 f"No data is available for monitor '{self.monitor.name}'. This is "
                 "typically caused by monitor not intersecting any solid medium."
             )
+        return self
 
     @property
     def symmetry_expanded_copy(self) -> SteadyFreeCarrierData:
