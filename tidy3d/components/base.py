@@ -218,13 +218,10 @@ class Tidy3dBaseModel(BaseModel):
             Optional mapping of fields to overwrite (passed straight
             through to ``model_copy(update=...)``).
         """
-        if update:
-            allowed = set(self.model_fields) | {
-                f.alias for f in self.model_fields.values() if f.alias
-            }
-            unknown = set(update) - allowed
-            if unknown:
-                raise ValueError(f"Update for '{self.type}' contains unknown fields: {unknown}")
+        if update and self.model_config.get("extra") == "forbid":
+            invalid = set(update) - set(self.model_fields)
+            if invalid:
+                raise KeyError(f"'{self.type}' received invalid fields on copy: {invalid}")
 
         new_model = self.model_copy(deep=deep, update=update)
 
@@ -279,7 +276,7 @@ class Tidy3dBaseModel(BaseModel):
                 validate=validate,
                 **kwargs,
             )
-            new_value = tuple(sub_component_list)
+            new_value = type(sub_component)(sub_component_list)
         else:
             new_value = sub_component.updated_copy(
                 path="/".join(rest),

@@ -470,7 +470,7 @@ class PolySlab(base.Planar):
                 f"'_update_from_bounds' may only be applied along axis '{self.axis}', "
                 f"but was given axis '{axis}'."
             )
-        return self.updated_copy(slab_bounds=bounds)
+        return self.updated_copy(slab_bounds=tuple(bounds))
 
     @cached_property
     def is_ccw(self) -> bool:

@@ -82,7 +82,7 @@ class DirectionalSource(FieldSource, ABC):
             return None
         dir_vec = [0, 0, 0]
         dir_vec[int(self._injection_axis)] = 1 if self.direction == "+" else -1
-        return dir_vec
+        return tuple(dir_vec)
 
 
 class BroadbandSource(Source, ABC):

@@ -190,7 +190,7 @@ def test_validation_speed(tmp_path):
         for i in range(n):
             new_structure = SIM.structures[0].copy(update={"name": str(i)})
             new_structures.append(new_structure)
-        S = SIM.copy(update=dict(structures=new_structures))
+        S = SIM.copy(update=dict(structures=tuple(new_structures)))
 
         S.to_file(path)
         time_start = time()

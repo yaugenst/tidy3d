@@ -560,23 +560,29 @@ class Boundary(Tidy3dBaseModel):
 
     @model_validator(mode="after")
     def periodic_with_pec_pmc(self):
-        """If a PBC is specified along with PEC or PMC on the other side, manually set the PBC
-        to PEC or PMC so that no special treatment of halos is required."""
+        """
+        If a PBC is specified along with PEC or PMC on the other side, manually set the PBC
+        to PEC or PMC so that no special treatment of halos is required.
+        """
+        plus, minus = self.plus, self.minus
+        switched = False
 
-        conductive_types = (PECBoundary, PMCBoundary)
+        if isinstance(minus, (PECBoundary, PMCBoundary)) and isinstance(plus, Periodic):
+            plus = minus
+            switched = True
+        elif isinstance(plus, (PECBoundary, PMCBoundary)) and isinstance(minus, Periodic):
+            minus = plus
+            switched = True
 
-        plus_is_conductive = isinstance(self.plus, conductive_types)
-        minus_is_conductive = isinstance(self.minus, conductive_types)
-        plus_is_periodic = isinstance(self.plus, Periodic)
-        minus_is_periodic = isinstance(self.minus, Periodic)
-
-        if (minus_is_conductive and plus_is_periodic) or (plus_is_conductive and minus_is_periodic):
-            self.plus, self.minus = self.minus, self.plus
+        if switched:
+            object.__setattr__(self, "plus", plus)
+            object.__setattr__(self, "minus", minus)
             log.warning(
                 "A periodic boundary condition was specified on the opposite side of a perfect "
                 "electric or magnetic conductor boundary. This periodic boundary condition will "
                 "be replaced by the perfect electric or magnetic conductor across from it."
             )
+
         return self
 
     @classmethod

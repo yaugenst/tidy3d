@@ -1,8 +1,8 @@
 """Tests boundary conditions."""
 
-import pydantic.v1 as pydantic
 import pytest
 import tidy3d as td
+from pydantic import ValidationError
 from tidy3d.components.boundary import (
     PML,
     Absorber,
@@ -78,11 +78,11 @@ def test_boundary_validators():
     periodic = Periodic()
 
     # test `bloch_on_both_sides`
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         _ = Boundary(plus=bloch, minus=pec)
 
     # test `periodic_with_pml`
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         _ = Boundary(plus=periodic, minus=pml)
 
 

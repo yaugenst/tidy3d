@@ -248,10 +248,7 @@ def test_logging_warning_capture():
             error_with = str(e)
         td.log.set_capture(False)
 
-        print(error_without)
-        print(error_with)
-
-        assert error_without == error_with
+        assert str(error_without) == str(error_with)
 
 
 def test_log_suppression():

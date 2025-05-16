@@ -35,7 +35,7 @@ def _from_complex_dict(v):
     return v
 
 
-def _coerce(v, *, dtype, ndim, shape, forbid_nan):
+def _coerce(v, *, dtype, ndim, shape, forbid_nan, scalar_to_1d):
     """Convert input to a NumPy array with constraints.
 
     Raises
@@ -53,6 +53,8 @@ def _coerce(v, *, dtype, ndim, shape, forbid_nan):
     if arr.dtype == np.dtype("object"):
         raise ValueError(f"unsupported element type {type(v).__name__!r} for array coercion")
 
+    if arr.ndim == 0 and scalar_to_1d and ndim == 1:
+        arr = arr.reshape(1)
     if ndim is not None and arr.ndim != ndim:
         raise ValueError(f"expected {ndim}-D, got {arr.ndim}-D")
     if shape is not None and tuple(arr.shape) != shape:
@@ -88,6 +90,7 @@ def array_alias(
     ndim: Optional[int] = None,
     shape: Optional[tuple[int, ...]] = None,
     forbid_nan: bool = True,
+    scalar_to_1d: bool = False,
 ):
     """Return an `Annotated[np.ndarray, ...]` with checks."""
     validators = [
@@ -99,6 +102,7 @@ def array_alias(
                 ndim=ndim,
                 shape=shape,
                 forbid_nan=forbid_nan,
+                scalar_to_1d=scalar_to_1d,
             )
         ),
     ]
@@ -110,16 +114,16 @@ def array_alias(
 
 ArrayLike = array_alias()
 
-ArrayInt1D = array_alias(dtype=int, ndim=1)
+ArrayInt1D = array_alias(dtype=int, ndim=1, scalar_to_1d=True)
 
 ArrayFloat = array_alias(dtype=float)
-ArrayFloat1D = array_alias(dtype=float, ndim=1)
+ArrayFloat1D = array_alias(dtype=float, ndim=1, scalar_to_1d=True)
 ArrayFloat2D = array_alias(dtype=float, ndim=2)
 ArrayFloat3D = array_alias(dtype=float, ndim=3)
 ArrayFloat4D = array_alias(dtype=float, ndim=4)
 
 ArrayComplex = array_alias(dtype=complex)
-ArrayComplex1D = array_alias(dtype=complex, ndim=1)
+ArrayComplex1D = array_alias(dtype=complex, ndim=1, scalar_to_1d=True)
 ArrayComplex2D = array_alias(dtype=complex, ndim=2)
 ArrayComplex3D = array_alias(dtype=complex, ndim=3)
 ArrayComplex4D = array_alias(dtype=complex, ndim=4)
@@ -190,8 +194,8 @@ Direction = Literal["+", "-"]
 
 EMField = Literal["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"]
 FieldType = Literal["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"]
-FreqArray = Union[tuple[float, ...]]
-ObsGridArray = Union[tuple[float, ...]]
+FreqArray = ArrayFloat1D
+ObsGridArray = ArrayFloat1D
 PolarizationBasis = Literal["linear", "circular"]
 AuxField = Literal["Nfx", "Nfy", "Nfz"]
 

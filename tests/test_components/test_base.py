@@ -168,7 +168,7 @@ def test_updated_copy_path():
         )
 
     # forgot path
-    with pytest.raises(ValueError):
+    with pytest.raises(KeyError):
         assert sim == sim.updated_copy(permittivity=2.0)
 
     assert sim.updated_copy(size=(6, 6, 6)) == sim.updated_copy(size=(6, 6, 6), path=None)

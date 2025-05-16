@@ -734,7 +734,7 @@ class NonlinearSpec(ABC, Tidy3dBaseModel):
         for model in self.models:
             new_model = model._hardcode_medium_freqs(medium=medium, freqs=freqs)
             new_models.append(new_model)
-        return self.updated_copy(models=new_models)
+        return self.updated_copy(models=tuple(new_models))
 
     @property
     def aux_fields(self) -> list[str]:
@@ -3892,7 +3892,7 @@ class CustomPoleResidue(CustomDispersiveMedium, PoleResidue):
 
             poles_reduced.append((pole.sel_inside(bounds), residue.sel_inside(bounds)))
 
-        return self.updated_copy(eps_inf=eps_inf_reduced, poles=poles_reduced)
+        return self.updated_copy(eps_inf=eps_inf_reduced, poles=tuple(poles_reduced))
 
     def compute_derivatives(self, derivative_info: DerivativeInfo) -> AutogradFieldMap:
         """Compute adjoint derivatives for each of the ``fields`` given the multiplied E and D."""
@@ -4318,7 +4318,7 @@ class CustomSellmeier(CustomDispersiveMedium, Sellmeier):
 
             coeffs_reduced.append((b_coeff.sel_inside(bounds), c_coeff.sel_inside(bounds)))
 
-        return self.updated_copy(coeffs=coeffs_reduced)
+        return self.updated_copy(coeffs=tuple(coeffs_reduced))
 
 
 class Lorentz(DispersiveMedium):
@@ -4700,7 +4700,7 @@ class CustomLorentz(CustomDispersiveMedium, Lorentz):
                 (de.sel_inside(bounds), f.sel_inside(bounds), delta.sel_inside(bounds))
             )
 
-        return self.updated_copy(eps_inf=eps_inf_reduced, coeffs=coeffs_reduced)
+        return self.updated_copy(eps_inf=eps_inf_reduced, coeffs=tuple(coeffs_reduced))
 
 
 class Drude(DispersiveMedium):
@@ -4947,7 +4947,7 @@ class CustomDrude(CustomDispersiveMedium, Drude):
 
             coeffs_reduced.append((f.sel_inside(bounds), delta.sel_inside(bounds)))
 
-        return self.updated_copy(eps_inf=eps_inf_reduced, coeffs=coeffs_reduced)
+        return self.updated_copy(eps_inf=eps_inf_reduced, coeffs=tuple(coeffs_reduced))
 
 
 class Debye(DispersiveMedium):
@@ -5214,7 +5214,7 @@ class CustomDebye(CustomDispersiveMedium, Debye):
 
             coeffs_reduced.append((de.sel_inside(bounds), tau.sel_inside(bounds)))
 
-        return self.updated_copy(eps_inf=eps_inf_reduced, coeffs=coeffs_reduced)
+        return self.updated_copy(eps_inf=eps_inf_reduced, coeffs=tuple(coeffs_reduced))
 
 
 class SurfaceImpedanceFitterParam(Tidy3dBaseModel):

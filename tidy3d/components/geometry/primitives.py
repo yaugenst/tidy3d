@@ -361,7 +361,7 @@ class Cylinder(base.Centered, base.Circular, base.Planar):
         new_center = list(self.center)
         new_center[axis] = (bounds[0] + bounds[1]) / 2
         new_length = bounds[1] - bounds[0]
-        return self.updated_copy(center=new_center, length=new_length)
+        return self.updated_copy(center=tuple(new_center), length=new_length)
 
     @verify_packages_import(["trimesh"])
     def _do_intersections_tilted_plane(

@@ -32,7 +32,7 @@ class CurrentSource(Source, ABC):
         pol_axis = "xyz".index(component)
         pol_vec = [0, 0, 0]
         pol_vec[pol_axis] = 1
-        return pol_vec
+        return tuple(pol_vec)
 
 
 class ReverseInterpolatedSource(Source):

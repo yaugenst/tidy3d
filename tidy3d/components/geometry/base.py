@@ -2715,8 +2715,8 @@ class Transformed(Geometry):
     def _apply_transforms(self):
         while isinstance(self.geometry, Transformed):
             inner = self.geometry
-            self.geometry = inner.geometry
-            self.transform = np.dot(self.transform, inner.transform)
+            object.__setattr__(self, "geometry", inner.geometry)
+            object.__setattr__(self, "transform", np.dot(self.transform, inner.transform))
         return self
 
     @cached_property
@@ -3411,9 +3411,9 @@ class GeometryGroup(Geometry):
     def _update_from_bounds(self, bounds: tuple[float, float], axis: Axis) -> GeometryGroup:
         """Returns an updated geometry which has been transformed to fit within ``bounds``
         along the ``axis`` direction."""
-        new_geometries = [
+        new_geometries = tuple(
             geometry._update_from_bounds(bounds=bounds, axis=axis) for geometry in self.geometries
-        ]
+        )
         return self.updated_copy(geometries=new_geometries)
 
     def compute_derivatives(self, derivative_info: DerivativeInfo) -> AutogradFieldMap:

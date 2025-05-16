@@ -1206,12 +1206,12 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
     #    return plot_sim_3d(self, width=width, height=height)
 
     @cached_property
-    def _grid_and_snapping_lines(self) -> Tuple[Grid, List[CoordinateOptional]]:
+    def _grid_and_snapping_lines(self) -> tuple[Grid, list[CoordinateOptional]]:
         """FDTD grid spatial locations and information.
 
         Returns
         -------
-        Tuple[:class:`.Grid`, List[CoordinateOptional]]
+        tuple[:class:`.Grid`, list[CoordinateOptional]]
             :class:`.Grid` storing the spatial locations relevant to the simulation
             the list of snapping points generated during iterative gap meshing.
         """
@@ -1263,12 +1263,12 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         return grid
 
     @cached_property
-    def _gap_meshing_snapping_lines(self) -> List[CoordinateOptional]:
+    def _gap_meshing_snapping_lines(self) -> list[CoordinateOptional]:
         """Snapping points resulted from iterative gap meshing.
 
         Returns
         -------
-        List[CoordinateOptional]
+        list[CoordinateOptional]
             List of snapping lines resolving thin gaps and strips.
         """
 
@@ -1881,10 +1881,10 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
                     size=new_box.size,
                     grid_spec=grid_spec,
                     boundary_spec=boundary_spec,
-                    monitors=[],
-                    sources=sources,  # need wavelength in case of auto grid
-                    symmetry=symmetry,
-                    structures=aux_new_structures,
+                    monitors=(),
+                    sources=tuple(sources),  # need wavelength in case of auto grid
+                    symmetry=tuple(symmetry),
+                    structures=tuple(aux_new_structures),
                     deep=deep_copy,
                 )
 
@@ -1942,8 +1942,8 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
             medium=new_sim_medium,
             grid_spec=grid_spec,
             boundary_spec=boundary_spec,
-            monitors=monitors,
-            sources=sources,
+            monitors=tuple(monitors),
+            sources=tuple(sources),
             symmetry=tuple(symmetry),
             structures=tuple(aux_new_structures),
             lumped_elements=tuple(new_lumped_elements),
@@ -1955,7 +1955,9 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         # 1) Perform validators not directly related to geometries
         new_sim = self.updated_copy(**new_sim_dict, deep=deep_copy, validate=True)
         # 2) Assemble the full simulation without validation
-        return new_sim.updated_copy(structures=new_structures, deep=deep_copy, validate=False)
+        return new_sim.updated_copy(
+            structures=tuple(new_structures), deep=deep_copy, validate=False
+        )
 
 
 class Simulation(AbstractYeeGridSimulation):

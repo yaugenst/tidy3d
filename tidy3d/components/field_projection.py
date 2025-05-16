@@ -94,7 +94,7 @@ class FieldProjector(Tidy3dBaseModel):
         """Sets ``.origin`` as the average of centers of all surface monitors if not provided."""
         if self.origin is None:
             centers = np.array([surface.monitor.center for surface in self.surfaces])
-            self.origin = tuple(np.mean(centers, axis=0))
+            object.__setattr__(self, "origin", tuple(np.mean(centers, axis=0)))
         return self
 
     @cached_property
@@ -262,7 +262,7 @@ class FieldProjector(Tidy3dBaseModel):
         surface_currents[H2] = field_data.field_components[E1] * signs[0]
         surface_currents[H1] = field_data.field_components[E2] * signs[1]
 
-        new_monitor = surface.monitor.copy(update=dict(fields=[E1, E2, H1, H2]))
+        new_monitor = surface.monitor.copy(update=dict(fields=(E1, E2, H1, H2)))
 
         return FieldData(
             monitor=new_monitor,
