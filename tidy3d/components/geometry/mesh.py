@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import List, Optional, Tuple, Union, Callable, Literal
+from typing import Callable, List, Literal, Optional, Tuple, Union
 
 import numpy as np
 import pydantic.v1 as pydantic
@@ -347,11 +347,11 @@ class TriangleMesh(base.Geometry, ABC):
         nt = nx * ny
 
         x_mesh, y_mesh = np.meshgrid(x_coords, y_coords, indexing="ij")
-        
+
         sign = 1
         if direction == "-":
             sign = -1
-        
+
         flat_height = np.ravel(height)
         if flat_height.shape[0] != nt:
             raise ValueError(
@@ -360,14 +360,14 @@ class TriangleMesh(base.Geometry, ABC):
             )
 
         vertices_raw_list = [
-            [np.ravel(x_mesh), np.ravel(y_mesh), base + sign * flat_height], # Alpha surface
-            [np.ravel(x_mesh), np.ravel(y_mesh), base * np.ones(nt)],       
+            [np.ravel(x_mesh), np.ravel(y_mesh), base + sign * flat_height],  # Alpha surface
+            [np.ravel(x_mesh), np.ravel(y_mesh), base * np.ones(nt)],
         ]
-        
+
         if direction == "-":
             vertices_raw_list = vertices_raw_list[::-1]
-        
-        vertices = np.hstack(vertices_raw_list).T 
+
+        vertices = np.hstack(vertices_raw_list).T
         vertices = np.roll(vertices, shift=axis - 2, axis=1)
 
         q0 = (np.arange(nx - 1)[:, None] * ny + np.arange(ny - 1)[None, :]).ravel()
@@ -380,8 +380,8 @@ class TriangleMesh(base.Geometry, ABC):
         q2_b = nt + q2
         q3_b = nt + q3
 
-        top_quads = np.stack((q0, q1, q2, q3), axis=-1)  
-        bottom_quads = np.stack((q0_b, q3_b, q2_b, q1_b), axis=-1) 
+        top_quads = np.stack((q0, q1, q2, q3), axis=-1)
+        bottom_quads = np.stack((q0_b, q3_b, q2_b, q1_b), axis=-1)
 
         s1_q0 = (0 * ny + np.arange(ny - 1)).ravel()
         s1_q1 = (0 * ny + np.arange(1, ny)).ravel()
@@ -407,7 +407,9 @@ class TriangleMesh(base.Geometry, ABC):
         s4_q3 = (nt + np.arange(nx - 1) * ny + ny - 1).ravel()
         side4_quads = np.stack((s4_q0, s4_q1, s4_q2, s4_q3), axis=-1)
 
-        all_quads = np.vstack((top_quads, bottom_quads, side1_quads, side2_quads, side3_quads, side4_quads))
+        all_quads = np.vstack(
+            (top_quads, bottom_quads, side1_quads, side2_quads, side3_quads, side4_quads)
+        )
 
         triangles_list = [
             np.stack((all_quads[:, 0], all_quads[:, 1], all_quads[:, 3]), axis=-1),
@@ -461,9 +463,9 @@ class TriangleMesh(base.Geometry, ABC):
         y_lin = np.linspace(center[1] - 0.5 * size[1], center[1] + 0.5 * size[1], grid_size[1])
 
         x_mesh, y_mesh = np.meshgrid(x_lin, y_lin, indexing="ij")
-        
+
         height_values = height_func(x_mesh, y_mesh)
-        
+
         if not (isinstance(height_values, np.ndarray) and height_values.shape == x_mesh.shape):
             raise ValueError(
                 f"The 'height_func' must return a NumPy array with shape {x_mesh.shape}, "
