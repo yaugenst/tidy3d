@@ -72,8 +72,8 @@ def benchmark_timing_operations(
     except KeyError:
         # This has to do with choosing a timing command not available in the dictionary
         raise KeyError(
-            f"Make sure the selected timing command {timing_command}"
-            + "corresponds to an existing command."
+            f"Make sure the selected timing command {timing_command} "
+            "corresponds to an existing command."
         ) from None
 
     echo_and_check_subprocess(

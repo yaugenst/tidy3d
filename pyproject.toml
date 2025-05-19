@@ -260,6 +260,7 @@ extend-select = [
   "C4",     # flake8-comprehensions
   "NPY",
   "RUF",
+  "ISC",
 ]
 extend-ignore = [
   "RUF001",
