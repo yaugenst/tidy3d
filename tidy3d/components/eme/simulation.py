@@ -882,7 +882,7 @@ class EMESimulation(AbstractYeeGridSimulation):
     def _monitors_full(self) -> tuple[EMEMonitorType, ...]:
         """All monitors, including port modes monitor."""
         if self.store_port_modes:
-            return list(self.monitors) + [self.port_modes_monitor]
+            return [*list(self.monitors), self.port_modes_monitor]
         return list(self.monitors)
 
     @cached_property

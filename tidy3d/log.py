@@ -216,7 +216,7 @@ class Logger:
                     new_loc = current_loc + list(field)
                 else:
                     # single field
-                    new_loc = current_loc + [field]
+                    new_loc = [*current_loc, field]
 
                 # process current level warnings
                 for level, msg, custom_loc in stack_item["messages"]:

@@ -261,7 +261,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         to_2D = np.eye(4)
         if axis != 2:
             last, indices = self.pop_axis((0, 1, 2), axis)
-            to_2D = to_2D[list(indices) + [last, 3]]
+            to_2D = to_2D[[*list(indices), last, 3]]
         return self.intersections_tilted_plane(normal, origin, to_2D)
 
     def intersections_2dbox(self, plane: Box) -> list[Shapely]:

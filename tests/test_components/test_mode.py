@@ -128,9 +128,14 @@ def test_mode_sim():
     with AssertLogLevel("INFO"):
         _ = sim.updated_copy(freqs=FS[0], grid_spec=grid_spec)
     # multiple freqs are ok
-    _ = sim.updated_copy(grid_spec=td.GridSpec.uniform(dl=0.2), freqs=[1e10] + list(sim.freqs))
     _ = sim.updated_copy(
-        size=sim.size, freqs=list(sim.freqs) + [1e10], grid_spec=grid_spec, mode_spec=MODE_SPEC
+        grid_spec=td.GridSpec.uniform(dl=0.2), freqs=[10000000000.0, *list(sim.freqs)]
+    )
+    _ = sim.updated_copy(
+        size=sim.size,
+        freqs=[*list(sim.freqs), 10000000000.0],
+        grid_spec=grid_spec,
+        mode_spec=MODE_SPEC,
     )
 
     # size limit

@@ -206,7 +206,7 @@ def plot_with_multi_viz_spec(alphas, facecolors, edgecolors, rng, use_viz_spec=T
 
     structures = []
     for idx in range(0, len(viz_specs)):
-        center = tuple(list(rng.uniform(-3, 3, 2)) + [0])
+        center = (*list(rng.uniform(-3, 3, 2)), 0)
         size = tuple(rng.uniform(1, 2, 3))
         box = td.Box(center=center, size=size)
 

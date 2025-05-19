@@ -382,10 +382,10 @@ def test_heat_sim():
         medium=heat_sim.medium,
     )
     with pytest.raises(pd.ValidationError):
-        _ = heat_sim.updated_copy(structures=list(heat_sim.structures) + [struct_1d])
+        _ = heat_sim.updated_copy(structures=[*list(heat_sim.structures), struct_1d])
 
     with pytest.raises(pd.ValidationError):
-        _ = heat_sim.updated_copy(structures=list(heat_sim.structures) + [struct_2d])
+        _ = heat_sim.updated_copy(structures=[*list(heat_sim.structures), struct_2d])
 
     # no data expected inside a monitor
     for mnt_size in [(0.2, 0.2, 0.2), (0, 1, 1), (0, 2, 0), (0, 0, 0)]:

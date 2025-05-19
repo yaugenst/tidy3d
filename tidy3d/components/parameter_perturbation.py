@@ -1498,7 +1498,7 @@ class NedeljkovicSorefMashanovich(AbstractDeltaModel):
             ),
             dims=("wvl", "coeff"),
             coords={
-                "wvl": np.array([1.3, 1.55] + list(np.arange(2, 14.5, 0.5))),
+                "wvl": np.array([1.3, 1.55, *list(np.arange(2, 14.5, 0.5))]),
                 "coeff": ["a", "b", "c", "d", "p", "q", "r", "s"],
             },
             name="perturb_coeffs",

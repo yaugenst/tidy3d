@@ -346,7 +346,7 @@ class HeatChargeSimulation(AbstractSimulation):
             medium=medium,
         )
 
-        total_structures = [structure_bg] + list(structures)
+        total_structures = [structure_bg, *list(structures)]
 
         obj_do_not_cross_solid_idx = []
         obj_do_not_cross_cond_idx = []

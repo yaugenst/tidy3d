@@ -686,7 +686,7 @@ class GradedMesher(Mesher):
             bmin, bmax = structure.geometry.bounds
             bmin_ax, bmin_plane = structure.geometry.pop_axis(bmin, axis=axis)
             bmax_ax, bmax_plane = structure.geometry.pop_axis(bmax, axis=axis)
-            bounds = np.array([list(bmin_plane) + [bmin_ax], list(bmax_plane) + [bmax_ax]])
+            bounds = np.array([[*list(bmin_plane), bmin_ax], [*list(bmax_plane), bmax_ax]])
             struct_bbox.append(bounds)
         return struct_bbox
 

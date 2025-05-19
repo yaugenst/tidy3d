@@ -854,7 +854,7 @@ def test_custom_medium():
 
     with pytest.raises(pydantic.ValidationError):
         # repeat some entries so data cannot be interpolated
-        X2 = [X[0]] + list(X)
+        X2 = [X[0], *list(X)]
         n_data2 = np.vstack((n_data[0, :, :, :].reshape(1, Ny, Nz, Nf), n_data))
         n_dataset2 = td.ScalarFieldDataArray(n_data2, coords={"x": X2, "y": Y, "z": Z, "f": freqs})
         create_mediums(n_dataset=n_dataset2)

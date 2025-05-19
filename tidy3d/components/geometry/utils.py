@@ -284,7 +284,7 @@ def vertices_from_shapely(shape: Shapely) -> ArrayFloat2D:
     if shape.geom_type == "LinearRing":
         return [(shape.coords[:-1],)]
     if shape.geom_type == "Polygon":
-        return [(shape.exterior.coords[:-1],) + tuple(hole.coords[:-1] for hole in shape.interiors)]
+        return [(shape.exterior.coords[:-1], *tuple(hole.coords[:-1] for hole in shape.interiors))]
     if shape.geom_type in {"MultiPolygon", "GeometryCollection"}:
         return sum(vertices_from_shapely(geo) for geo in shape.geoms)
 

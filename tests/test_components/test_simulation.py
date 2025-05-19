@@ -822,10 +822,7 @@ class TestAnisotropicPlotting:
 
     @pytest.mark.parametrize(
         "eps_comp",
-        [
-            None,
-        ]
-        + diag_comps,
+        [None, *diag_comps],
     )
     def test_plot_anisotropic_medium(self, eps_comp):
         """Test plotting diagonal components of a diagonally anisotropic medium succeeds or not.
@@ -856,11 +853,7 @@ class TestAnisotropicPlotting:
 
     @pytest.mark.parametrize(
         "eps_comp",
-        [
-            None,
-        ]
-        + diag_comps
-        + offdiag_comps,
+        [None, *diag_comps, *offdiag_comps],
     )
     def test_plot_fully_anisotropic_medium(self, eps_comp):
         """Test plotting all components of a fully anisotropic medium.
@@ -887,10 +880,7 @@ class TestAnisotropicPlotting:
 
     @pytest.mark.parametrize(
         "eps_comp",
-        [
-            None,
-        ]
-        + diag_comps,
+        [None, *diag_comps],
     )
     def test_plot_customanisotropic_medium(self, eps_comp, medium_customani):
         """Test plotting diagonal components of a diagonally anisotropic custom medium.

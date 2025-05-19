@@ -254,7 +254,7 @@ class Scene(Tidy3dBaseModel):
     @cached_property
     def all_structures(self) -> list[Structure]:
         """List of all structures in the simulation including the background."""
-        return [self.background_structure] + list(self.structures)
+        return [self.background_structure, *list(self.structures)]
 
     @staticmethod
     def intersecting_media(
@@ -912,10 +912,10 @@ class Scene(Tidy3dBaseModel):
             # for doping background structure could be a non-doping structure
             # that needs to be rendered
             if property in ["N_d", "N_a", "doping"]:
-                structures = [self.background_structure] + list(structures)
+                structures = [self.background_structure, *list(structures)]
             medium_shapes = self._filter_structures_plane_medium(structures=structures, plane=plane)
         else:
-            structures = [self.background_structure] + list(structures)
+            structures = [self.background_structure, *list(structures)]
             medium_shapes = self._get_structures_2dbox(
                 structures=structures, x=x, y=y, z=z, hlim=hlim, vlim=vlim
             )
@@ -1069,7 +1069,7 @@ class Scene(Tidy3dBaseModel):
             Minimal and maximal values of relative permittivity in scene.
         """
 
-        medium_list = [self.medium] + list(self.mediums)
+        medium_list = [self.medium, *list(self.mediums)]
         return self._eps_bounds(medium_list=medium_list, freq=freq, eps_component=eps_component)
 
     def _pcolormesh_shape_custom_medium_structure_eps(
@@ -1482,7 +1482,7 @@ class Scene(Tidy3dBaseModel):
             plane = Box(center=center, size=size)
             medium_shapes = self._filter_structures_plane_medium(structures=structures, plane=plane)
         else:
-            structures = [self.background_structure] + list(structures)
+            structures = [self.background_structure, *list(structures)]
             medium_shapes = self._get_structures_2dbox(
                 structures=structures, x=x, y=y, z=z, hlim=hlim, vlim=vlim
             )
@@ -1533,7 +1533,7 @@ class Scene(Tidy3dBaseModel):
             Minimal and maximal values of thermal conductivity in scene.
         """
 
-        medium_list = [self.medium] + list(self.mediums)
+        medium_list = [self.medium, *list(self.mediums)]
         if property == "heat_conductivity":
             SolidType = (SolidSpec, SolidMedium)
             medium_list = [
@@ -1795,7 +1795,7 @@ class Scene(Tidy3dBaseModel):
         acceptors_lims = [1e50, -1e50]
         donors_lims = [1e50, -1e50]
 
-        for struct in [self.background_structure] + list(self.structures):
+        for struct in [self.background_structure, *list(self.structures)]:
             if isinstance(struct.medium.charge, SemiconductorMedium):
                 electric_spec = struct.medium.charge
                 for doping, limits in zip(

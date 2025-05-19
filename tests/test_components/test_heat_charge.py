@@ -1328,7 +1328,7 @@ def test_dynamic_simulation_updates(heat_simulation):
     # Add a new monitor
     new_monitor = td.TemperatureMonitor(size=(1, 1, 1), name="new_temp_mnt")
     updated_sim = heat_simulation.updated_copy(
-        monitors=tuple(list(heat_simulation.monitors) + [new_monitor])
+        monitors=(*list(heat_simulation.monitors), new_monitor)
     )
     assert len(updated_sim.monitors) == len(heat_simulation.monitors) + 1
     assert updated_sim.monitors[-1].name == "new_temp_mnt"

@@ -247,7 +247,7 @@ class InverseDesign(AbstractInverseDesign):
             grid_spec = grid_spec.updated_copy(override_structures=override_structures)
 
         return self.simulation.updated_copy(
-            structures=list(self.simulation.structures) + [design_region_structure],
+            structures=[*list(self.simulation.structures), design_region_structure],
             grid_spec=grid_spec,
         )
 

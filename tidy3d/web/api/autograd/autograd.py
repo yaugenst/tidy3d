@@ -1070,7 +1070,7 @@ def postprocess_adj(
 
             # extract VJPs and put back into sim_fields_vjp AutogradFieldMap
             for structure_path, vjp_value in vjp_value_map.items():
-                sim_path = tuple(["structures", structure_index] + list(structure_path))
+                sim_path = ("structures", structure_index, *list(structure_path))
                 if freq_idx == 0:
                     sim_fields_vjp[sim_path] = vjp_value
                 else:
@@ -1099,7 +1099,7 @@ defvjp(_run_async_primitive, _run_async_bwd, argnums=[0])
 
 def parse_run_kwargs(**run_kwargs):
     """Parse the ``run_kwargs`` to extract what should be passed to the ``Job`` initialization."""
-    job_fields = list(Job._upload_fields) + ["solver_version", "pay_type"]
+    job_fields = [*list(Job._upload_fields), "solver_version", "pay_type"]
     job_init_kwargs = {k: v for k, v in run_kwargs.items() if k in job_fields}
     return job_init_kwargs
 

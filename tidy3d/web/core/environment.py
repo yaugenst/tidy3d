@@ -14,7 +14,7 @@ class EnvironmentConfig(BaseSettings):
     """Basic Configuration for definition environment."""
 
     def __hash__(self):
-        return hash((type(self),) + tuple(self.__dict__.values()))
+        return hash((type(self), *tuple(self.__dict__.values())))
 
     name: str
     web_api_endpoint: str

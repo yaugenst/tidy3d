@@ -1248,7 +1248,8 @@ class ModeSolver(Tidy3dBaseModel):
                         np.where(np.isnan(te_frac))[0],
                     )
                 )
-            for data in list(mode_solver_data.field_components.values()) + [
+            for data in [
+                *list(mode_solver_data.field_components.values()),
                 mode_solver_data.n_complex,
                 mode_solver_data.grid_primal_correction,
                 mode_solver_data.grid_dual_correction,
@@ -1277,7 +1278,7 @@ class ModeSolver(Tidy3dBaseModel):
             :class:`.SimulationData` object containing the effective index and mode fields.
         """
         monitor_data = self.data
-        new_monitors = list(self.simulation.monitors) + [monitor_data.monitor]
+        new_monitors = [*list(self.simulation.monitors), monitor_data.monitor]
         new_simulation = self.simulation.copy(update={"monitors": new_monitors})
         if isinstance(new_simulation, Simulation):
             return SimulationData(simulation=new_simulation, data=(monitor_data,))
@@ -1312,7 +1313,7 @@ class ModeSolver(Tidy3dBaseModel):
 
         # convert to into 3-by-3 representation for easier axis swap
         flat_shape = np.shape(mat_tensor)  # 9 components flat
-        tensor_shape = [3, 3] + list(flat_shape[1:])  # 3-by-3 matrix
+        tensor_shape = [3, 3, *flat_shape[1:]]  # 3-by-3 matrix
         mat_tensor = mat_tensor.reshape(tensor_shape)
 
         # swap axes to plane coordinates (normal_axis goes to z)
@@ -1890,7 +1891,7 @@ class ModeSolver(Tidy3dBaseModel):
         mode_source = self.to_source(
             mode_index=mode_index, direction=direction, source_time=source_time
         )
-        new_sources = list(self.simulation.sources) + [mode_source]
+        new_sources = [*list(self.simulation.sources), mode_source]
         new_sim = self.simulation.updated_copy(sources=new_sources)
         return new_sim
 
@@ -1920,7 +1921,7 @@ class ModeSolver(Tidy3dBaseModel):
         """
 
         mode_monitor = self.to_monitor(freqs=freqs, name=name)
-        new_monitors = list(self.simulation.monitors) + [mode_monitor]
+        new_monitors = [*list(self.simulation.monitors), mode_monitor]
         new_sim = self.simulation.updated_copy(monitors=new_monitors)
         return new_sim
 
@@ -1944,7 +1945,7 @@ class ModeSolver(Tidy3dBaseModel):
             from the ModeSolver instance and ``name``.
         """
         mode_solver_monitor = self.to_mode_solver_monitor(name=name)
-        new_monitors = list(self.simulation.monitors) + [mode_solver_monitor]
+        new_monitors = [*list(self.simulation.monitors), mode_solver_monitor]
         new_sim = self.simulation.updated_copy(monitors=new_monitors)
         return new_sim
 

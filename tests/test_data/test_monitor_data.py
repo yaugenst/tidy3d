@@ -920,7 +920,7 @@ class TestZBF:
         return self.simdata(monitor)["modes"]
 
     @pytest.mark.parametrize("background_index", [1, 2, 3])
-    @pytest.mark.parametrize("freq", list(freqs) + [None])
+    @pytest.mark.parametrize("freq", [*list(freqs), None])
     @pytest.mark.parametrize("n_x", [2**5, 2**6])
     @pytest.mark.parametrize("n_y", [2**5, 2**6])
     @pytest.mark.parametrize("units", ["mm", "cm", "in", "m"])

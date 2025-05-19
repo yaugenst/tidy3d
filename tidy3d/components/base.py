@@ -984,12 +984,12 @@ class Tidy3dBaseModel(pydantic.BaseModel):
             # for sequences, add (i,) to the path and handle each value individually
             elif isinstance(x, (list, tuple)):
                 for i, val in enumerate(x):
-                    handle_value(val, path=path + (i,))
+                    handle_value(val, path=(*path, i))
 
             # for dictionaries, add the (key,) to the path and handle each value individually
             elif isinstance(x, dict):
                 for key, val in x.items():
-                    handle_value(val, path=path + (key,))
+                    handle_value(val, path=(*path, key))
 
         # recursively parse the dictionary of this object
         self_dict = self.dict()

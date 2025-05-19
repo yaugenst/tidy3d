@@ -1097,7 +1097,7 @@ def test_sim_full_ops(structure_key):
     def objective(*params):
         s = make_structures(*params)[structure_key]
         s = s.updated_copy(geometry=s.geometry.updated_copy(center=(2, 2, 2), size=(0, 0, 0)))
-        sim_full_traced = SIM_FULL.updated_copy(structures=list(SIM_FULL.structures) + [s])
+        sim_full_traced = SIM_FULL.updated_copy(structures=[*list(SIM_FULL.structures), s])
 
         sim_full_static = sim_full_traced.to_static()
 
@@ -1136,7 +1136,7 @@ def test_sim_fields_io(structure_key, tmp_path):
     from file, and then converting back, returns the same object."""
     s = make_structures(params0)[structure_key]
     s = s.updated_copy(geometry=s.geometry.updated_copy(center=(2, 2, 2), size=(0, 0, 0)))
-    sim_full_traced = SIM_FULL.updated_copy(structures=list(SIM_FULL.structures) + [s])
+    sim_full_traced = SIM_FULL.updated_copy(structures=[*list(SIM_FULL.structures), s])
     sim_fields = sim_full_traced.strip_traced_fields()
 
     field_map = FieldMap.from_autograd_field_map(sim_fields)
@@ -1663,7 +1663,7 @@ def make_objective(postprocess_fn: typing.Callable, structure_key: str) -> typin
         structure_traced = make_structures(params)[structure_key]
         sim = SIM_BASE.updated_copy(
             structures=[structure_traced],
-            monitors=list(SIM_BASE.monitors) + [mnt_single, mnt_multi],
+            monitors=[*list(SIM_BASE.monitors), mnt_single, mnt_multi],
         )
         data = run(sim, task_name="multifreq_test")
         return postprocess_fn(data)
@@ -1796,7 +1796,7 @@ def test_multi_freq_edge_cases(use_emulated_run, structure_key, label, check_fn,
         structure_traced = make_structures(params)[structure_key]
         sim = SIM_BASE.updated_copy(
             structures=[structure_traced],
-            monitors=list(SIM_BASE.monitors) + [mnt_single, mnt_multi],
+            monitors=[*list(SIM_BASE.monitors), mnt_single, mnt_multi],
         )
         data = run(sim, task_name="multifreq_test")
         return postprocess_fn(data)
@@ -1820,7 +1820,7 @@ def test_multi_frequency_equivalence(use_emulated_run, structure_key):
             structure_traced = make_structures(params)[structure_key]
             sim = SIM_BASE.updated_copy(
                 structures=[structure_traced],
-                monitors=list(SIM_BASE.monitors) + [mnt_multi],
+                monitors=[*list(SIM_BASE.monitors), mnt_multi],
             )
 
             sim_data = web.run(sim, task_name="multifreq_test")
@@ -1834,7 +1834,7 @@ def test_multi_frequency_equivalence(use_emulated_run, structure_key):
         structure_traced = make_structures(params)[structure_key]
         sim = SIM_BASE.updated_copy(
             structures=[structure_traced],
-            monitors=list(SIM_BASE.monitors) + [mnt_multi],
+            monitors=[*list(SIM_BASE.monitors), mnt_multi],
         )
         sim_data = web.run(sim, task_name="multifreq_test")
         amps = get_amps(sim_data, "multi").sel(mode_index=0, direction="+")

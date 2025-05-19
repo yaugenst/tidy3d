@@ -153,7 +153,7 @@ class JaxObject(Tidy3dBaseModel):
     @property
     def exclude_fields_leafs_only(self) -> set:
         """Fields to exclude from ``self.dict()``, ``"type"`` and all ``jax`` leafs."""
-        return set(["type"] + self.get_jax_leaf_names())
+        return {"type", *self.get_jax_leaf_names()}
 
     """Accounting with jax and regular fields."""
 

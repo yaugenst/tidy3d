@@ -169,7 +169,7 @@ def make_base_sim(
 
     monitor_index_block = td.Box(
         center=(0, 0, 0.25 * sim_size_um[2] + mesh_wvl_um),
-        size=tuple(2 * size for size in sim_size_um[0:2]) + (mesh_wvl_um + 0.5 * sim_size_um[2],),
+        size=(*tuple(2 * size for size in sim_size_um[0:2]), mesh_wvl_um + 0.5 * sim_size_um[2]),
     )
 
     sim_base = td.Simulation(
@@ -234,7 +234,7 @@ def create_objective_function(
             )
 
             sim_with_polyslab = sim_base.updated_copy(
-                structures=sim_base.structures + (polyslab_structure,)
+                structures=(*sim_base.structures, polyslab_structure)
             )
 
             simulation_dict[f"numerical_mode_polyslab_testing_{idx}"] = sim_with_polyslab.copy()
@@ -348,7 +348,7 @@ def test_finite_difference_mode_data_polyslab(
 
     box_for_override = td.Box(
         center=(0, 0, 0),
-        size=(np.inf, np.inf) + (MODE_LAYER_HEIGHT_WVL * mesh_wvl_um + mesh_wvl_um,),
+        size=(np.inf, np.inf, MODE_LAYER_HEIGHT_WVL * mesh_wvl_um + mesh_wvl_um),
     )
 
     sim_path_dir = tmp_path / f"test{test_number}"

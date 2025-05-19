@@ -310,7 +310,7 @@ class EMEExplicitGrid(EMEGridSpec):
                     "The last item in 'boundaries' is outside the simulation domain."
                 )
 
-        boundaries = [sim_rmin] + list(self.boundaries) + [sim_rmax]
+        boundaries = [sim_rmin, *list(self.boundaries), sim_rmax]
         return EMEGrid(
             boundaries=boundaries,
             center=center,

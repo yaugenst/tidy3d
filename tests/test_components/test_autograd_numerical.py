@@ -97,7 +97,7 @@ def make_base_sim(
 
     monitor_index_block = td.Box(
         center=(0, 0, 0.25 * sim_size_um[2] + mesh_wvl_um),
-        size=tuple(2 * size for size in sim_size_um[0:2]) + (mesh_wvl_um + 0.5 * sim_size_um[2],),
+        size=(*tuple(2 * size for size in sim_size_um[0:2]), mesh_wvl_um + 0.5 * sim_size_um[2]),
     )
     monitor_index_block_structure = td.Structure(
         geometry=monitor_index_block, medium=td.Medium(permittivity=monitor_bg_index**2)
@@ -134,7 +134,7 @@ def create_objective_function(geometry, create_sim_base, eval_fn, sim_path_dir):
             )
 
             sim_with_block = sim_base.updated_copy(
-                structures=sim_base.structures + (block_structure,)
+                structures=(*sim_base.structures, block_structure)
             )
 
             simulation_dict[f"numerical_field_testing_{idx}"] = sim_with_block.copy()

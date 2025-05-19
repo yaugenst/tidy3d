@@ -314,10 +314,12 @@ def test_eme_simulation():
     with AssertLogLevel("INFO", contains_str="wavelength"):
         sim = sim.updated_copy(grid_spec=grid_spec)
     # multiple freqs are ok, but not for autogrid
-    _ = sim.updated_copy(grid_spec=td.GridSpec.uniform(dl=0.2), freqs=[1e10] + list(sim.freqs))
+    _ = sim.updated_copy(
+        grid_spec=td.GridSpec.uniform(dl=0.2), freqs=[10000000000.0, *list(sim.freqs)]
+    )
     with AssertLogLevel("INFO", contains_str="wavelength"):
         _ = sim.updated_copy(
-            freqs=list(sim.freqs) + [1e10],
+            freqs=[*list(sim.freqs), 10000000000.0],
             grid_spec=grid_spec,
         )
 

@@ -465,7 +465,7 @@ def test_rectangular_array_calculator_array_make_antenna_array():
     )
 
     sim_unit_with_sphere = sim_unit.updated_copy(
-        structures=[background_sphere] + list(sim_unit.structures)
+        structures=[background_sphere, *list(sim_unit.structures)]
     )
     # check correctness of the antenna bounds detection
     antenna_bounds_with_sphere = array_calculator._detect_antenna_bounds(sim_unit_with_sphere)

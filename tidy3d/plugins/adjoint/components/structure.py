@@ -53,7 +53,7 @@ class AbstractJaxStructure(Structure, JaxObject):
     @property
     def exclude_fields(self):
         """Fields to exclude from the self dict."""
-        return set(["type"] + list(self.jax_fields.keys()))
+        return {"type", *list(self.jax_fields.keys())}
 
     def to_structure(self) -> Structure:
         """Convert :class:`.JaxStructure` instance to :class:`.Structure`"""

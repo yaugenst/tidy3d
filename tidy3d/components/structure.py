@@ -323,7 +323,7 @@ class Structure(AbstractStructure):
 
             # construct map of {field path -> derivative value}
             for field_path, derivative_value in derivative_values_map.items():
-                path = tuple([med_or_geo] + list(field_path))
+                path = (med_or_geo, *list(field_path))
                 derivative_map[path] = derivative_value
 
         return derivative_map

@@ -851,9 +851,9 @@ def fit(
             init_model.optimize_eps_inf,
         ]:
             if setting is None:
-                configs = [c + [r] for c in configs for r in [True, False]]
+                configs = [[*c, r] for c in configs for r in [True, False]]
             else:
-                configs = [c + [r] for c in configs for r in [setting]]
+                configs = [[*c, r] for c in configs for r in [setting]]
         return configs
 
     best_model = init_model

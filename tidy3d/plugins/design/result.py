@@ -408,8 +408,8 @@ class Result(Tidy3dBaseModel):
             Copy of the result with that element added.
         """
 
-        new_values = list(self.values) + [value]
-        new_coords = list(self.coords) + [tuple(fn_args[dim] for dim in self.dims)]
+        new_values = [*list(self.values), value]
+        new_coords = [*list(self.coords), tuple(fn_args[dim] for dim in self.dims)]
 
         # ParticleSwarm optimizer doesn't work with updated_copy
         # Creating new result with updated values and coords instead

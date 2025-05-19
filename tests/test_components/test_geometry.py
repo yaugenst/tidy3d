@@ -440,16 +440,16 @@ def test_geometryoperations():
     assert UNION + CYLINDER == td.GeometryGroup(
         geometries=(UNION.geometry_a, UNION.geometry_b, CYLINDER)
     )
-    assert BOX + GROUP == td.GeometryGroup(geometries=(BOX,) + GROUP.geometries)
-    assert GROUP + CYLINDER == td.GeometryGroup(geometries=GROUP.geometries + (CYLINDER,))
+    assert BOX + GROUP == td.GeometryGroup(geometries=(BOX, *GROUP.geometries))
+    assert GROUP + CYLINDER == td.GeometryGroup(geometries=(*GROUP.geometries, CYLINDER))
 
     assert BOX | CYLINDER == td.GeometryGroup(geometries=(BOX, CYLINDER))
     assert BOX | UNION == td.GeometryGroup(geometries=(BOX, UNION.geometry_a, UNION.geometry_b))
     assert UNION | CYLINDER == td.GeometryGroup(
         geometries=(UNION.geometry_a, UNION.geometry_b, CYLINDER)
     )
-    assert BOX | GROUP == td.GeometryGroup(geometries=(BOX,) + GROUP.geometries)
-    assert GROUP | CYLINDER == td.GeometryGroup(geometries=GROUP.geometries + (CYLINDER,))
+    assert BOX | GROUP == td.GeometryGroup(geometries=(BOX, *GROUP.geometries))
+    assert GROUP | CYLINDER == td.GeometryGroup(geometries=(*GROUP.geometries, CYLINDER))
 
     assert BOX * SPHERE == td.ClipOperation(
         operation="intersection", geometry_a=BOX, geometry_b=SPHERE
@@ -1052,7 +1052,7 @@ def test_custom_surface_geometry(tmp_path):
 def test_geo_group_sim():
     geo_grp = td.TriangleMesh.from_stl("tests/data/two_boxes_separate.stl")
     geos_orig = list(geo_grp.geometries)
-    geo_grp_full = geo_grp.updated_copy(geometries=geos_orig + [td.Box(size=(1, 1, 1))])
+    geo_grp_full = geo_grp.updated_copy(geometries=[*geos_orig, td.Box(size=(1, 1, 1))])
 
     sim = td.Simulation(
         size=(10, 10, 10),

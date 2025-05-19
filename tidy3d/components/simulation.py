@@ -3175,7 +3175,7 @@ class Simulation(AbstractYeeGridSimulation):
         )
 
         structures = values.get("structures") or []
-        total_structures = [structure_bg] + list(structures)
+        total_structures = [structure_bg, *list(structures)]
 
         with log as consolidated_logger:
             for monitor_ind, monitor in enumerate(val):
@@ -3555,7 +3555,7 @@ class Simulation(AbstractYeeGridSimulation):
         )
 
         structures = values.get("structures") or []
-        total_structures = [structure_bg] + list(structures)
+        total_structures = [structure_bg, *list(structures)]
 
         # for each plane wave in the sources list
         with log as consolidated_logger:

@@ -399,6 +399,6 @@ class Graphene(ParametricVariantItem2D):
             else:
                 poles += [(a, c)]
         return PoleResidue(
-            poles=poles + [(0, zero_res)],
+            poles=[*poles, (0, zero_res)],
             frequency_range=(0, GRAPHENE_FIT_FREQ_MAX),
         )

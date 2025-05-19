@@ -2753,7 +2753,7 @@ class CustomMedium(AbstractCustomMedium):
                 coord_bounds[coord_bounds >= pt_max] = pt_max
 
                 # add the geometry bounds in explicitly
-                return [pt_min] + coord_bounds.tolist() + [pt_max]
+                return [pt_min, *coord_bounds.tolist(), pt_max]
 
             # grab user supplied data long this dimension
             coords = {key: np.array(val) for key, val in scalar_field.coords.items()}
@@ -6965,7 +6965,7 @@ class PerturbationPoleResidue(PoleResidue, AbstractPerturbationMedium):
                 eps_inf_field = eps_inf_field + delta_eps
 
             if delta_sigma is not None:
-                poles_field = poles_field + [[zeros, 0.5 * delta_sigma / EPSILON_0]]
+                poles_field = [*poles_field, [zeros, 0.5 * delta_sigma / EPSILON_0]]
         else:
             # sample eps_inf
             if self.eps_inf_perturbation is not None:

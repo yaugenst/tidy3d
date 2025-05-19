@@ -791,7 +791,7 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
         arg_list = []
 
         for i in range(num_verts):
-            args_i = [i] + [e_mult_xyz, d_mult_xyz, sim_bounds, wvl_mat, eps_out, eps_in]
+            args_i = [i, e_mult_xyz, d_mult_xyz, sim_bounds, wvl_mat, eps_out, eps_in]
             arg_list.append(args_i)
 
         return arg_list
