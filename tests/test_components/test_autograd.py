@@ -1152,7 +1152,7 @@ def test_web_incompatible_inputs(monkeypatch):
 
     def catch(*args, **kwargs):
         """Just raise an exception."""
-        raise AssertionError()
+        raise AssertionError
 
     monkeypatch.setattr(td.web.api.webapi, "run", catch)
     monkeypatch.setattr(td.web.api.container.Job, "run", catch)

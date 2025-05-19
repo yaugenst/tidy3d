@@ -261,6 +261,7 @@ extend-select = [
   "RUF",
   "ISC",
   "PIE",
+  "RSE",
 ]
 extend-ignore = [
   "RUF001",

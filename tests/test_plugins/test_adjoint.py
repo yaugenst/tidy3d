@@ -1897,7 +1897,7 @@ def hide_jax(monkeypatch, request):
 
     def mocked_import(name, *args, **kwargs):
         if name in ["jax", "jax.interpreters.ad", "jax.interpreters.ad.JVPTracer"]:
-            raise ImportError()
+            raise ImportError
         return import_orig(name, *args, **kwargs)
 
     monkeypatch.setattr(builtins, "__import__", mocked_import)
