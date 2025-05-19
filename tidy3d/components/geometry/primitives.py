@@ -13,7 +13,7 @@ import shapely
 from tidy3d.components.autograd import AutogradFieldMap, TracedSize1D
 from tidy3d.components.autograd.derivative_utils import DerivativeInfo
 from tidy3d.components.base import cached_property, skip_if_fields_missing
-from tidy3d.components.types import Axis, Bound, Coordinate, MatrixReal4x4, Shapely, Tuple
+from tidy3d.components.types import Axis, Bound, Coordinate, MatrixReal4x4, Shapely
 from tidy3d.constants import C_0, LARGE_NUMBER, MICROMETER
 from tidy3d.exceptions import SetupError, ValidationError
 from tidy3d.packaging import verify_packages_import
@@ -357,7 +357,7 @@ class Cylinder(base.Centered, base.Circular, base.Planar):
             raise ValidationError("'Medium2D' requires the 'Cylinder' length to be zero.")
         return self.axis
 
-    def _update_from_bounds(self, bounds: Tuple[float, float], axis: Axis) -> Cylinder:
+    def _update_from_bounds(self, bounds: tuple[float, float], axis: Axis) -> Cylinder:
         """Returns an updated geometry which has been transformed to fit within ``bounds``
         along the ``axis`` direction."""
         if axis != self.axis:
