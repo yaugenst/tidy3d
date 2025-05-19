@@ -1054,7 +1054,6 @@ class TestCharge:
         """Test doping distributions."""
         # Implementation needed
         # This test was empty in the original code.
-        pass
 
 
 # --------------------------

@@ -170,11 +170,9 @@ class NonlinearModel(ABC, Tidy3dBaseModel):
 
     def _validate_medium(self, medium: AbstractMedium):
         """Any additional validation that depends on the medium"""
-        pass
 
     def _validate_medium_freqs(self, medium: AbstractMedium, freqs: list[pd.PositiveFloat]) -> None:
         """Any additional validation that depends on the central frequencies of the sources."""
-        pass
 
     def _hardcode_medium_freqs(
         self, medium: AbstractMedium, freqs: list[pd.PositiveFloat]

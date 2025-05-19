@@ -127,7 +127,7 @@ def create_objective_function(geometry, create_sim_base, eval_fn, sim_path_dir):
         sim_base = create_sim_base()
 
         simulation_dict = {}
-        for idx in range(0, len(perm_arrays)):
+        for idx in range(len(perm_arrays)):
             block_structure = td.Structure.from_permittivity_array(
                 eps_data=perm_arrays[idx],
                 geometry=geometry,
@@ -144,7 +144,7 @@ def create_objective_function(geometry, create_sim_base, eval_fn, sim_path_dir):
         )
 
         objective_vals = []
-        for idx in range(0, len(perm_arrays)):
+        for idx in range(len(perm_arrays)):
             objective_vals.append(eval_fn(sim_data[f"numerical_field_testing_{idx}"]))
 
         if len(perm_arrays) == 1:
@@ -193,7 +193,7 @@ monitor_sizes_3d_wvl = [(0.5, 0.5, 0), (0.5, 0.5, 0.5), (0.5, 0, 0), (0, 0.5, 0)
 field_data_test_parameters = []
 
 test_number = 0
-for idx in range(0, len(mesh_wvls_um)):
+for idx in range(len(mesh_wvls_um)):
     mesh_wvl_um = mesh_wvls_um[idx]
     adj_wvl_um = adj_wvls_um[idx]
 
@@ -307,7 +307,7 @@ def test_finite_difference_field_data(field_data_test_parameters, rng, tmp_path,
     all_perm = []
     pattern_dot_adj_gradient = np.zeros(NUM_FINITE_DIFFERENCE)
 
-    for fd_idx in range(0, NUM_FINITE_DIFFERENCE):
+    for fd_idx in range(NUM_FINITE_DIFFERENCE):
         random_pattern = rng.random((dim, dim, Nz)) - 0.5
         random_pattern = gaussian_filter(random_pattern, sigma=3)
         random_pattern /= np.linalg.norm(random_pattern)
@@ -323,7 +323,7 @@ def test_finite_difference_field_data(field_data_test_parameters, rng, tmp_path,
     all_obj = objective(all_perm)
 
     fd_grad = np.zeros(NUM_FINITE_DIFFERENCE)
-    for fd_idx in range(0, NUM_FINITE_DIFFERENCE):
+    for fd_idx in range(NUM_FINITE_DIFFERENCE):
         obj_up_location = 2 * fd_idx
         obj_down_location = 2 * fd_idx + 1
 

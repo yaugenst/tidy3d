@@ -41,7 +41,6 @@ class WebContainer(Tidy3dBaseModel, ABC):
     @abstractmethod
     def _check_path_dir(path: str) -> None:
         """Make sure local output directory exists and create it if not."""
-        pass
 
     @staticmethod
     def _check_folder(folder_name: str) -> None:

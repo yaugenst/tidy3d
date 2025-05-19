@@ -477,7 +477,7 @@ class MethodGenAlg(MethodOptimize, ABC):
                 # Designed for str in ParameterAny but may work for anything
                 param_converter[param.name] = self.any_to_int_param(param)
 
-                gene_spaces.append(range(0, len(param.allowed_values)))
+                gene_spaces.append(range(len(param.allowed_values)))
                 gene_types.append(int)
 
         def capture_aux(sol_dict_list: list[dict]) -> None:

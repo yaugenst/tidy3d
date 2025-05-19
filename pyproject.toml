@@ -249,7 +249,6 @@ line-length = 100
 extend-exclude = ["docs/faq/", "docs/notebooks/"]
 
 [tool.ruff.lint]
-
 extend-select = [
   "E",      # pycodestyle errors
   "F",      # pyflakes
@@ -261,6 +260,7 @@ extend-select = [
   "NPY",
   "RUF",
   "ISC",
+  "PIE",
 ]
 extend-ignore = [
   "RUF001",

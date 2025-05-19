@@ -21,7 +21,6 @@ class AbstractInitializationSpec(Tidy3dBaseModel, ABC):
     @abstractmethod
     def create_parameters(self, shape: tuple[int, ...]) -> NDArray:
         """Generate the parameter array based on the specification."""
-        pass
 
 
 class RandomInitializationSpec(AbstractInitializationSpec):

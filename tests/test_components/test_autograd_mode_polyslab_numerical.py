@@ -206,7 +206,7 @@ def create_objective_function(
         sim_base = create_sim_base()
 
         simulation_dict = {}
-        for idx in range(0, len(vertices)):
+        for idx in range(len(vertices)):
             vertices_x = vertices[idx][0:NUM_VERTICES]
             vertices_y = vertices[idx][NUM_VERTICES:]
 
@@ -244,7 +244,7 @@ def create_objective_function(
         )
 
         objective_vals = []
-        for idx in range(0, len(vertices)):
+        for idx in range(len(vertices)):
             objective_vals.append(eval_fn(sim_data[f"numerical_mode_polyslab_testing_{idx}"]))
 
         if len(vertices) == 1:
@@ -279,7 +279,7 @@ polyslab_indices = np.linspace(SUBSTRATE_INDEX, WG_INDEX, 5)
 mode_data_test_parameters = []
 
 test_number = 0
-for idx in range(0, len(mesh_wvls_um)):
+for idx in range(len(mesh_wvls_um)):
     mesh_wvl_um = mesh_wvls_um[idx]
     adj_wvl_um = adj_wvls_um[idx]
 
@@ -407,7 +407,7 @@ def test_finite_difference_mode_data_polyslab(
 
     obj, adj_grad = obj_val_and_grad([list(vertex_centers_x) + list(vertex_centers_y)])
 
-    for fd_idx in range(0, NUM_FINITE_DIFFERENCE):
+    for fd_idx in range(NUM_FINITE_DIFFERENCE):
         # Create random perturbation of vertices to check against the computed adjoint gradient.
         random_pattern = rng.random(2 * NUM_VERTICES) - 0.5
         random_pattern = gaussian_filter(random_pattern, sigma=1)
@@ -427,7 +427,7 @@ def test_finite_difference_mode_data_polyslab(
     all_obj = objective(all_vertex)
 
     fd_grad = np.zeros(NUM_FINITE_DIFFERENCE)
-    for fd_idx in range(0, NUM_FINITE_DIFFERENCE):
+    for fd_idx in range(NUM_FINITE_DIFFERENCE):
         obj_up_location = 2 * fd_idx
         obj_down_location = 2 * fd_idx + 1
 

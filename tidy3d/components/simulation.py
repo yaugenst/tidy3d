@@ -397,7 +397,6 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
     @abstractmethod
     def _validate_auto_grid_wavelength(cls, val, values):
         """Check that wavelength can be defined if there is auto grid spec."""
-        pass
 
     def _monitor_num_cells(self, monitor: Monitor) -> int:
         """Total number of cells included in monitor based on simulation grid."""

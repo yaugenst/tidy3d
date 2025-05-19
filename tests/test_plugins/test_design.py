@@ -804,7 +804,7 @@ def test_result_accessor_and_len(dims, coords, values, multi_val):
 
     result = tdd.Result(dims=dims, values=values, coords=coords)
 
-    for idx in range(0, len(values)):
+    for idx in range(len(values)):
         coord, value = result[idx]
 
         assert all(coord == coords[idx])

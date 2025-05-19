@@ -72,7 +72,6 @@ class JaxObject(Tidy3dBaseModel):
 
     def _validate_web_adjoint(self) -> None:
         """Run validators for this component, only if using ``tda.web.run()``."""
-        pass
 
     """Methods needed for jax to register arbitrary classes."""
 

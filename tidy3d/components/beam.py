@@ -169,7 +169,6 @@ class BeamProfile(Box):
         """Scalar field corresponding to the analytic beam in coordinate system such that the
         propagation direction is z and the ``E``-field is entirely ``x``-polarized. The field is
         computed on an unstructured array ``points`` of shape ``(3, ...)``."""
-        pass
 
     def analytic_beam_z_normal(
         self, points: Numpy, background_n: float, field: Literal["E", "H"]

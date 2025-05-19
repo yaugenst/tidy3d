@@ -84,7 +84,7 @@ class Coords(Tidy3dBaseModel):
 
         if len(meshgrid_elements) > 1:
             meshgrid = np.meshgrid(*meshgrid_elements, indexing="ij")
-            for idx in range(0, len(meshgrid)):
+            for idx in range(len(meshgrid)):
                 cell_size_meshgrid *= np.reshape(meshgrid[idx], cell_size_meshgrid.shape)
         elif len(meshgrid_elements) == 1:
             cell_size_meshgrid = meshgrid_elements[0]

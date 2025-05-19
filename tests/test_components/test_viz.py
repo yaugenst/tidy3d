@@ -195,17 +195,16 @@ def plot_with_multi_viz_spec(alphas, facecolors, edgecolors, rng, use_viz_spec=T
         td.VisualizationSpec(
             facecolor=facecolors[idx], edgecolor=edgecolors[idx], alpha=alphas[idx]
         )
-        for idx in range(0, len(alphas))
+        for idx in range(len(alphas))
     ]
-    media = [td.Medium(permittivity=2.25) for idx in range(0, len(viz_specs))]
+    media = [td.Medium(permittivity=2.25) for idx in range(len(viz_specs))]
     if use_viz_spec:
         media = [
-            td.Medium(permittivity=2.25, viz_spec=viz_specs[idx])
-            for idx in range(0, len(viz_specs))
+            td.Medium(permittivity=2.25, viz_spec=viz_specs[idx]) for idx in range(len(viz_specs))
         ]
 
     structures = []
-    for idx in range(0, len(viz_specs)):
+    for idx in range(len(viz_specs)):
         center = (*list(rng.uniform(-3, 3, 2)), 0)
         size = tuple(rng.uniform(1, 2, 3))
         box = td.Box(center=center, size=size)

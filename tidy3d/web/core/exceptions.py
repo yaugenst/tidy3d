@@ -19,5 +19,3 @@ class WebError(Exception):
 
 class WebNotFoundError(WebError):
     """A generic error indicating an HTTP 404 (resource not found)."""
-
-    pass

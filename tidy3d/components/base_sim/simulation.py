@@ -182,7 +182,6 @@ class AbstractSimulation(Box, ABC):
 
     def validate_pre_upload(self) -> None:
         """Validate the fully initialized simulation is ok for upload to our servers."""
-        pass
 
     """ Accounting """
 

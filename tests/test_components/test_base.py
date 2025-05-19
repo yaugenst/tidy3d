@@ -114,7 +114,7 @@ def test_updated_copy():
     s2 = s.updated_copy(medium=m2, geometry=b2)
     assert s2.geometry == b2
     assert s2.medium == m2
-    s3 = s.updated_copy(**{"medium": m2, "geometry": b2})
+    s3 = s.updated_copy(medium=m2, geometry=b2)
     assert s3 == s2
 
 
