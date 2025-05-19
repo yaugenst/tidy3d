@@ -1,5 +1,7 @@
 """Finite-difference derivatives and PML absorption operators expressed as sparse matrices."""
 
+from __future__ import annotations
+
 import numpy as np
 import scipy.sparse as sp
 

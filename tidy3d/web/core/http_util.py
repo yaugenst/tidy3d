@@ -1,5 +1,7 @@
 """Http connection pool and authentication management."""
 
+from __future__ import annotations
+
 import os
 from enum import Enum
 from functools import wraps

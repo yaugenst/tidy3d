@@ -1,5 +1,7 @@
 """Holds dispersive models for several commonly used optical materials."""
 
+from __future__ import annotations
+
 import json
 from typing import Dict, List, Union
 

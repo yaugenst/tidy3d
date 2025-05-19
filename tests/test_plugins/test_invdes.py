@@ -1,4 +1,5 @@
 # Test the inverse design plugin
+from __future__ import annotations
 
 import autograd.numpy as anp
 import numpy as np

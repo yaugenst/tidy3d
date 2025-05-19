@@ -1,6 +1,7 @@
 # type information for autograd
 
 # utilities for working with autograd
+from __future__ import annotations
 
 import copy
 import typing

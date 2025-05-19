@@ -1,5 +1,7 @@
 """Tests boundary conditions."""
 
+from __future__ import annotations
+
 import pydantic.v1 as pydantic
 import pytest
 

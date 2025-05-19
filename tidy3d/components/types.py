@@ -1,5 +1,7 @@
 """Defines 'types' that various fields can be"""
 
+from __future__ import annotations
+
 from typing import (
     Literal,  # We support py3.9+, so direct typing import is fine.
     Optional,

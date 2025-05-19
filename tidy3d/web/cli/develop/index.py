@@ -1,5 +1,7 @@
 """Console script subcommand for tidy3d."""
 
+from __future__ import annotations
+
 import click
 
 __all__ = [

@@ -1,4 +1,5 @@
 # autograd wrapper for web functions
+from __future__ import annotations
 
 import os
 import tempfile

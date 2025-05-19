@@ -1,5 +1,7 @@
 """Tidy3d package imports"""
 
+from __future__ import annotations
+
 from tidy3d.components.material.multi_physics import MultiPhysicsMedium
 from tidy3d.components.material.tcad.charge import (
     ChargeConductorMedium,

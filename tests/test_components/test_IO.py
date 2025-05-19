@@ -1,5 +1,7 @@
 """Tests file export and loading."""
 
+from __future__ import annotations
+
 import json
 import os
 from time import time

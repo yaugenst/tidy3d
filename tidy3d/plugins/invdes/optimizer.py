@@ -1,4 +1,5 @@
 # specification for running the optimizer
+from __future__ import annotations
 
 import abc
 import typing

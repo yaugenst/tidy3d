@@ -1,5 +1,7 @@
 """Test the microwave plugin."""
 
+from __future__ import annotations
+
 from math import isclose
 
 import matplotlib.pyplot as plt

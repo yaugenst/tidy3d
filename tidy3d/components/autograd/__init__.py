@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from .boxes import TidyArrayBox
 from .functions import interpn
 from .types import (

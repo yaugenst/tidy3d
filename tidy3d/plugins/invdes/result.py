@@ -1,4 +1,5 @@
 # convenient container for the output of the inverse design (specifically the history)
+from __future__ import annotations
 
 import typing
 

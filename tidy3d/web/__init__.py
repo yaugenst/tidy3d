@@ -1,6 +1,8 @@
 # ruff: noqa: E402
 """imports interfaces for interacting with server"""
 
+from __future__ import annotations
+
 from ..log import get_logging_console, log
 from ..version import __version__
 from .core import core_config

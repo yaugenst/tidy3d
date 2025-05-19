@@ -1,5 +1,7 @@
 """Tests tidy3d/components/data/data_array.py"""
 
+from __future__ import annotations
+
 from typing import List, Tuple
 
 import numpy as np

@@ -1,5 +1,7 @@
 """Interface to run several jobs in batch using simplified syntax."""
 
+from __future__ import annotations
+
 from typing import Dict, List, Literal, Union
 
 from ...log import log

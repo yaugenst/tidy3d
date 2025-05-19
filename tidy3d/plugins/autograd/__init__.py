@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from .differential_operators import grad, value_and_grad
 from .functions import (
     add_at,

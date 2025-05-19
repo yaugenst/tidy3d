@@ -4,6 +4,8 @@ This file contains a set of functions relating to packaging tidy3d for distribut
 This section should only depend on the standard core installation in the pyproject.toml, and should not depend on any other part of the codebase optional imports.
 """
 
+from __future__ import annotations
+
 import functools
 from importlib import import_module
 from typing import Literal

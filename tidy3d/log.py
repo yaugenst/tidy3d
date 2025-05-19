@@ -1,5 +1,7 @@
 """Logging for Tidy3d."""
 
+from __future__ import annotations
+
 import inspect
 from datetime import datetime
 from typing import Callable, List, Tuple, Union

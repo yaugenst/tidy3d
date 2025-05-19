@@ -1,6 +1,8 @@
 """Classes for creating data based on analytic beams like plane wave, Gaussian beam, and
 astigmatic Gaussian beam."""
 
+from __future__ import annotations
+
 from abc import abstractmethod
 from typing import Literal, Optional, Tuple, Union
 

@@ -1,5 +1,7 @@
 """Divide a complex polyslab where self-intersecting polygon can occur during extrusion."""
 
+from __future__ import annotations
+
 from ...components.geometry.polyslab import ComplexPolySlabBase
 from ...components.medium import MediumType
 from ...components.structure import Structure

@@ -1,5 +1,7 @@
 """Utilities for plotting microwave components"""
 
+from __future__ import annotations
+
 from numpy import inf
 
 from ...components.viz import PathPlotParams

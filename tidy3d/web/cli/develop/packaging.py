@@ -6,6 +6,8 @@ it for different hardware. For example, say we just need to use a certain sectio
 functionality to extract the timing performance of that specific operation and compare it to previous usages.
 """
 
+from __future__ import annotations
+
 import pathlib
 import subprocess
 from pathlib import Path

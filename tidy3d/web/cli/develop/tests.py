@@ -3,6 +3,8 @@ This module contains the CLI commands for testing the tidy3d package. This inclu
 notebooks in order to achieve reproducibility between hardwares.
 """
 
+from __future__ import annotations
+
 import click
 
 from .index import develop

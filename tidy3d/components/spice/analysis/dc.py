@@ -2,6 +2,8 @@
 This class defines standard SPICE electrical_analysis types (electrical simulations configurations).
 """
 
+from __future__ import annotations
+
 import pydantic.v1 as pd
 
 from tidy3d.components.base import Tidy3dBaseModel

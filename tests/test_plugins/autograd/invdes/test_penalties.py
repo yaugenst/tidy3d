@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from tidy3d.plugins.autograd.invdes.penalties import make_erosion_dilation_penalty

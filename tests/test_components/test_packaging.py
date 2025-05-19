@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from tidy3d.packaging import Tidy3dImportError, check_import, verify_packages_import

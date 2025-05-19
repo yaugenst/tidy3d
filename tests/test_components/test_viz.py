@@ -1,5 +1,7 @@
 """Tests visualization operations."""
 
+from __future__ import annotations
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pydantic.v1 as pd

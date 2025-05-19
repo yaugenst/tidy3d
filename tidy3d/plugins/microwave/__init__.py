@@ -1,5 +1,7 @@
 """Imports from microwave plugin."""
 
+from __future__ import annotations
+
 from . import models
 from .array_factor import (
     RectangularAntennaArrayCalculator,

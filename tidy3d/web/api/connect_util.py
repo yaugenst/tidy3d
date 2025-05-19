@@ -1,5 +1,7 @@
 """connect util for webapi."""
 
+from __future__ import annotations
+
 import time
 from functools import wraps
 

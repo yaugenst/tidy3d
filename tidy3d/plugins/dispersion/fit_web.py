@@ -1,5 +1,7 @@
 """Deprecated module"""
 
+from __future__ import annotations
+
 from ...log import log
 
 log.warning(

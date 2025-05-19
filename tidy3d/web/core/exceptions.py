@@ -1,5 +1,7 @@
 """Custom Tidy3D exceptions"""
 
+from __future__ import annotations
+
 from .core_config import get_logger
 
 

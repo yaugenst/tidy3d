@@ -4,6 +4,8 @@ install and configure the development environment for tidy3d. The commands are i
 are available as CLI commands when tidy3d is installed.
 """
 
+from __future__ import annotations
+
 import platform
 import re
 import subprocess

@@ -1,5 +1,7 @@
 """Class and custom data array for representing a scattering matrix wave port."""
 
+from __future__ import annotations
+
 from typing import Optional, Union
 
 import numpy as np

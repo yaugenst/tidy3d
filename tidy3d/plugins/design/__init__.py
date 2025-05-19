@@ -1,5 +1,7 @@
 """Imports for parameter sweep."""
 
+from __future__ import annotations
+
 from .design import DesignSpace
 from .method import (
     MethodBayOpt,

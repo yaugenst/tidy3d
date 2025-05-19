@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Callable
 
 from autograd.builtins import tuple as atuple

@@ -1,5 +1,7 @@
 """Helpers for automatic setup of path integrals."""
 
+from __future__ import annotations
+
 from ...components.geometry.base import Box
 from ...components.geometry.utils import SnapBehavior, SnapLocation, SnappingSpec, snap_box_to_grid
 from ...components.grid.grid import Grid

@@ -1,5 +1,7 @@
 """Holds the reference materials for Tidy3D material library."""
 
+from __future__ import annotations
+
 from ...material_library.material_reference import ReferenceData
 
 rf_material_refs = dict(

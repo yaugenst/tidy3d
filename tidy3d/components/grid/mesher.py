@@ -1,5 +1,7 @@
 """Collection of functions for automatically generating a nonuniform grid."""
 
+from __future__ import annotations
+
 import warnings
 from abc import ABC, abstractmethod
 from itertools import compress

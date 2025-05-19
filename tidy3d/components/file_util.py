@@ -1,5 +1,7 @@
 """File compression utilities"""
 
+from __future__ import annotations
+
 import gzip
 import shutil
 from typing import Any

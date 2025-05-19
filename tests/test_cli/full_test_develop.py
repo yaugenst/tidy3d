@@ -2,6 +2,8 @@
 These scripts just test the CLI commands for the develop command, and verify that they run properly.
 """
 
+from __future__ import annotations
+
 import os
 from unittest.mock import patch
 

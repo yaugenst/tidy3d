@@ -1,5 +1,7 @@
 """Rectangular dielectric waveguide utilities."""
 
+from __future__ import annotations
+
 from typing import Any, List, Literal, Tuple, Union
 
 import numpy

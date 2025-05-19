@@ -1,5 +1,7 @@
 """Utilities for 2D geometry manipulation."""
 
+from __future__ import annotations
+
 from math import isclose
 from typing import List, Tuple
 

@@ -1,5 +1,7 @@
 """Tests mediums."""
 
+from __future__ import annotations
+
 from typing import Dict
 
 import matplotlib.pyplot as plt

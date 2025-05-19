@@ -1,4 +1,5 @@
 # Generate documentation for Material Library (Python)
+from __future__ import annotations
 
 import numpy as np
 

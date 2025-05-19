@@ -1,6 +1,8 @@
 """Imports for adjoint plugin."""
 
 # import the jax version of tidy3d components
+from __future__ import annotations
+
 try:
     import jax
 

@@ -1,5 +1,7 @@
 """Test the parameter sweep plugin."""
 
+from __future__ import annotations
+
 import sys
 
 import matplotlib.pyplot as plt

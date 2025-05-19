@@ -1,5 +1,7 @@
 """Holds the reference materials for Tidy3D material library."""
 
+from __future__ import annotations
+
 import pydantic.v1 as pd
 
 from ..components.base import Tidy3dBaseModel

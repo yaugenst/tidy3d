@@ -1,5 +1,7 @@
 """Tool for finding and characterizing lobes in antenna radiation patterns."""
 
+from __future__ import annotations
+
 from math import isclose, isnan
 from typing import Optional
 

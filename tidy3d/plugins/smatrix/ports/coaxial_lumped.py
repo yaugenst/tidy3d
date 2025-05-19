@@ -1,5 +1,7 @@
 """Lumped port specialization with an annular geometry for exciting coaxial ports."""
 
+from __future__ import annotations
+
 import numpy as np
 import pydantic.v1 as pd
 

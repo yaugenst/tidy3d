@@ -1,5 +1,7 @@
 """Tests generating meshes."""
 
+from __future__ import annotations
+
 import warnings
 
 import numpy as np

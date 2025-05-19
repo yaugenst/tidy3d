@@ -1,5 +1,7 @@
 """Class and custom data array for representing a scattering matrix port based on lumped circuit elements."""
 
+from __future__ import annotations
+
 from abc import abstractmethod
 from typing import Optional
 

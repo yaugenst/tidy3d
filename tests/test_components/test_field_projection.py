@@ -1,5 +1,7 @@
 """Test near field to far field transformations."""
 
+from __future__ import annotations
+
 import numpy as np
 import pydantic.v1 as pydantic
 import pytest

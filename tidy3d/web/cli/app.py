@@ -2,6 +2,8 @@
 Commandline interface for tidy3d.
 """
 
+from __future__ import annotations
+
 import json
 import os.path
 import ssl

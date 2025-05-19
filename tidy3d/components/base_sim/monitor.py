@@ -1,5 +1,7 @@
 """Abstract bases for classes that define how data is recorded from simulation."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Tuple
 

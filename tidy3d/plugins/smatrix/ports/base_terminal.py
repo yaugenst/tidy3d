@@ -1,5 +1,7 @@
 """Class and custom data array for representing a scattering-matrix port, which is defined by a pair of terminals."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Union
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import autograd.numpy as np
 import pytest
 

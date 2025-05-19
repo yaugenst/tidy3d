@@ -1,5 +1,7 @@
 """Find corners of structures on a 2D plane."""
 
+from __future__ import annotations
+
 from typing import Any, List, Literal, Optional, Tuple
 
 import numpy as np

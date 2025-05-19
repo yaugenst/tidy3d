@@ -2,6 +2,8 @@
 Utility functions for the tidy3d develop CLI.
 """
 
+from __future__ import annotations
+
 import pathlib
 import subprocess
 

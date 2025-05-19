@@ -1,5 +1,7 @@
 """Convenience functions for estimating antenna radiation by applying array factor."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Optional, Tuple, Union
 

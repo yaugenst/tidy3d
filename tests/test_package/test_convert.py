@@ -1,5 +1,7 @@
 """Test converting .lsf files to Tidy3D python files."""
 
+from __future__ import annotations
+
 import pytest
 
 from tidy3d.web.cli.app import convert

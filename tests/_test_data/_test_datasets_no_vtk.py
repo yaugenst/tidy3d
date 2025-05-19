@@ -1,5 +1,7 @@
 """Tests tidy3d/components/data/dataset.py"""
 
+from __future__ import annotations
+
 import builtins
 
 import pytest

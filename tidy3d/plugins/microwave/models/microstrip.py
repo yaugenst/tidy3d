@@ -11,6 +11,8 @@ References
         for open end effect of microstrip lines.” Electronics Letters 17 (1981): 123-125.
 """
 
+from __future__ import annotations
+
 import numpy as np
 
 from ....constants import ETA_0

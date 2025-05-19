@@ -8,6 +8,8 @@ to turn existing `simulation.json` into a script `simulation.py`
 
 """
 
+from __future__ import annotations
+
 import argparse
 import os
 import re

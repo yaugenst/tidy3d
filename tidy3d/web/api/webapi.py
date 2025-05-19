@@ -1,5 +1,7 @@
 """Provides lowest level, user-facing interface to server."""
 
+from __future__ import annotations
+
 import json
 import os
 import tempfile

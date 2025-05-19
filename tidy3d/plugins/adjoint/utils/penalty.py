@@ -1,5 +1,7 @@
 """Penalty Functions for adjoint plugin."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
 import jax.numpy as jnp

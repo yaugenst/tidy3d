@@ -1,5 +1,7 @@
 """Objects that define how data is recorded from simulation."""
 
+from __future__ import annotations
+
 from tidy3d.components.tcad.monitors.abstract import HeatChargeMonitor
 
 

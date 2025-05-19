@@ -1,5 +1,7 @@
 """Defines specification for mode solver."""
 
+from __future__ import annotations
+
 from math import isclose
 from typing import Literal, Tuple, Union
 

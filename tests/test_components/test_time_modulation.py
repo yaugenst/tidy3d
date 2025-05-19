@@ -1,5 +1,7 @@
 """Tests space time modulation."""
 
+from __future__ import annotations
+
 from math import isclose
 
 import numpy as np

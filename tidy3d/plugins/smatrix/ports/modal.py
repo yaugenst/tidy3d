@@ -1,5 +1,7 @@
 """Class and custom data array for representing a scattering matrix port based on waveguide modes."""
 
+from __future__ import annotations
+
 import pydantic.v1 as pd
 
 from ....components.data.data_array import DataArray

@@ -1,4 +1,5 @@
 # container for specification fully defining the inverse design problem
+from __future__ import annotations
 
 import abc
 import typing

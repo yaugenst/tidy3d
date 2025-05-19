@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import autograd as ag
 import autograd.numpy as anp
 import gdstk

@@ -1,4 +1,6 @@
 # Import from documentation.py
+from __future__ import annotations
+
 from .documentation import (
     build_documentation,
     # build_documentation_pdf,

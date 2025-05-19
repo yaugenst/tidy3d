@@ -1,5 +1,7 @@
 """Defines various validation functions that get used to ensure inputs are legit"""
 
+from __future__ import annotations
+
 import numpy as np
 import pydantic.v1 as pydantic
 from autograd.tracer import isbox

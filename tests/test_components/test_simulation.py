@@ -1,5 +1,7 @@
 """Tests the simulation and its validators."""
 
+from __future__ import annotations
+
 import uuid
 
 import gdstk

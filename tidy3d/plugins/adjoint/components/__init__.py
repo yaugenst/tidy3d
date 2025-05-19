@@ -1,6 +1,8 @@
 """Component imports for adjoint plugin. from tidy3d.plugins.adjoint.components import *"""
 
 # import the jax version of tidy3d components
+from __future__ import annotations
+
 from .data.data_array import JaxDataArray
 from .data.dataset import JaxPermittivityDataset
 from .data.monitor_data import JaxModeData

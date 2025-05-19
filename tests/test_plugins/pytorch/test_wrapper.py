@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import autograd.numpy as anp
 import torch
 from autograd import elementwise_grad

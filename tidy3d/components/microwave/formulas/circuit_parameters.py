@@ -11,6 +11,8 @@ References
         Foreign Technology Division Air Force Systems Command U.S. Air Force, 1971.
 """
 
+from __future__ import annotations
+
 import numpy as np
 
 from ....constants import EPSILON_0

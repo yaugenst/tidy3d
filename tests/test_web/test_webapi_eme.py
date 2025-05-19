@@ -1,4 +1,5 @@
 # Tests webapi and things that depend on it
+from __future__ import annotations
 
 import pytest
 import responses

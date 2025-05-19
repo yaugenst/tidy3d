@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Callable, Iterable, List, Literal, Tuple, Union
 
 import autograd.numpy as np

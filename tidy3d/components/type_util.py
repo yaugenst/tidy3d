@@ -1,5 +1,7 @@
 """Utilities for type & schema creation."""
 
+from __future__ import annotations
+
 
 def _add_schema(arbitrary_type: type, title: str, field_type_str: str) -> None:
     """Adds a schema to the ``arbitrary_type`` class without subclassing."""

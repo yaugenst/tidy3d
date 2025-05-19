@@ -1,5 +1,7 @@
 """Tests custom sources and mediums."""
 
+from __future__ import annotations
+
 from typing import Tuple
 
 import dill as pickle

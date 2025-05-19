@@ -1,5 +1,6 @@
 # Adds some functionality to the autograd arraybox and related autograd patches
 # NOTE: we do not subclass ArrayBox since that would break autograd's internal checks
+from __future__ import annotations
 
 import importlib
 from typing import Any, Callable, Dict, List, Tuple

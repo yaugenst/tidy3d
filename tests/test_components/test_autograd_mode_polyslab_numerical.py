@@ -1,4 +1,5 @@
 # test autograd and compares to numerically computed finite difference gradients
+from __future__ import annotations
 
 import operator
 import sys

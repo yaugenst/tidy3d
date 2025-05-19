@@ -1,5 +1,7 @@
 """Test running tidy3d as command line application."""
 
+from __future__ import annotations
+
 import pytest
 
 import tidy3d as td

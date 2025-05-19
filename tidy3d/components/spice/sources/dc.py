@@ -19,6 +19,8 @@ Examples:
 
 """
 
+from __future__ import annotations
+
 from typing import Optional, Union
 
 import pydantic.v1 as pd

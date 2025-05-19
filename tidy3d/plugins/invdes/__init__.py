@@ -1,4 +1,5 @@
 # imports from tidy3d.plugins.invdes as tdi
+from __future__ import annotations
 
 from . import utils
 from .design import InverseDesign, InverseDesignMulti
