@@ -357,7 +357,7 @@ class DesignSpace(Tidy3dBaseModel):
         _find_and_map(pre_out, Batch, batches, naming_keys)
 
         # Exit fn_mid here if no td computation is required
-        if not len(simulations) and not len(batches):
+        if not simulations and not batches:
             return original_pre_out, [], [], sim_counter
 
         # Create task names for simulations

@@ -7,7 +7,7 @@ from math import isclose
 from typing import Any, Optional, Union
 
 import numpy as np
-import pydantic as pydantic
+import pydantic
 
 from tidy3d.components.base import Tidy3dBaseModel
 from tidy3d.components.geometry.base import Box

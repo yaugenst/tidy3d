@@ -875,7 +875,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
                 return False
 
             # loop through elements in each dict
-            for key in dict1:
+            for key in dict1:  # noqa: PLC0206
                 val1 = dict1[key]
                 val2 = dict2[key]
 

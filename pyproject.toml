@@ -263,6 +263,8 @@ extend-select = [
   "PIE",
   "RSE",    # unnecessary parantheses on raised exceptions
   "TID",    # no relative imports from parent modules
+  "PLE",    # pylint errors
+  "PLC",    # pylint conventions
 ]
 extend-ignore = [
   "RUF001",

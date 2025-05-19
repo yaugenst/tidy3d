@@ -7,7 +7,6 @@ from typing import Optional, Union
 
 import numpy as np
 import pydantic.v1 as pd
-import shapely as shapely
 import xarray as xr
 
 from tidy3d.components.base import Tidy3dBaseModel, cached_property
