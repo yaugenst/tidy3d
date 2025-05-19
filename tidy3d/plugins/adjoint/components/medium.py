@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Callable, Dict, Optional, Tuple, Union
+from typing import Callable, Dict, Literal, Optional, Tuple, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -13,7 +13,7 @@ from jax.tree_util import register_pytree_node_class
 from ....components.data.monitor_data import FieldData
 from ....components.geometry.base import Geometry
 from ....components.medium import AnisotropicMedium, CustomMedium, Medium
-from ....components.types import Bound, Literal
+from ....components.types import Bound
 from ....constants import CONDUCTIVITY
 from ....exceptions import SetupError
 from .base import WEB_ADJOINT_MESSAGE, JaxObject

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ssl
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Literal, Optional, Tuple
 
 import pydantic.v1 as pydantic
 import requests
@@ -15,7 +15,6 @@ from tidy3d.web.core.http_util import get_headers
 
 from ...components.base import Tidy3dBaseModel, skip_if_fields_missing
 from ...components.medium import PoleResidue
-from ...components.types import Literal
 from ...constants import HERTZ, MICROMETER
 from ...exceptions import SetupError, Tidy3dError, WebError
 from ...log import log

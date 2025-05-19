@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from functools import wraps
 from math import isclose
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Literal, Tuple, Union
 
 import numpy as np
 import pydantic.v1 as pydantic
@@ -53,7 +53,6 @@ from ..types import (
     EMField,
     EpsSpecType,
     FreqArray,
-    Literal,
     PlotScale,
     Symmetry,
 )

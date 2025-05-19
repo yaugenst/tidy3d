@@ -14,7 +14,6 @@ from autograd.extend import defvjp, primitive
 import tidy3d as td
 from tidy3d.components.autograd import AutogradFieldMap, get_static
 from tidy3d.components.autograd.derivative_utils import DerivativeInfo
-from tidy3d.components.types import Literal
 
 from ....exceptions import AdjointError
 from ...core.s3utils import download_file, upload_file
@@ -106,7 +105,7 @@ def run(
     parent_tasks: list[str] = None,
     local_gradient: bool = LOCAL_GRADIENT,
     max_num_adjoint_per_fwd: int = MAX_NUM_ADJOINT_PER_FWD,
-    reduce_simulation: Literal["auto", True, False] = "auto",
+    reduce_simulation: typing.Literal["auto", True, False] = "auto",
     pay_type: typing.Union[PayType, str] = PayType.AUTO,
 ) -> SimulationDataType:
     """
@@ -239,7 +238,7 @@ def run_async(
     parent_tasks: dict[str, list[str]] = None,
     local_gradient: bool = LOCAL_GRADIENT,
     max_num_adjoint_per_fwd: int = MAX_NUM_ADJOINT_PER_FWD,
-    reduce_simulation: Literal["auto", True, False] = "auto",
+    reduce_simulation: typing.Literal["auto", True, False] = "auto",
     pay_type: typing.Union[PayType, str] = PayType.AUTO,
 ) -> BatchData:
     """Submits a set of Union[:class:`.Simulation`, :class:`.HeatSimulation`, :class:`.EMESimulation`] objects to server,

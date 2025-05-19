@@ -6,7 +6,7 @@ import math
 import pathlib
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Tuple, Union, get_args
+from typing import Dict, List, Literal, Optional, Set, Tuple, Union, get_args
 
 import autograd.numpy as np
 
@@ -108,7 +108,6 @@ from .types import (
     CoordinateOptional,
     FreqBound,
     InterpMethod,
-    Literal,
     PermittivityComponent,
     Symmetry,
     annotate_type,

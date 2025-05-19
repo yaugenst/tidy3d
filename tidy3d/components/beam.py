@@ -2,7 +2,7 @@
 astigmatic Gaussian beam."""
 
 from abc import abstractmethod
-from typing import Optional, Tuple, Union
+from typing import Literal, Optional, Tuple, Union
 
 import autograd.numpy as np
 import pydantic.v1 as pd
@@ -16,7 +16,7 @@ from .grid.grid import Coords, Grid
 from .medium import Medium, MediumType
 from .monitor import FieldMonitor
 from .source.field import FixedAngleSpec, FixedInPlaneKSpec
-from .types import TYPE_TAG_STR, Direction, FreqArray, Literal, Numpy
+from .types import TYPE_TAG_STR, Direction, FreqArray, Numpy
 from .validators import assert_plane
 
 DEFAULT_RESOLUTION = 200

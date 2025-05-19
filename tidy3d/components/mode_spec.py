@@ -1,7 +1,7 @@
 """Defines specification for mode solver."""
 
 from math import isclose
-from typing import Tuple, Union
+from typing import Literal, Tuple, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -10,7 +10,7 @@ from ..constants import GLANCING_CUTOFF, MICROMETER, RADIAN, fp_eps
 from ..exceptions import SetupError, ValidationError
 from ..log import log
 from .base import Tidy3dBaseModel, skip_if_fields_missing
-from .types import Axis2D, Literal, TrackFreq
+from .types import Axis2D, TrackFreq
 
 GROUP_INDEX_STEP = 0.005
 

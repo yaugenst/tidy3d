@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Literal, Tuple, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -12,7 +12,7 @@ from ..base import Tidy3dBaseModel, cached_property
 from ..data.data_array import DataArray, ScalarFieldDataArray, SpatialDataArray
 from ..data.utils import UnstructuredGridDataset, UnstructuredGridDatasetType
 from ..geometry.base import Box
-from ..types import ArrayFloat1D, Axis, Coordinate, InterpMethod, Literal
+from ..types import ArrayFloat1D, Axis, Coordinate, InterpMethod
 
 # data type of one dimensional coordinate array.
 Coords1D = ArrayFloat1D

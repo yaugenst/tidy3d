@@ -249,32 +249,30 @@ line-length = 100
 extend-exclude = ["docs/faq/", "docs/notebooks/"]
 
 [tool.ruff.lint]
-typing-modules = [
-  "tidy3d.components.types",
-] # without this Literal["something fails"]
-select = [
-  "I",      # isort
-  "E",      # pycodestyle errors
-  "W",      # pycodestyle warnings
-  "F",      # pyflakes
-  "C",      # flake8-comprehensions
-  "B",      # flake8-bugbear
-  "UP",
-  "NPY201", # numpy 2.* compatibility check
-]
-ignore = [
-  "E501",
-  "B008",  # do not perform function calls in argument defaults
-  "C901",  # too complex
-  "UP007", # use x | y instead of union[x,y] (does not work)
-  "B905",  # `zip()` without an explicit `strict=` parameter
-  "C408",  # C408 Unnecessary `dict` call (rewrite as a literal)
-  "B904",
-  "B028",  # stacklevel
-  "UP006", # typy annotation with Tuple[float] messes up pydantic
-  "UP038", # TODO decide what to do here
-  "UP035", # TODO decide what to do here
-]
+
+# select = [
+#   "I",      # isort
+#   "E",      # pycodestyle errors
+#   "W",      # pycodestyle warnings
+#   "F",      # pyflakes
+#   "C",      # flake8-comprehensions
+#   "B",      # flake8-bugbear
+#   "UP",
+#   "NPY201", # numpy 2.* compatibility check
+# ]
+# ignore = [
+#   "E501",
+#   "B008",  # do not perform function calls in argument defaults
+#   "C901",  # too complex
+#   "UP007", # use x | y instead of union[x,y] (does not work)
+#   "B905",  # `zip()` without an explicit `strict=` parameter
+#   "C408",  # C408 Unnecessary `dict` call (rewrite as a literal)
+#   "B904",
+#   "B028",  # stacklevel
+#   "UP006", # typy annotation with Tuple[float] messes up pydantic
+#   "UP038", # TODO decide what to do here
+#   "UP035", # TODO decide what to do here
+# ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*" = [

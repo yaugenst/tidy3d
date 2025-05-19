@@ -1,6 +1,6 @@
 """Rectangular dielectric waveguide utilities."""
 
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Literal, Tuple, Union
 
 import numpy
 import pydantic.v1 as pydantic
@@ -19,7 +19,7 @@ from ...components.simulation import Simulation
 from ...components.source.field import ModeSource
 from ...components.source.time import GaussianPulse
 from ...components.structure import Structure
-from ...components.types import TYPE_TAG_STR, ArrayFloat1D, Ax, Axis, Coordinate, Literal, Size1D
+from ...components.types import TYPE_TAG_STR, ArrayFloat1D, Ax, Axis, Coordinate, Size1D
 from ...components.viz import add_ax_if_none
 from ...constants import C_0, MICROMETER, RADIAN, inf
 from ...exceptions import Tidy3dError, ValidationError

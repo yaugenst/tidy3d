@@ -8,14 +8,14 @@ import time
 from abc import ABC
 from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, Optional, Tuple
+from typing import Dict, Literal, Optional, Tuple
 
 import pydantic.v1 as pd
 from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeElapsedColumn
 
 from ...components.base import Tidy3dBaseModel, cached_property
 from ...components.mode.mode_solver import ModeSolver
-from ...components.types import Literal, annotate_type
+from ...components.types import annotate_type
 from ...exceptions import DataError
 from ...log import get_logging_console, log
 from ..api import webapi as web

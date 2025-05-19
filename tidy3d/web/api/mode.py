@@ -7,7 +7,7 @@ import pathlib
 import tempfile
 import time
 from datetime import datetime
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Literal, Optional, Union
 
 import pydantic.v1 as pydantic
 from botocore.exceptions import ClientError
@@ -18,7 +18,6 @@ from ...components.data.monitor_data import ModeSolverData
 from ...components.eme.simulation import EMESimulation
 from ...components.medium import AbstractCustomMedium
 from ...components.simulation import Simulation
-from ...components.types import Literal
 from ...exceptions import SetupError, WebError
 from ...log import get_logging_console, log
 from ...plugins.mode.mode_solver import MODE_MONITOR_NAME, ModeSolver

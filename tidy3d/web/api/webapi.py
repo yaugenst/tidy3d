@@ -5,7 +5,7 @@ import os
 import tempfile
 import time
 from datetime import datetime, timedelta
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Literal, Union
 
 import pytz
 from requests import HTTPError
@@ -14,7 +14,6 @@ from rich.progress import Progress
 from ...components.medium import AbstractCustomMedium
 from ...components.mode.mode_solver import ModeSolver
 from ...components.mode.simulation import ModeSimulation
-from ...components.types import Literal
 from ...exceptions import WebError
 from ...log import get_logging_console, log
 from ..core.account import Account
