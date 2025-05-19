@@ -224,7 +224,7 @@ class InverseDesign(AbstractInverseDesign):
     def separate_output_monitors(self, monitors: typing.Tuple[td.Monitor]) -> dict:
         """Separate monitors into output_monitors and regular monitors."""
 
-        monitor_fields = dict(monitors=[], output_monitors=[])
+        monitor_fields = {"monitors": [], "output_monitors": []}
 
         for monitor in monitors:
             key = "output_monitors" if self.is_output_monitor(monitor) else "monitors"

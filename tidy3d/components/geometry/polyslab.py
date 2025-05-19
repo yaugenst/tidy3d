@@ -1628,7 +1628,7 @@ class PolySlab(base.Planar):
         if self.axis != 1:
             normals_norm_xyz *= -1
 
-        return dict(norm=normals_norm_xyz, perp1=edges_norm_xyz, perp2=slabs_norm_xyz)
+        return {"norm": normals_norm_xyz, "perp1": edges_norm_xyz, "perp2": slabs_norm_xyz}
 
     def unpop_axis_vect(self, ax_coords: np.ndarray, plane_coords: np.ndarray) -> np.ndarray:
         """Combine coordinate along axis with coordinates on the plane tangent to the axis.
@@ -1906,11 +1906,11 @@ class ComplexPolySlabBase(PolySlab):
                 # direction of marching
                 reference_plane = "bottom" if dist_val / self._tanq < 0 else "top"
                 sub_polyslab_dict.update(
-                    dict(
-                        slab_bounds=tuple(slab_bounds),
-                        vertices=vertices_now,
-                        reference_plane=reference_plane,
-                    )
+                    {
+                        "slab_bounds": tuple(slab_bounds),
+                        "vertices": vertices_now,
+                        "reference_plane": reference_plane,
+                    }
                 )
                 sub_polyslab_list.append(PolySlab.parse_obj(sub_polyslab_dict))
 

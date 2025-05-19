@@ -738,7 +738,7 @@ def test_anisotropic_material_meshing(unstructured, z):
         ),
     )
 
-    coords = dict(x=[0, 1], y=[0, 1], z=z)
+    coords = {"x": [0, 1], "y": [0, 1], "z": z}
     ones = td.SpatialDataArray(np.ones((2, 2, len(z))), coords=coords)
     if unstructured:
         ones = cartesian_to_unstructured(ones, seed=951)

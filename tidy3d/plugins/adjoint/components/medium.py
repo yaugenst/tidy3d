@@ -188,10 +188,10 @@ class JaxMedium(Medium, AbstractJaxMedium):
             vjp_sigma += _vjp_sigma
 
         return self.copy(
-            update=dict(
-                permittivity_jax=vjp_eps,
-                conductivity_jax=vjp_sigma,
-            )
+            update={
+                "permittivity_jax": vjp_eps,
+                "conductivity_jax": vjp_sigma,
+            }
         )
 
 
@@ -444,7 +444,7 @@ class JaxCustomMedium(CustomMedium, AbstractJaxMedium):
 
         # package everything into dataset
         vjp_eps_dataset = JaxPermittivityDataset(**vjp_field_components)
-        return self.copy(update=dict(eps_dataset=vjp_eps_dataset))
+        return self.copy(update={"eps_dataset": vjp_eps_dataset})
 
 
 JaxMediumType = Union[JaxMedium, JaxAnisotropicMedium, JaxCustomMedium]

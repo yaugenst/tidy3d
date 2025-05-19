@@ -16,8 +16,9 @@ try:
     from matplotlib.axes import Axes
 except ImportError:
     Axes = None
+from typing import Annotated
+
 from shapely.geometry.base import BaseGeometry
-from typing_extensions import Annotated
 
 from ..exceptions import ValidationError
 
@@ -101,9 +102,9 @@ class ArrayLike:
     def __modify_schema__(cls, field_schema):
         """Sets the schema of DataArray object."""
 
-        schema = dict(
-            type="ArrayLike",
-        )
+        schema = {
+            "type": "ArrayLike",
+        }
         field_schema.update(schema)
 
 
@@ -124,7 +125,7 @@ def constrained_array(
         meta_args.append(f"shape={shape}")
     type_name += "[" + ", ".join(meta_args) + "]"
 
-    return type(type_name, (ArrayLike,), dict(dtype=dtype, ndim=ndim, shape=shape))
+    return type(type_name, (ArrayLike,), {"dtype": dtype, "ndim": ndim, "shape": shape})
 
 
 # pre-define a set of commonly used array like instances for import and use in type hints

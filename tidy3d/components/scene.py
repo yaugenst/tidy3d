@@ -1148,11 +1148,11 @@ class Scene(Tidy3dBaseModel):
                         cmap=STRUCTURE_EPS_CMAP,
                         vmin=eps_min,
                         vmax=eps_max,
-                        pcolor_kwargs=dict(
-                            clip_path=(polygon_path(shape), ax.transData),
-                            clip_box=ax.bbox,
-                            alpha=alpha,
-                        ),
+                        pcolor_kwargs={
+                            "clip_path": (polygon_path(shape), ax.transData),
+                            "clip_box": ax.bbox,
+                            "alpha": alpha,
+                        },
                     )
                     return
 

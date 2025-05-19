@@ -138,7 +138,7 @@ def make_heat_mnt_data():
     y = np.linspace(0, 2, ny)
     z = np.linspace(0, 3, nz)
     T = np.random.default_rng().uniform(300, 350, (nx, ny, nz))
-    coords = dict(x=x, y=y, z=z)
+    coords = {"x": x, "y": y, "z": z}
     temperature_field = td.SpatialDataArray(T, coords=coords)
 
     mnt_data1 = TemperatureData(monitor=temp_mnt1, temperature=temperature_field)
@@ -200,7 +200,7 @@ def make_heat_mnt_data():
     y = np.linspace(0, 2, ny)
     z = np.linspace(0, 3, nz)
     T = np.random.default_rng().uniform(300, 350, (nx, ny, nz))
-    coords = dict(x=x, y=y, z=z)
+    coords = {"x": x, "y": y, "z": z}
     temperature_field = td.SpatialDataArray(T, coords=coords)
 
     mnt_data5 = TemperatureData(monitor=temp_mnt5, temperature=temperature_field)
@@ -210,7 +210,7 @@ def make_heat_mnt_data():
     y = np.linspace(0, 2, ny)
     z = np.linspace(0, 3, nz)
     T = np.random.default_rng().uniform(300, 350, (nx, ny, nz))
-    coords = dict(x=x, y=y, z=z)
+    coords = {"x": x, "y": y, "z": z}
     temperature_field = td.SpatialDataArray(T, coords=coords)
 
     mnt_data6 = TemperatureData(monitor=temp_mnt6, temperature=temperature_field)
@@ -596,7 +596,7 @@ def test_symmetry_expanded(zero_dim_axis):
     z = np.linspace(*data_span_z, num_points[2])
     v = np.sin(x[:, None, None]) * np.cos(y[None, :, None]) * np.exp(z[None, None, :])
 
-    data_cart = td.SpatialDataArray(v, coords=dict(x=x, y=y, z=z))
+    data_cart = td.SpatialDataArray(v, coords={"x": x, "y": y, "z": z})
     data_ugrid = cartesian_to_unstructured(data_cart, seed=33342)
 
     mnt_cart = td.TemperatureMonitor(

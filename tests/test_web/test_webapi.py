@@ -86,7 +86,7 @@ def make_sim_data(file_size_gb=FILE_SIZE_GB):
     src = PointDipole(
         center=(0, 0, 0), source_time=GaussianPulse(freq0=3e14, fwidth=1e14), polarization="Ex"
     )
-    coords = dict(x=x, y=y, z=z, f=f)
+    coords = {"x": x, "y": y, "z": z, "f": f}
     Ex = ScalarFieldDataArray(data, coords=coords)
     monitor = FieldMonitor(size=(2, 2, 2), freqs=f, name="test", fields=["Ex"])
     field_data = FieldData(monitor=monitor, Ex=Ex)

@@ -186,7 +186,7 @@ def test_zero_dims():
 
 
 def test_inside_polyslab_sidewall():
-    ps = POLYSLAB.copy(update=dict(sidewall_angle=0.1))
+    ps = POLYSLAB.copy(update={"sidewall_angle": 0.1})
     ps.inside(x=0, y=0, z=0)
 
 
@@ -287,7 +287,7 @@ def test_box_from_bounds():
 
 def test_polyslab_center_axis():
     """Test the handling of center_axis in a polyslab having (-td.inf, td.inf) bounds."""
-    ps = POLYSLAB.copy(update=dict(slab_bounds=(-td.inf, td.inf)))
+    ps = POLYSLAB.copy(update={"slab_bounds": (-td.inf, td.inf)})
     assert ps.center_axis == 0
 
 
@@ -296,7 +296,7 @@ def test_polyslab_center_axis():
 )
 def test_polyslab_inf_bounds(lower_bound, upper_bound):
     """Test the handling of various operations in a polyslab having inf bounds."""
-    ps = POLYSLAB.copy(update=dict(slab_bounds=(lower_bound, upper_bound)))
+    ps = POLYSLAB.copy(update={"slab_bounds": (lower_bound, upper_bound)})
     # catch any runtime warning related to inf operations
     with warnings.catch_warnings():
         warnings.simplefilter("error")
@@ -343,15 +343,15 @@ def test_polyslab_inf_to_finite_bounds(axis):
 
 def test_validate_polyslab_vertices_valid():
     with pytest.raises(pydantic.ValidationError):
-        POLYSLAB.copy(update=dict(vertices=(1, 2, 3)))
+        POLYSLAB.copy(update={"vertices": (1, 2, 3)})
     with pytest.raises(pydantic.ValidationError):
         crossing_verts = ((0, 0), (1, 1), (0, 1), (1, 0))
-        POLYSLAB.copy(update=dict(vertices=crossing_verts))
+        POLYSLAB.copy(update={"vertices": crossing_verts})
 
 
 def test_sidewall_failed_validation():
     with pytest.raises(pydantic.ValidationError):
-        POLYSLAB.copy(update=dict(sidewall_angle=1000))
+        POLYSLAB.copy(update={"sidewall_angle": 1000})
 
 
 def test_surfaces():

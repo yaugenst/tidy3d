@@ -70,14 +70,14 @@ class InverseDesignResult(InvdesBaseModel):
     @property
     def history(self) -> typing.Dict[str, list]:
         """The history-containing fields as a dictionary of lists."""
-        return dict(
-            params=list(self.params),
-            objective_fn_val=list(self.objective_fn_val),
-            grad=list(self.grad),
-            penalty=list(self.penalty),
-            post_process_val=list(self.post_process_val),
-            opt_state=list(self.opt_state),
-        )
+        return {
+            "params": list(self.params),
+            "objective_fn_val": list(self.objective_fn_val),
+            "grad": list(self.grad),
+            "penalty": list(self.penalty),
+            "post_process_val": list(self.post_process_val),
+            "opt_state": list(self.opt_state),
+        }
 
     @property
     def keys(self) -> typing.List[str]:

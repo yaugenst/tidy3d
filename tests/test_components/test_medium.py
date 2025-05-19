@@ -831,7 +831,7 @@ def test_custom_medium():
     Z = [0]
     freqs = [2e14]
     n_data = np.ones((Nx, Ny, Nz, Nf))
-    n_dataset = td.ScalarFieldDataArray(n_data, coords=dict(x=X, y=Y, z=Z, f=freqs))
+    n_dataset = td.ScalarFieldDataArray(n_data, coords={"x": X, "y": Y, "z": Z, "f": freqs})
 
     def create_mediums(n_dataset):
         ## Three equivalent ways of defining custom medium for the lens
@@ -840,7 +840,9 @@ def test_custom_medium():
         _ = td.CustomMedium.from_nk(n_dataset, interp_method="nearest")
 
         # define custom medium with permittivity data
-        eps_dataset = td.ScalarFieldDataArray(n_dataset**2, coords=dict(x=X, y=Y, z=Z, f=freqs))
+        eps_dataset = td.ScalarFieldDataArray(
+            n_dataset**2, coords={"x": X, "y": Y, "z": Z, "f": freqs}
+        )
         _ = td.CustomMedium.from_eps_raw(eps_dataset, interp_method="nearest")
 
         # define each component of permittivity via "PermittivityDataset"
@@ -856,7 +858,7 @@ def test_custom_medium():
         # repeat some entries so data cannot be interpolated
         X2 = [X[0]] + list(X)
         n_data2 = np.vstack((n_data[0, :, :, :].reshape(1, Ny, Nz, Nf), n_data))
-        n_dataset2 = td.ScalarFieldDataArray(n_data2, coords=dict(x=X2, y=Y, z=Z, f=freqs))
+        n_dataset2 = td.ScalarFieldDataArray(n_data2, coords={"x": X2, "y": Y, "z": Z, "f": freqs})
         create_mediums(n_dataset=n_dataset2)
 
 

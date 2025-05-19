@@ -55,12 +55,12 @@ def make_sim(eps_values: np.ndarray) -> JaxSimulation:
 
     # custom medium
     (xmin, ymin, zmin), (xmax, ymax, zmax) = jax_box.bounds
-    coords = dict(
-        x=np.linspace(xmin, xmax, Nx).tolist(),
-        y=np.linspace(ymin, ymax, Ny).tolist(),
-        z=np.linspace(zmin, zmax, Nz).tolist(),
-        f=[FREQ0],
-    )
+    coords = {
+        "x": np.linspace(xmin, xmax, Nx).tolist(),
+        "y": np.linspace(ymin, ymax, Ny).tolist(),
+        "z": np.linspace(zmin, zmax, Nz).tolist(),
+        "f": [FREQ0],
+    }
 
     eps_ii = JaxDataArray(values=eps_values, coords=coords)
     field_components = {f"eps_{dim}{dim}": eps_ii for dim in "xyz"}

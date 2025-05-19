@@ -286,7 +286,7 @@ class AdamOptimizer(AbstractOptimizer):
     def initial_state(self, parameters: np.ndarray) -> dict:
         """initial state of the optimizer"""
         zeros = np.zeros_like(parameters)
-        return dict(m=zeros, v=zeros, t=0)
+        return {"m": zeros, "v": zeros, "t": 0}
 
     def update(
         self, parameters: np.ndarray, gradient: np.ndarray, state: dict = None
@@ -312,5 +312,5 @@ class AdamOptimizer(AbstractOptimizer):
 
         # update parameters and state
         parameters -= self.learning_rate * m_ / (np.sqrt(v_) + self.eps)
-        state = dict(m=m, v=v, t=t)
+        state = {"m": m, "v": v, "t": t}
         return parameters, state

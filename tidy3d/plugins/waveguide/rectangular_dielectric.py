@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Literal, Tuple, Union
+from typing import Annotated, Any, List, Literal, Tuple, Union
 
 import numpy
 import pydantic.v1 as pydantic
 from matplotlib import pyplot
-from typing_extensions import Annotated
 
 from ...components.base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
 from ...components.boundary import BoundarySpec, Periodic

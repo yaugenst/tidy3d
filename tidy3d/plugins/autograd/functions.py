@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Callable, Iterable, List, Literal, Tuple, Union
+from collections.abc import Iterable
+from typing import Callable, List, Literal, Tuple, Union
 
 import autograd.numpy as np
 from autograd import jacobian

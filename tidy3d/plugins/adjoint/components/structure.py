@@ -19,7 +19,7 @@ from .base import JaxObject
 from .geometry import JAX_GEOMETRY_MAP, JaxBox, JaxGeometryType
 from .medium import JAX_MEDIUM_MAP, JaxMediumType
 
-GEO_MED_MAPPINGS = dict(geometry=JAX_GEOMETRY_MAP, medium=JAX_MEDIUM_MAP)
+GEO_MED_MAPPINGS = {"geometry": JAX_GEOMETRY_MAP, "medium": JAX_MEDIUM_MAP}
 
 
 class AbstractJaxStructure(Structure, JaxObject):
@@ -48,7 +48,7 @@ class AbstractJaxStructure(Structure, JaxObject):
     @property
     def jax_fields(self):
         """The fields that are jax-traced for this class."""
-        return dict(geometry=self.geometry, medium=self.medium)
+        return {"geometry": self.geometry, "medium": self.medium}
 
     @property
     def exclude_fields(self):
@@ -71,7 +71,7 @@ class AbstractJaxStructure(Structure, JaxObject):
 
         struct_dict = structure.dict(exclude={"type"})
 
-        jax_fields = dict(geometry=structure.geometry, medium=structure.medium)
+        jax_fields = {"geometry": structure.geometry, "medium": structure.medium}
 
         for key, component in jax_fields.items():
             if key in cls._differentiable_fields:
@@ -104,7 +104,7 @@ class AbstractJaxStructure(Structure, JaxObject):
         ref_ind = max([1.0, abs(ref_ind)])
         wvl_free_space = C_0 / freq_max
         wvl_mat = wvl_free_space / ref_ind
-        return dict(wvl_mat=wvl_mat, eps_in=eps_in)
+        return {"wvl_mat": wvl_mat, "eps_in": eps_in}
 
     def geometry_vjp(
         self,

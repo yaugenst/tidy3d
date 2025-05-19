@@ -355,7 +355,7 @@ class CustomSourceTime(Pulse):
         """
 
         times = np.arange(len(values)) * dt
-        source_time_dataarray = TimeDataArray(values, coords=dict(t=times))
+        source_time_dataarray = TimeDataArray(values, coords={"t": times})
         source_time_dataset = TimeDataset(values=source_time_dataarray)
         return CustomSourceTime(
             freq0=freq0,

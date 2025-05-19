@@ -49,7 +49,7 @@ def benchmark_timing_operations(
     operations in the `tests` section and benchmark them properly using this. This function does not require poetry
     and can be run anywhere where a tidy3d installation is already implemented. The output file has an extension.
     """
-    timing_command_list = list()
+    timing_command_list = []
     if output_file is None:
         output_file = timing_command.split("_")[1:] + ".log"
 

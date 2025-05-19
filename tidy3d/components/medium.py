@@ -1399,7 +1399,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
         eps_vjp = np.sum(eps_vjp)
         sigma_vjp = np.sum(sigma_vjp)
 
-        return dict(permittivity=eps_vjp, conductivity=sigma_vjp)
+        return {"permittivity": eps_vjp, "conductivity": sigma_vjp}
 
     def derivative_eps_complex_volume(
         self, E_der_map: ElectromagneticFieldDataset, bounds: Bound, freqs: NDArray
@@ -1953,7 +1953,7 @@ class Medium(AbstractMedium):
         eps_vjp = np.sum(eps_vjp)
         sigma_vjp = np.sum(sigma_vjp)
 
-        return dict(permittivity=eps_vjp, conductivity=sigma_vjp)
+        return {"permittivity": eps_vjp, "conductivity": sigma_vjp}
 
     def derivative_eps_complex_volume(
         self, E_der_map: ElectromagneticFieldDataset, bounds: Bound, freqs: NDArray
@@ -2214,8 +2214,8 @@ class CustomMedium(AbstractCustomMedium):
                 )
                 fail_load = True
         if fail_load:
-            eps_real = SpatialDataArray(np.ones((1, 1, 1)), coords=dict(x=[0], y=[0], z=[0]))
-            return dict(permittivity=eps_real)
+            eps_real = SpatialDataArray(np.ones((1, 1, 1)), coords={"x": [0], "y": [0], "z": [0]})
+            return {"permittivity": eps_real}
         return values
 
     @pd.root_validator(pre=True)
@@ -3122,7 +3122,9 @@ class CustomDispersiveMedium(AbstractCustomMedium, DispersiveMedium, ABC):
             if fail_load and eps_inf is None:
                 return {nested_tuple_field: ()}
             if fail_load:
-                eps_inf = SpatialDataArray(np.ones((1, 1, 1)), coords=dict(x=[0], y=[0], z=[0]))
+                eps_inf = SpatialDataArray(
+                    np.ones((1, 1, 1)), coords={"x": [0], "y": [0], "z": [0]}
+                )
                 return {"eps_inf": eps_inf, nested_tuple_field: ()}
             return values
 
@@ -3209,12 +3211,12 @@ class PoleResidue(DispersiveMedium):
     def _pole_residue_dict(self) -> Dict:
         """Dict representation of Medium as a pole-residue model."""
 
-        return dict(
-            eps_inf=self.eps_inf,
-            poles=self.poles,
-            frequency_range=self.frequency_range,
-            name=self.name,
-        )
+        return {
+            "eps_inf": self.eps_inf,
+            "poles": self.poles,
+            "frequency_range": self.frequency_range,
+            "name": self.name,
+        }
 
     def __str__(self):
         """string representation"""
@@ -4071,7 +4073,12 @@ class Sellmeier(DispersiveMedium):
             a = 1j * beta
             c = 1j * alpha
             poles.append((a, c))
-        return dict(eps_inf=1, poles=poles, frequency_range=self.frequency_range, name=self.name)
+        return {
+            "eps_inf": 1,
+            "poles": poles,
+            "frequency_range": self.frequency_range,
+            "name": self.name,
+        }
 
     @staticmethod
     def _from_dispersion_to_coeffs(n: float, freq: float, dn_dwvl: float):
@@ -4242,7 +4249,7 @@ class CustomSellmeier(CustomDispersiveMedium, Sellmeier):
         # if `eps` is simply a float, convert it to a SpatialDataArray ; this is possible when
         # `coeffs` is empty.
         if isinstance(eps, (int, float, complex)):
-            eps = SpatialDataArray(eps * np.ones((1, 1, 1)), coords=dict(x=[0], y=[0], z=[0]))
+            eps = SpatialDataArray(eps * np.ones((1, 1, 1)), coords={"x": [0], "y": [0], "z": [0]})
         return (eps, eps, eps)
 
     @classmethod
@@ -4427,12 +4434,12 @@ class Lorentz(DispersiveMedium):
                 c = 1j * de * w**2 / 2 / r
                 poles.append((a, c))
 
-        return dict(
-            eps_inf=self.eps_inf,
-            poles=poles,
-            frequency_range=self.frequency_range,
-            name=self.name,
-        )
+        return {
+            "eps_inf": self.eps_inf,
+            "poles": poles,
+            "frequency_range": self.frequency_range,
+            "name": self.name,
+        }
 
     @staticmethod
     def _all_larger(coeff_a, coeff_b) -> bool:
@@ -4792,12 +4799,12 @@ class Drude(DispersiveMedium):
 
             poles.extend(((a0, c0), (a1, c1)))
 
-        return dict(
-            eps_inf=self.eps_inf,
-            poles=poles,
-            frequency_range=self.frequency_range,
-            name=self.name,
-        )
+        return {
+            "eps_inf": self.eps_inf,
+            "poles": poles,
+            "frequency_range": self.frequency_range,
+            "name": self.name,
+        }
 
 
 class CustomDrude(CustomDispersiveMedium, Drude):
@@ -5050,12 +5057,12 @@ class Debye(DispersiveMedium):
 
             poles.append((a, c))
 
-        return dict(
-            eps_inf=self.eps_inf,
-            poles=poles,
-            frequency_range=self.frequency_range,
-            name=self.name,
-        )
+        return {
+            "eps_inf": self.eps_inf,
+            "poles": poles,
+            "frequency_range": self.frequency_range,
+            "name": self.name,
+        }
 
 
 class CustomDebye(CustomDispersiveMedium, Debye):
@@ -5761,7 +5768,7 @@ class AnisotropicMedium(AbstractMedium):
     @cached_property
     def components(self) -> Dict[str, Medium]:
         """Dictionary of diagonal medium components."""
-        return dict(xx=self.xx, yy=self.yy, zz=self.zz)
+        return {"xx": self.xx, "yy": self.yy, "zz": self.zz}
 
     @cached_property
     def is_time_modulated(self) -> bool:
@@ -5871,7 +5878,7 @@ class AnisotropicMedium(AbstractMedium):
     @property
     def elements(self) -> Dict[str, IsotropicUniformMediumType]:
         """The diagonal elements of the medium as a dictionary."""
-        return dict(xx=self.xx, yy=self.yy, zz=self.zz)
+        return {"xx": self.xx, "yy": self.yy, "zz": self.zz}
 
     @cached_property
     def is_pec(self):
@@ -7392,7 +7399,7 @@ class Medium2D(AbstractMedium):
     @property
     def elements(self) -> Dict[str, IsotropicUniformMediumType]:
         """The diagonal elements of the 2D medium as a dictionary."""
-        return dict(ss=self.ss, tt=self.tt)
+        return {"ss": self.ss, "tt": self.tt}
 
     @cached_property
     def n_cfl(self):

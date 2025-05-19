@@ -2525,10 +2525,10 @@ class Box(SimplePlaneIntersection, Centered):
         vjp_center = vjps_faces_max - vjps_faces_min
         vjp_size = (vjps_faces_min + vjps_faces_max) / 2.0
 
-        return dict(
-            center=tuple(vjp_center.tolist()),
-            size=tuple(vjp_size.tolist()),
-        )
+        return {
+            "center": tuple(vjp_center.tolist()),
+            "size": tuple(vjp_size.tolist()),
+        }
 
     def derivative_faces(self, derivative_info: DerivativeInfo) -> Bound:
         """Derivative with respect to normal position of 6 faces of ``Box``."""

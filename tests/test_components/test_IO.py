@@ -192,7 +192,7 @@ def test_validation_speed(tmp_path):
         for i in range(n):
             new_structure = SIM.structures[0].copy(update={"name": str(i)})
             new_structures.append(new_structure)
-        S = SIM.copy(update=dict(structures=new_structures))
+        S = SIM.copy(update={"structures": new_structures})
 
         S.to_file(path)
         time_start = time()
@@ -327,7 +327,7 @@ def test_monitor_data_from_file():
 
 def test_data_array_to_hdf5(tmp_path):
     values = np.linspace(0, 1, 10)
-    coords = dict(f=values)
+    coords = {"f": values}
     flux = td.FluxDataArray(values, coords=coords)
 
     path = str(tmp_path / "flux.hdf5")

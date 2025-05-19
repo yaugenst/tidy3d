@@ -460,7 +460,7 @@ class DispersionFitter(Tidy3dBaseModel):
             constraints=(scipy_constraint,),
             tol=1e-7,
             callback=None,
-            options=dict(maxiter=10000),
+            options={"maxiter": 10000},
         )
 
         coeffs = res.x

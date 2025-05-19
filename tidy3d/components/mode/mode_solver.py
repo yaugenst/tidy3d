@@ -1056,10 +1056,10 @@ class ModeSolver(Tidy3dBaseModel):
         # start a dictionary storing the data arrays for the ModeSolverData
         index_data = ModeIndexDataArray(
             np.stack(n_complex, axis=0),
-            coords=dict(
-                f=list(solver.freqs),
-                mode_index=np.arange(solver.mode_spec.num_modes),
-            ),
+            coords={
+                "f": list(solver.freqs),
+                "mode_index": np.arange(solver.mode_spec.num_modes),
+            },
         )
         data_dict = {"n_complex": index_data}
 
@@ -1068,13 +1068,13 @@ class ModeSolver(Tidy3dBaseModel):
             xyz_coords = solver.grid_snapped[field_name].to_list
             scalar_field_data = ScalarModeFieldDataArray(
                 np.stack([field_freq[field_name] for field_freq in fields], axis=-2),
-                coords=dict(
-                    x=xyz_coords[0],
-                    y=xyz_coords[1],
-                    z=xyz_coords[2],
-                    f=list(solver.freqs),
-                    mode_index=np.arange(solver.mode_spec.num_modes),
-                ),
+                coords={
+                    "x": xyz_coords[0],
+                    "y": xyz_coords[1],
+                    "z": xyz_coords[2],
+                    "f": list(solver.freqs),
+                    "mode_index": np.arange(solver.mode_spec.num_modes),
+                },
             )
             data_dict[field_name] = scalar_field_data
 
@@ -1128,10 +1128,10 @@ class ModeSolver(Tidy3dBaseModel):
         # start a dictionary storing the data arrays for the ModeSolverData
         index_data = ModeIndexDataArray(
             np.stack(n_complex, axis=0),
-            coords=dict(
-                f=list(self.freqs),
-                mode_index=np.arange(self.mode_spec.num_modes),
-            ),
+            coords={
+                "f": list(self.freqs),
+                "mode_index": np.arange(self.mode_spec.num_modes),
+            },
         )
         data_dict = {"n_complex": index_data}
 
@@ -1140,13 +1140,13 @@ class ModeSolver(Tidy3dBaseModel):
             xyz_coords = self.grid_snapped[field_name].to_list
             scalar_field_data = ScalarModeFieldDataArray(
                 np.stack([field_freq[field_name] for field_freq in fields], axis=-2),
-                coords=dict(
-                    x=xyz_coords[0],
-                    y=xyz_coords[1],
-                    z=xyz_coords[2],
-                    f=list(self.freqs),
-                    mode_index=np.arange(self.mode_spec.num_modes),
-                ),
+                coords={
+                    "x": xyz_coords[0],
+                    "y": xyz_coords[1],
+                    "z": xyz_coords[2],
+                    "f": list(self.freqs),
+                    "mode_index": np.arange(self.mode_spec.num_modes),
+                },
             )
             data_dict[field_name] = scalar_field_data
 
@@ -1278,7 +1278,7 @@ class ModeSolver(Tidy3dBaseModel):
         """
         monitor_data = self.data
         new_monitors = list(self.simulation.monitors) + [monitor_data.monitor]
-        new_simulation = self.simulation.copy(update=dict(monitors=new_monitors))
+        new_simulation = self.simulation.copy(update={"monitors": new_monitors})
         if isinstance(new_simulation, Simulation):
             return SimulationData(simulation=new_simulation, data=(monitor_data,))
         elif isinstance(new_simulation, EMESimulation):

@@ -776,12 +776,12 @@ class JaxSimulation(Simulation, JaxObject):
         grad_eps_monitors = all_monitors[num_mnts + num_output_monitors + num_grad_monitors :]
 
         # load into a dictionary
-        return dict(
-            monitors=monitors,
-            output_monitors=output_monitors,
-            grad_monitors=grad_monitors,
-            grad_eps_monitors=grad_eps_monitors,
-        )
+        return {
+            "monitors": monitors,
+            "output_monitors": output_monitors,
+            "grad_monitors": grad_monitors,
+            "grad_eps_monitors": grad_eps_monitors,
+        }
 
     @classmethod
     def split_structures(
@@ -797,11 +797,11 @@ class JaxSimulation(Simulation, JaxObject):
 
         # split the list based on these numbers
         structures = all_structures[:num_structs]
-        structure_type_map = dict(
-            JaxStructure=JaxStructure,
-            JaxStructureStaticMedium=JaxStructureStaticMedium,
-            JaxStructureStaticGeometry=JaxStructureStaticGeometry,
-        )
+        structure_type_map = {
+            "JaxStructure": JaxStructure,
+            "JaxStructureStaticMedium": JaxStructureStaticMedium,
+            "JaxStructureStaticGeometry": JaxStructureStaticGeometry,
+        }
 
         input_structures = []
         for struct_type_str, struct in zip(
@@ -812,7 +812,7 @@ class JaxSimulation(Simulation, JaxObject):
             input_structures.append(new_structure)
 
         # return a dictionary containing these split structures
-        return dict(structures=structures, input_structures=input_structures)
+        return {"structures": structures, "input_structures": input_structures}
 
     @classmethod
     def from_simulation(cls, simulation: Simulation, jax_info: JaxInfo) -> JaxSimulation:
@@ -828,10 +828,10 @@ class JaxSimulation(Simulation, JaxObject):
         sim_dict.update(**structures)
         sim_dict.update(**monitors)
         sim_dict.update(
-            dict(
-                fwidth_adjoint=jax_info.fwidth_adjoint,
-                run_time_adjoint=jax_info.run_time_adjoint,
-            )
+            {
+                "fwidth_adjoint": jax_info.fwidth_adjoint,
+                "run_time_adjoint": jax_info.run_time_adjoint,
+            }
         )
 
         # load JaxSimulation from the dictionary
@@ -891,7 +891,7 @@ class JaxSimulation(Simulation, JaxObject):
             grad_mnts.append(grad_mnt)
             if include_eps_mnts:
                 grad_eps_mnts.append(grad_eps_mnt)
-        return dict(grad_monitors=grad_mnts, grad_eps_monitors=grad_eps_mnts)
+        return {"grad_monitors": grad_mnts, "grad_eps_monitors": grad_eps_mnts}
 
     def _store_vjp_structure(
         self,
@@ -948,9 +948,11 @@ class JaxSimulation(Simulation, JaxObject):
         input_structures_vjp = list(map(self._store_vjp_structure, *map_args))
 
         return self.copy(
-            update=dict(
-                input_structures=input_structures_vjp, grad_monitors=(), grad_eps_monitors=()
-            )
+            update={
+                "input_structures": input_structures_vjp,
+                "grad_monitors": (),
+                "grad_eps_monitors": (),
+            }
         )
 
     def store_vjp_parallel(
@@ -1014,7 +1016,9 @@ class JaxSimulation(Simulation, JaxObject):
             input_structures_vjp[index] = vjp
 
         return self.copy(
-            update=dict(
-                input_structures=input_structures_vjp, grad_monitors=(), grad_eps_monitors=()
-            )
+            update={
+                "input_structures": input_structures_vjp,
+                "grad_monitors": (),
+                "grad_eps_monitors": (),
+            }
         )

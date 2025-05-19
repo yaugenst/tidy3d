@@ -106,7 +106,7 @@ class ComponentModeler(AbstractComponentModeler):
             mode_source = self.to_source(port=port_source, mode_index=mode_index)
 
             new_mnts = list(self.simulation.monitors) + mode_monitors
-            sim_copy = self.simulation.copy(update=dict(sources=[mode_source], monitors=new_mnts))
+            sim_copy = self.simulation.copy(update={"sources": [mode_source], "monitors": new_mnts})
             task_name = self._task_name(port=port, mode_index=mode_index)
             sim_dict[task_name] = sim_copy
         return sim_dict
@@ -205,7 +205,7 @@ class ComponentModeler(AbstractComponentModeler):
         shift_value = self._shift_value_signed(port=port)
         center_shifted = list(port.center)
         center_shifted[port.size.index(0.0)] += shift_value
-        port_shifted = port.copy(update=dict(center=center_shifted))
+        port_shifted = port.copy(update={"center": center_shifted})
         return port_shifted
 
     @equal_aspect
@@ -217,7 +217,7 @@ class ComponentModeler(AbstractComponentModeler):
         for port_source in self.ports:
             mode_source_0 = self.to_source(port=port_source, mode_index=0)
             plot_sources.append(mode_source_0)
-        sim_plot = self.simulation.copy(update=dict(sources=plot_sources))
+        sim_plot = self.simulation.copy(update={"sources": plot_sources})
         return sim_plot.plot(x=x, y=y, z=z, ax=ax)
 
     @equal_aspect
@@ -231,7 +231,7 @@ class ComponentModeler(AbstractComponentModeler):
         for port_source in self.ports:
             mode_source_0 = self.to_source(port=port_source, mode_index=0)
             plot_sources.append(mode_source_0)
-        sim_plot = self.simulation.copy(update=dict(sources=plot_sources))
+        sim_plot = self.simulation.copy(update={"sources": plot_sources})
         return sim_plot.plot_eps(x=x, y=y, z=z, ax=ax, **kwargs)
 
     def _normalization_factor(self, port_source: Port, sim_data: SimulationData) -> complex:
@@ -277,13 +277,13 @@ class ComponentModeler(AbstractComponentModeler):
             (len(port_names_out), len(port_names_in), num_modes_out, num_modes_in, len(self.freqs)),
             dtype=complex,
         )
-        coords = dict(
-            port_out=port_names_out,
-            port_in=port_names_in,
-            mode_index_out=range(num_modes_out),
-            mode_index_in=range(num_modes_in),
-            f=np.array(self.freqs),
-        )
+        coords = {
+            "port_out": port_names_out,
+            "port_in": port_names_in,
+            "mode_index_out": range(num_modes_out),
+            "mode_index_in": range(num_modes_in),
+            "f": np.array(self.freqs),
+        }
         s_matrix = ModalPortDataArray(values, coords=coords)
 
         # loop through source ports
@@ -306,33 +306,33 @@ class ComponentModeler(AbstractComponentModeler):
                 source_norm = self._normalization_factor(port_in, sim_data)
                 s_matrix_elements = np.array(amp.data) / np.array(source_norm)
                 s_matrix.loc[
-                    dict(
-                        port_in=port_name_in,
-                        mode_index_in=mode_index_in,
-                        port_out=port_name_out,
-                        mode_index_out=mode_index_out,
-                    )
+                    {
+                        "port_in": port_name_in,
+                        "mode_index_in": mode_index_in,
+                        "port_out": port_name_out,
+                        "mode_index_out": mode_index_out,
+                    }
                 ] = s_matrix_elements
 
         # element can be determined by user-defined mapping
         for (row_in, col_in), (row_out, col_out), mult_by in self.element_mappings:
             port_out_from, mode_index_out_from = row_in
             port_in_from, mode_index_in_from = col_in
-            coords_from = dict(
-                port_in=port_in_from,
-                mode_index_in=mode_index_in_from,
-                port_out=port_out_from,
-                mode_index_out=mode_index_out_from,
-            )
+            coords_from = {
+                "port_in": port_in_from,
+                "mode_index_in": mode_index_in_from,
+                "port_out": port_out_from,
+                "mode_index_out": mode_index_out_from,
+            }
 
             port_out_to, mode_index_out_to = row_out
             port_in_to, mode_index_in_to = col_out
-            coords_to = dict(
-                port_in=port_in_to,
-                mode_index_in=mode_index_in_to,
-                port_out=port_out_to,
-                mode_index_out=mode_index_out_to,
-            )
+            coords_to = {
+                "port_in": port_in_to,
+                "mode_index_in": mode_index_in_to,
+                "port_out": port_out_to,
+                "mode_index_out": mode_index_out_to,
+            }
             s_matrix.loc[coords_to] = mult_by * s_matrix.loc[coords_from].values
 
         return s_matrix

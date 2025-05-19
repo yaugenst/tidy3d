@@ -43,7 +43,7 @@ RTOL = td.constants.fp_eps
 def make_scalar_data():
     """Makes a scalar field data array."""
     data = np.random.random((Nx, Ny, Nz, 1)) + 1
-    return td.ScalarFieldDataArray(data, coords=dict(x=X, y=Y, z=Z, f=freqs))
+    return td.ScalarFieldDataArray(data, coords={"x": X, "y": Y, "z": Z, "f": freqs})
 
 
 def make_scalar_data_multifreqs():
@@ -51,7 +51,7 @@ def make_scalar_data_multifreqs():
     Nfreq = 2
     freqs_mul = [2e14, 3e14]
     data = np.random.random((Nx, Ny, Nz, Nfreq))
-    return td.ScalarFieldDataArray(data, coords=dict(x=X, y=Y, z=Z, f=freqs_mul))
+    return td.ScalarFieldDataArray(data, coords={"x": X, "y": Y, "z": Z, "f": freqs_mul})
 
 
 def make_custom_field_source():
@@ -80,7 +80,7 @@ def make_spatial_data(value=0, dx=0, unstructured=False, seed=None, uniform=Fals
         data = value * np.ones((Nx, Ny, Nz))
     else:
         data = np.random.random((Nx, Ny, Nz)) + value
-    arr = td.SpatialDataArray(data, coords=dict(x=X + dx, y=Y, z=Z))
+    arr = td.SpatialDataArray(data, coords={"x": X + dx, "y": Y, "z": Z})
     if unstructured:
         method = "direct" if uniform else "linear"
         return cartesian_to_unstructured(arr, seed=seed, method=method)
@@ -118,7 +118,7 @@ def test_custom_source_simulation(source):
 def test_validator_tangential_field():
     """Test that it errors if no tangential field defined."""
     field_dataset = FIELD_SRC.field_dataset
-    field_dataset = field_dataset.copy(update=dict(Ex=None, Ez=None, Hx=None, Hz=None))
+    field_dataset = field_dataset.copy(update={"Ex": None, "Ez": None, "Hx": None, "Hz": None})
     with pytest.raises(pydantic.ValidationError):
         _ = td.CustomFieldSource(size=SIZE, source_time=ST, field_dataset=field_dataset)
 
@@ -126,7 +126,7 @@ def test_validator_tangential_field():
 def test_validator_non_planar():
     """Test that it errors if the source geometry has a volume."""
     field_dataset = FIELD_SRC.field_dataset
-    field_dataset = field_dataset.copy(update=dict(Ex=None, Ez=None, Hx=None, Hz=None))
+    field_dataset = field_dataset.copy(update={"Ex": None, "Ez": None, "Hx": None, "Hz": None})
     with pytest.raises(pydantic.ValidationError):
         _ = td.CustomFieldSource(size=(1, 1, 1), source_time=ST, field_dataset=field_dataset)
 
@@ -135,8 +135,8 @@ def test_validator_non_planar():
 def test_validator_freq_out_of_range_src(source):
     """Test that it errors if field_dataset frequency out of range of source_time."""
     key, dataset = get_dataset(source)
-    Ex_new = td.ScalarFieldDataArray(dataset.Ex.data, coords=dict(x=X, y=Y, z=Z, f=[0]))
-    dataset_fail = dataset.copy(update=dict(Ex=Ex_new))
+    Ex_new = td.ScalarFieldDataArray(dataset.Ex.data, coords={"x": X, "y": Y, "z": Z, "f": [0]})
+    dataset_fail = dataset.copy(update={"Ex": Ex_new})
     with pytest.raises(pydantic.ValidationError):
         _ = source.updated_copy(size=SIZE, source_time=ST, **{key: dataset_fail})
 
@@ -146,8 +146,8 @@ def test_validator_freq_multiple(source):
     """Test that it errors more than 1 frequency given."""
     key, dataset = get_dataset(source)
     new_data = np.concatenate((dataset.Ex.data, dataset.Ex.data), axis=-1)
-    Ex_new = td.ScalarFieldDataArray(new_data, coords=dict(x=X, y=Y, z=Z, f=[1, 2]))
-    dataset_fail = dataset.copy(update=dict(Ex=Ex_new))
+    Ex_new = td.ScalarFieldDataArray(new_data, coords={"x": X, "y": Y, "z": Z, "f": [1, 2]})
+    dataset_fail = dataset.copy(update={"Ex": Ex_new})
     with pytest.raises(pydantic.ValidationError):
         _ = source.copy(update={key: dataset_fail})
 
@@ -324,7 +324,7 @@ def test_medium_raw():
 
     # lossy
     data = np.random.random((Nx, Ny, Nz, 1)) + 1 + 1e-2 * 1j
-    eps_raw = td.ScalarFieldDataArray(data, coords=dict(x=X, y=Y, z=Z, f=freqs))
+    eps_raw = td.ScalarFieldDataArray(data, coords={"x": X, "y": Y, "z": Z, "f": freqs})
     eps_raw_s = td.SpatialDataArray(eps_raw.squeeze(dim="f", drop=True))
     eps_raw_u = cartesian_to_unstructured(eps_raw_s, pert=0.01, method="nearest")
     med = CustomMedium.from_eps_raw(eps_raw)
@@ -377,7 +377,7 @@ def test_medium_interp(unstructured):
     Nx = 1
     X = [1.1]
     data = np.random.random((Nx, Ny, Nz, 1))
-    orig_data = td.ScalarFieldDataArray(data, coords=dict(x=X, y=Y, z=Z, f=freqs))
+    orig_data = td.ScalarFieldDataArray(data, coords={"x": X, "y": Y, "z": Z, "f": freqs})
 
     if unstructured:
         orig_data = cartesian_to_unstructured(orig_data.isel(f=0), pert=0.2, method="linear")
@@ -417,7 +417,7 @@ def test_medium_smaller_than_one_positive_sigma(unstructured):
     # eps_inf < 1
     n_data = 1 + np.random.random((Nx, Ny, Nz, 1))
     n_data[0, 0, 0, 0] = 0.5
-    n_dataarray = td.ScalarFieldDataArray(n_data, coords=dict(x=X, y=Y, z=Z, f=freqs))
+    n_dataarray = td.ScalarFieldDataArray(n_data, coords={"x": X, "y": Y, "z": Z, "f": freqs})
 
     if unstructured:
         n_dataarray = cartesian_to_unstructured(n_dataarray.isel(f=0))
@@ -429,8 +429,8 @@ def test_medium_smaller_than_one_positive_sigma(unstructured):
     n_data = 1 + np.random.random((Nx, Ny, Nz, 1))
     k_data = np.random.random((Nx, Ny, Nz, 1))
     k_data[0, 0, 0, 0] = -0.1
-    n_dataarray = td.ScalarFieldDataArray(n_data, coords=dict(x=X, y=Y, z=Z, f=freqs))
-    k_dataarray = td.ScalarFieldDataArray(k_data, coords=dict(x=X, y=Y, z=Z, f=freqs))
+    n_dataarray = td.ScalarFieldDataArray(n_data, coords={"x": X, "y": Y, "z": Z, "f": freqs})
+    k_dataarray = td.ScalarFieldDataArray(k_data, coords={"x": X, "y": Y, "z": Z, "f": freqs})
 
     if unstructured:
         n_dataarray = cartesian_to_unstructured(n_dataarray.isel(f=0), seed=1)
@@ -625,7 +625,7 @@ def test_anisotropic_custom_medium():
         """Makes a scalar field data array with random f."""
         data = np.random.random((Nx, Ny, Nz, 1)) + 1
         return td.ScalarFieldDataArray(
-            data, coords=dict(x=X, y=Y, z=Z, f=[freqs[0] * np.random.random(1)[0]])
+            data, coords={"x": X, "y": Y, "z": Z, "f": [freqs[0] * np.random.random(1)[0]]}
         )
 
     # same f and different f

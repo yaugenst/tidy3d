@@ -14,11 +14,11 @@ from tidy3d.plugins import design as tdd
 
 from ..utils import run_emulated
 
-SWEEP_METHODS = dict(
-    grid=tdd.MethodGrid(),
-    monte_carlo=tdd.MethodMonteCarlo(num_points=5, seed=1),
-    bay_opt=tdd.MethodBayOpt(initial_iter=5, n_iter=2, seed=1),
-    gen_alg=tdd.MethodGenAlg(
+SWEEP_METHODS = {
+    "grid": tdd.MethodGrid(),
+    "monte_carlo": tdd.MethodMonteCarlo(num_points=5, seed=1),
+    "bay_opt": tdd.MethodBayOpt(initial_iter=5, n_iter=2, seed=1),
+    "gen_alg": tdd.MethodGenAlg(
         solutions_per_pop=6,
         n_generations=2,
         n_parents_mating=4,
@@ -26,8 +26,8 @@ SWEEP_METHODS = dict(
         mutation_prob=0,
         keep_parents=0,
     ),
-    part_swarm=tdd.MethodParticleSwarm(n_particles=3, n_iter=2, seed=1),
-)
+    "part_swarm": tdd.MethodParticleSwarm(n_particles=3, n_iter=2, seed=1),
+}
 
 # Task names that should be produced for the different methods
 expected_task_names = {

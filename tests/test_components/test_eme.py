@@ -613,15 +613,15 @@ def _get_eme_scalar_mode_field_data_array(num_sweep=0):
         sweep_index = np.arange(num_sweep)
     else:
         sweep_index = [0]
-    coords = dict(
-        x=x,
-        y=y,
-        z=z,
-        f=f,
-        sweep_index=sweep_index,
-        eme_cell_index=eme_cell_index,
-        mode_index=mode_index,
-    )
+    coords = {
+        "x": x,
+        "y": y,
+        "z": z,
+        "f": f,
+        "sweep_index": sweep_index,
+        "eme_cell_index": eme_cell_index,
+        "mode_index": mode_index,
+    }
     data = td.EMEScalarModeFieldDataArray(
         (1 + 1j)
         * np.random.random(
@@ -650,15 +650,15 @@ def _get_eme_scalar_field_data_array(num_sweep=0):
         sweep_index = np.arange(num_sweep)
     else:
         sweep_index = [0]
-    coords = dict(
-        x=x,
-        y=y,
-        z=z,
-        f=f,
-        sweep_index=sweep_index,
-        eme_port_index=eme_port_index,
-        mode_index=mode_index,
-    )
+    coords = {
+        "x": x,
+        "y": y,
+        "z": z,
+        "f": f,
+        "sweep_index": sweep_index,
+        "eme_port_index": eme_port_index,
+        "mode_index": mode_index,
+    }
     data = td.EMEScalarFieldDataArray(
         (1 + 1j) * np.random.random((len(x), len(y), len(z), 2, len(sweep_index), 2, 5)),
         coords=coords,
@@ -692,9 +692,12 @@ def _get_eme_smatrix_data_array(num_modes_in=2, num_modes_out=3, num_freqs=2, nu
     data = (1 + 1j) * np.random.random(
         (len(f), len(mode_index_out), len(mode_index_in), len(sweep_index))
     )
-    coords = dict(
-        f=f, mode_index_out=mode_index_out, mode_index_in=mode_index_in, sweep_index=sweep_index
-    )
+    coords = {
+        "f": f,
+        "mode_index_out": mode_index_out,
+        "mode_index_in": mode_index_in,
+        "sweep_index": sweep_index,
+    }
     smatrix_entry = td.EMESMatrixDataArray(data, coords=coords)
 
     if num_modes_in == 0:
@@ -733,14 +736,14 @@ def _get_eme_coeff_data_array(num_sweep=0):
         sweep_index = np.arange(num_sweep)
     else:
         sweep_index = [0]
-    coords = dict(
-        f=f,
-        sweep_index=sweep_index,
-        eme_port_index=eme_port_index,
-        eme_cell_index=eme_cell_index,
-        mode_index_out=mode_index_out,
-        mode_index_in=mode_index_in,
-    )
+    coords = {
+        "f": f,
+        "sweep_index": sweep_index,
+        "eme_port_index": eme_port_index,
+        "eme_cell_index": eme_cell_index,
+        "mode_index_out": mode_index_out,
+        "mode_index_in": mode_index_in,
+    }
     data = td.EMECoefficientDataArray(
         (1 + 1j)
         * np.random.random(
@@ -779,9 +782,12 @@ def _get_eme_mode_index_data_array(num_sweep=0):
         sweep_index = np.arange(num_sweep)
     else:
         sweep_index = [0]
-    coords = dict(
-        f=f, sweep_index=sweep_index, eme_cell_index=eme_cell_index, mode_index=mode_index
-    )
+    coords = {
+        "f": f,
+        "sweep_index": sweep_index,
+        "eme_cell_index": eme_cell_index,
+        "mode_index": mode_index,
+    }
     data = td.EMEModeIndexDataArray(
         (1 + 1j)
         * np.random.random((len(f), len(sweep_index), len(eme_cell_index), len(mode_index))),
@@ -854,12 +860,12 @@ def _get_eme_mode_solver_data(num_sweep=0):
         )
     )
     grid_dual_correction_data = grid_primal_correction_data
-    grid_correction_coords = dict(
-        f=n_complex.f,
-        sweep_index=sweep_index,
-        eme_cell_index=n_complex.eme_cell_index,
-        mode_index=n_complex.mode_index,
-    )
+    grid_correction_coords = {
+        "f": n_complex.f,
+        "sweep_index": sweep_index,
+        "eme_cell_index": n_complex.eme_cell_index,
+        "mode_index": n_complex.mode_index,
+    }
     grid_primal_correction = td.components.data.data_array.EMEFreqModeDataArray(
         grid_primal_correction_data, coords=grid_correction_coords
     )

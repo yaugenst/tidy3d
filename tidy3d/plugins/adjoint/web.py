@@ -710,7 +710,7 @@ def run_local_fwd(
     )
 
     # remove the gradient data from the returned version (not needed)
-    sim_data_orig = sim_data_fwd.copy(update=dict(grad_data=(), simulation=simulation))
+    sim_data_orig = sim_data_fwd.copy(update={"grad_data": (), "simulation": simulation})
     return sim_data_orig, (sim_data_fwd,)
 
 
@@ -883,7 +883,7 @@ def run_async_local_fwd(
     batch_data_orig = []
     for i, sim_data_fwd in enumerate(batch_data_fwd):
         sim_orig = simulations[i]
-        sim_data_orig = sim_data_fwd.copy(update=dict(grad_data=(), simulation=sim_orig))
+        sim_data_orig = sim_data_fwd.copy(update={"grad_data": (), "simulation": sim_orig})
         batch_data_orig.append(sim_data_orig)
 
     return batch_data_orig, (batch_data_fwd,)

@@ -1587,7 +1587,7 @@ class NedeljkovicSorefMashanovich(AbstractDeltaModel):
         dk_mesh = dk_mesh * k_factor
 
         # convert t ChargeDataArray
-        dk_data = ChargeDataArray(dk_mesh, coords=dict(n=Ne_range, p=Nh_range))
+        dk_data = ChargeDataArray(dk_mesh, coords={"n": Ne_range, "p": Nh_range})
 
         # create CustomChargePerturbation
         k_si_charge = CustomChargePerturbation(perturbation_values=dk_data)
@@ -1615,7 +1615,7 @@ class NedeljkovicSorefMashanovich(AbstractDeltaModel):
         dn_mesh = -ne_coeff * Ne_mesh**ne_pow - nh_coeff * Nh_mesh**nh_pow
 
         # create ChargeDataArray
-        dn_data = ChargeDataArray(dn_mesh, coords=dict(n=Ne_range, p=Nh_range))
+        dn_data = ChargeDataArray(dn_mesh, coords={"n": Ne_range, "p": Nh_range})
 
         # create CustomChargePerturbation
         n_si_charge = CustomChargePerturbation(perturbation_values=dn_data)

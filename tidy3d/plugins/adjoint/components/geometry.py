@@ -266,7 +266,7 @@ class JaxBox(JaxGeometry, Box, JaxObject):
         # convert surface vjps to center, size vjps. Note, convert these to jax types w/ np.sum()
         vjp_center = tuple(np.sum(vjp_surfs[dim][1] - vjp_surfs[dim][0]) for dim in "xyz")
         vjp_size = tuple(np.sum(0.5 * (vjp_surfs[dim][1] + vjp_surfs[dim][0])) for dim in "xyz")
-        return self.copy(update=dict(center_jax=vjp_center, size_jax=vjp_size))
+        return self.copy(update={"center_jax": vjp_center, "size_jax": vjp_size})
 
 
 @register_pytree_node_class
@@ -623,7 +623,7 @@ class JaxPolySlab(JaxGeometry, PolySlab, JaxObject):
             x, y = edge_position(s=s)
             x = xr.DataArray(x, coords={"s": s})
             y = xr.DataArray(y, coords={"s": s})
-            coords_interp = dict(x=x, y=y, z=z)
+            coords_interp = {"x": x, "y": y, "z": z}
 
             def evaluate(scalar_field: ScalarFieldDataArray) -> float:
                 """Evaluate a scalar field at a coordinate along the edge."""

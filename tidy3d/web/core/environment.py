@@ -84,11 +84,11 @@ class Environment:
     ...
     """
 
-    env_map = dict(
-        dev=dev,
-        uat=uat,
-        prod=prod,
-    )
+    env_map = {
+        "dev": dev,
+        "uat": uat,
+        "prod": prod,
+    }
 
     def __init__(self):
         log = get_logger()

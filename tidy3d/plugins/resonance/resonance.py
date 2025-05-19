@@ -234,7 +234,7 @@ class ResonanceFinder(Tidy3dBaseModel):
         """Aggregates the given components from several :class:`.FieldTimeData`."""
         total_signal = None
         dt = -1
-        coords = dict(x=[0], y=[0], z=[0], t=[0])
+        coords = {"x": [0], "y": [0], "z": [0], "t": [0]}
 
         for sig_field in signals:
             for comp in comps:

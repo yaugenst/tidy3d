@@ -99,7 +99,7 @@ def make_stripline_scalar_field_data_array(grid_key: str):
         values = np.where(above_and_within, -ones / ETA_0, values)
         values = np.where(below_and_within, ones / ETA_0, values)
 
-    return td.ScalarFieldDataArray(values, coords=dict(x=XS, y=YS, z=ZS, f=FS))
+    return td.ScalarFieldDataArray(values, coords={"x": XS, "y": YS, "z": ZS, "f": FS})
 
 
 def make_coaxial_field_data_array(grid_key: str):
@@ -144,7 +144,7 @@ def make_coaxial_field_data_array(grid_key: str):
         else:
             field /= ETA_0
 
-    return td.ScalarFieldDataArray(field, coords=dict(x=XS, y=YS, z=ZS, f=FS))
+    return td.ScalarFieldDataArray(field, coords={"x": XS, "y": YS, "z": ZS, "f": FS})
 
 
 def make_field_data():

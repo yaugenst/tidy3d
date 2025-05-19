@@ -158,7 +158,7 @@ class BeamProfile(Box):
             # Get the current field component
             field_vals = field_vals[comp % 3]
             # Make the ScalarFieldDataArray for the current component
-            coords = dict(x=x, y=y, z=z, f=np.array(self.freqs))
+            coords = {"x": x, "y": y, "z": z, "f": np.array(self.freqs)}
             field_data = ScalarFieldDataArray(field_vals, coords=coords)
             scalar_fields[field] = field_data
 

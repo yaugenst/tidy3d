@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import abc
+from collections.abc import Iterable
 from functools import lru_cache, partial
-from typing import Annotated, Callable, Iterable, Tuple, Union
+from typing import Annotated, Callable, Tuple, Union
 
 import numpy as np
 import pydantic.v1 as pd

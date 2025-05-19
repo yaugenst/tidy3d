@@ -321,11 +321,11 @@ def make_structures(params: anp.ndarray) -> dict[str, td.Structure]:
         medium=td.CustomMedium(
             permittivity=td.SpatialDataArray(
                 eps_arr,
-                coords=dict(
-                    x=np.linspace(-0.5, 0.5, nx),
-                    y=np.linspace(-0.5, 0.5, ny),
-                    z=np.linspace(-0.5, 0.5, nz),
-                ),
+                coords={
+                    "x": np.linspace(-0.5, 0.5, nx),
+                    "y": np.linspace(-0.5, 0.5, ny),
+                    "z": np.linspace(-0.5, 0.5, nz),
+                },
             ),
         ),
     )
@@ -333,12 +333,12 @@ def make_structures(params: anp.ndarray) -> dict[str, td.Structure]:
     # custom medium with vector valued permittivity data
     eps_ii = td.ScalarFieldDataArray(
         eps_arr.reshape(nx, ny, nz, 1),
-        coords=dict(
-            x=np.linspace(-0.5, 0.5, nx),
-            y=np.linspace(-0.5, 0.5, ny),
-            z=np.linspace(-0.5, 0.5, nz),
-            f=[td.C_0],
-        ),
+        coords={
+            "x": np.linspace(-0.5, 0.5, nx),
+            "y": np.linspace(-0.5, 0.5, ny),
+            "z": np.linspace(-0.5, 0.5, nz),
+            "f": [td.C_0],
+        },
     )
 
     custom_med_vec = td.Structure(
@@ -454,7 +454,7 @@ def make_structures(params: anp.ndarray) -> dict[str, td.Structure]:
     x = np.linspace(-0.5, 0.5, nx)
     y = np.linspace(-0.5, 0.5, ny)
     z = np.linspace(-0.5, 0.5, nz)
-    coords = dict(x=x, y=y, z=z)
+    coords = {"x": x, "y": y, "z": z}
 
     eps_inf = td.SpatialDataArray(anp.real(custom_disp_values), coords=coords)
     a1 = td.SpatialDataArray(-custom_disp_values, coords=coords)
@@ -475,20 +475,20 @@ def make_structures(params: anp.ndarray) -> dict[str, td.Structure]:
     )
     cylinder = td.Structure(geometry=cylinder_geo, medium=polyslab.medium)
 
-    return dict(
-        medium=medium,
-        center_list=center_list,
-        size_element=size_element,
-        custom_med=custom_med,
-        custom_med_vec=custom_med_vec,
-        polyslab=polyslab,
-        polyslab_dispersive=polyslab_dispersive,
-        geo_group=geo_group,
-        complex_polyslab=complex_polyslab_geo_group,
-        pole_res=pole_res,
-        custom_pole_res=custom_pole_res,
-        cylinder=cylinder,
-    )
+    return {
+        "medium": medium,
+        "center_list": center_list,
+        "size_element": size_element,
+        "custom_med": custom_med,
+        "custom_med_vec": custom_med_vec,
+        "polyslab": polyslab,
+        "polyslab_dispersive": polyslab_dispersive,
+        "geo_group": geo_group,
+        "complex_polyslab": complex_polyslab_geo_group,
+        "pole_res": pole_res,
+        "custom_pole_res": custom_pole_res,
+        "cylinder": cylinder,
+    }
 
 
 def make_monitors() -> dict[str, tuple[td.Monitor, typing.Callable[[td.SimulationData], float]]]:
@@ -549,12 +549,12 @@ def make_monitors() -> dict[str, tuple[td.Monitor, typing.Callable[[td.Simulatio
         value += anp.sum(sim_data.get_intensity(mnt_data.monitor.name).values)
         return value
 
-    return dict(
-        mode=(mode_mnt, mode_postprocess_fn),
-        diff=(diff_mnt, diff_postprocess_fn),
-        field_vol=(field_vol, field_vol_postprocess_fn),
-        field_point=(field_point, field_point_postprocess_fn),
-    )
+    return {
+        "mode": (mode_mnt, mode_postprocess_fn),
+        "diff": (diff_mnt, diff_postprocess_fn),
+        "field_vol": (field_vol, field_vol_postprocess_fn),
+        "field_point": (field_point, field_point_postprocess_fn),
+    }
 
 
 def plot_sim(sim: td.Simulation, plot_eps: bool = True) -> None:
@@ -648,7 +648,7 @@ def get_functions(structure_key: str, monitor_key: str) -> typing.Callable:
         mnt_data = data[monitor_key]
         return monitor_pp_fn(data, mnt_data)
 
-    return dict(sim=make_sim, postprocess=postprocess)
+    return {"sim": make_sim, "postprocess": postprocess}
 
 
 @pytest.mark.parametrize("axis", (0, 1, 2))
@@ -1464,8 +1464,8 @@ def test_pole_residue(monkeypatch):
         eps_out=1.0,
         frequency=freq,
         bounds=((-1, -1, -1), (1, 1, 1)),
-        eps_no_structure=td.SpatialDataArray([[[1.0]]], coords=dict(x=[0], y=[0], z=[0])),
-        eps_inf_structure=td.SpatialDataArray([[[2.0]]], coords=dict(x=[0], y=[0], z=[0])),
+        eps_no_structure=td.SpatialDataArray([[[1.0]]], coords={"x": [0], "y": [0], "z": [0]}),
+        eps_inf_structure=td.SpatialDataArray([[[2.0]]], coords={"x": [0], "y": [0], "z": [0]}),
         bounds_intersect=((-1, -1, -1), (1, 1, 1)),
     )
 
@@ -1498,7 +1498,7 @@ def test_custom_pole_residue(monkeypatch):
     x = np.linspace(-0.5, 0.5, nx)
     y = np.linspace(-0.5, 0.5, ny)
     z = np.linspace(-0.5, 0.5, nz)
-    coords = dict(x=x, y=y, z=z)
+    coords = {"x": x, "y": y, "z": z}
 
     eps_inf = td.SpatialDataArray(anp.real(values), coords=coords)
     a1 = td.SpatialDataArray(-values, coords=coords)
@@ -1546,8 +1546,8 @@ def test_custom_pole_residue(monkeypatch):
         eps_out=1.0,
         frequency=freq,
         bounds=((-1, -1, -1), (1, 1, 1)),
-        eps_no_structure=td.SpatialDataArray([[[1.0]]], coords=dict(x=[0], y=[0], z=[0])),
-        eps_inf_structure=td.SpatialDataArray([[[2.0]]], coords=dict(x=[0], y=[0], z=[0])),
+        eps_no_structure=td.SpatialDataArray([[[1.0]]], coords={"x": [0], "y": [0], "z": [0]}),
+        eps_inf_structure=td.SpatialDataArray([[[2.0]]], coords={"x": [0], "y": [0], "z": [0]}),
         bounds_intersect=((-1, -1, -1), (1, 1, 1)),
     )
 
@@ -1766,16 +1766,16 @@ def check_1_src_broadband(structure_key):
     return postprocess
 
 
-MULT_FREQ_TEST_CASES = dict(
-    src_1_freq_1=check_1_src_single,
-    src_2_freq_1=check_2_src_single,
-    src_1_freq_2=check_1_src_multi,
-    src_2_freq_1_mon_1=check_1_src_multi,
-    src_2_freq_1_mon_2=check_2_src_both,
-    src_2_freq_2_mon_1=check_1_multisrc,
-    src_2_freq_2_mon_2=check_2_multisrc,
-    src_1_freq_2_broadband=check_1_src_broadband,
-)
+MULT_FREQ_TEST_CASES = {
+    "src_1_freq_1": check_1_src_single,
+    "src_2_freq_1": check_2_src_single,
+    "src_1_freq_2": check_1_src_multi,
+    "src_2_freq_1_mon_1": check_1_src_multi,
+    "src_2_freq_1_mon_2": check_2_src_both,
+    "src_2_freq_2_mon_1": check_1_multisrc,
+    "src_2_freq_2_mon_2": check_2_multisrc,
+    "src_1_freq_2_broadband": check_1_src_broadband,
+}
 
 checks = list(MULT_FREQ_TEST_CASES.items())
 

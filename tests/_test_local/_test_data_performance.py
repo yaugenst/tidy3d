@@ -51,7 +51,7 @@ def make_sim_data_1(file_size_gb=FILE_SIZE_GB):
     src = PointDipole(
         center=(0, 0, 0), source_time=GaussianPulse(freq0=3e14, fwidth=1e14), polarization="Ex"
     )
-    coords = dict(x=x, y=y, z=z, f=f)
+    coords = {"x": x, "y": y, "z": z, "f": f}
     Ex = ScalarFieldDataArray(data, coords=coords)
     monitor = FieldMonitor(size=(2, 2, 2), freqs=f, name="test", fields=["Ex"])
     field_data = FieldData(monitor=monitor, Ex=Ex)
@@ -91,7 +91,7 @@ def test_core_profile_small_1_save():
     y = np.arange(Ny)
     z = np.arange(Nz)
     t = np.arange(Nt)
-    coords = dict(x=x, y=y, z=z, t=t)
+    coords = {"x": x, "y": y, "z": z, "t": t}
     scalar_field = td.ScalarFieldTimeDataArray(np.random.random((Nx, Ny, Nz, Nt)), coords=coords)
     monitor = td.FieldTimeMonitor(size=(2, 4, 6), interval=100, name="field", fields=["Ex", "Hz"])
     data = td.FieldTimeData(monitor=monitor, Ex=scalar_field, Hz=scalar_field)
@@ -126,7 +126,7 @@ def test_speed_many_datasets():
     y = np.arange(Ny)
     z = np.arange(Nz)
     f = np.arange(Nf)
-    coords = dict(x=x, y=y, z=z, f=f)
+    coords = {"x": x, "y": y, "z": z, "f": f}
     scalar_field = td.ScalarFieldDataArray(np.random.random((Nx, Ny, Nz, Nf)), coords=coords)
 
     def make_field_data(num_index: int):

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Iterable, List, Tuple, Union
+from collections.abc import Iterable
+from typing import List, Tuple, Union
 
 import autograd.numpy as anp
 import numpy as np
@@ -268,7 +269,7 @@ class FieldProjector(Tidy3dBaseModel):
         surface_currents[H2] = field_data.field_components[E1] * signs[0]
         surface_currents[H1] = field_data.field_components[E2] * signs[1]
 
-        new_monitor = surface.monitor.copy(update=dict(fields=[E1, E2, H1, H2]))
+        new_monitor = surface.monitor.copy(update={"fields": [E1, E2, H1, H2]})
 
         return FieldData(
             monitor=new_monitor,

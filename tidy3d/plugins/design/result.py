@@ -235,12 +235,12 @@ class Result(Tidy3dBaseModel):
 
         df = pandas.DataFrame(data=data, columns=columns)
 
-        attrs = dict(
-            task_names=self.task_names,
-            output_names=self.output_names,
-            fn_source=self.fn_source,
-            dims=self.dims,
-        )
+        attrs = {
+            "task_names": self.task_names,
+            "output_names": self.output_names,
+            "fn_source": self.fn_source,
+            "dims": self.dims,
+        }
 
         df.attrs = attrs
         return df

@@ -357,7 +357,7 @@ class DesignSpace(Tidy3dBaseModel):
 
         # Exit fn_mid here if no td computation is required
         if not len(simulations) and not len(batches):
-            return original_pre_out, list(), list(), sim_counter
+            return original_pre_out, [], [], sim_counter
 
         # Create task names for simulations
         named_sims = {}

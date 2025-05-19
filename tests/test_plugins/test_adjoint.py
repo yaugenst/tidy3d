@@ -301,12 +301,12 @@ def make_sim(
     # custom medium
     Nx, Ny, Nz = 10, 1, 10
     (xmin, ymin, zmin), (xmax, ymax, zmax) = jax_box1.bounds
-    coords = dict(
-        x=np.linspace(xmin, xmax, Nx).tolist(),
-        y=np.linspace(ymin, ymax, Ny).tolist(),
-        z=np.linspace(zmin, zmax, Nz).tolist(),
-        f=(FREQ0,),
-    )
+    coords = {
+        "x": np.linspace(xmin, xmax, Nx).tolist(),
+        "y": np.linspace(ymin, ymax, Ny).tolist(),
+        "z": np.linspace(zmin, zmax, Nz).tolist(),
+        "f": (FREQ0,),
+    }
 
     jax_box_custom = JaxBox(size=size, center=(1, 0, 2))
     values = base_eps_val + np.random.random((Nx, Ny, Nz, 1))
@@ -631,10 +631,10 @@ def _test_adjoint_setup_adj(use_emulated_run, tmp_path):
     for mode_data in sim_data_vjp.output_data:
         new_values = 0 * np.array(mode_data.amps.values)
         new_values[0, 0, 0] = 1 + 1j
-        amps_vjp = mode_data.amps.copy(update=dict(values=new_values.tolist()))
-        mode_data_vjp = mode_data.copy(update=dict(amps=amps_vjp))
+        amps_vjp = mode_data.amps.copy(update={"values": new_values.tolist()})
+        mode_data_vjp = mode_data.copy(update={"amps": amps_vjp})
         output_data_vjp.append(mode_data_vjp)
-    sim_data_vjp = sim_data_vjp.copy(update=dict(output_data=output_data_vjp))
+    sim_data_vjp = sim_data_vjp.copy(update={"output_data": output_data_vjp})
     (sim_vjp,) = run.bwd(
         task_name="test",
         folder_name="default",
@@ -799,7 +799,7 @@ def test_jax_data_array():
     b = [2, 3]
     c = [4]
     values = np.random.random((len(a), len(b), len(c)))
-    coords = dict(a=a, b=b, c=c)
+    coords = {"a": a, "b": b, "c": c}
 
     # validate missing coord
     # with pytest.raises(AdjointError):
@@ -853,7 +853,7 @@ def test_jax_data_array():
     with pytest.raises(Tidy3dKeyError):
         da.interp(d=3)
 
-    da1d = JaxDataArray(values=[0.0, 1.0, 2.0, 3.0], coords=dict(x=[0, 1, 2, 3]))
+    da1d = JaxDataArray(values=[0.0, 1.0, 2.0, 3.0], coords={"x": [0, 1, 2, 3]})
     assert np.isclose(da1d.interp(x=0.5), 0.5)
 
     # duplicate coordinates
@@ -867,7 +867,7 @@ def test_jax_data_array():
     c = [4, 6]
     shape = (len(a), len(b), len(c))
     values = np.random.random(shape)
-    coords = dict(a=a, b=b, c=c)
+    coords = {"a": a, "b": b, "c": c}
     da = JaxDataArray(values=values, coords=coords)
     da2 = da.sel(b=[3, 4])
     assert da2.shape == (3, 2, 2)
@@ -880,7 +880,7 @@ def test_jax_data_array():
     n = 11
     cs = list(range(n))
     vals = np.random.uniform(0, 1, (n, n, 1, 1, 2))
-    coords = dict(x=cs, y=cs, z=[0], f=[0], direction=["+", "-"])
+    coords = {"x": cs, "y": cs, "z": [0], "f": [0], "direction": ["+", "-"]}
 
     jda = JaxDataArray(values=vals, coords=coords)
     xda = DataArray(data=vals, coords=coords)
@@ -1308,7 +1308,7 @@ def test_diff_data_angles(axis):
     values = (1 + 1j) * np.random.random((len(ORDERS_X), len(ORDERS_Y), len(FS)))
     sim_size = [SIZE_2D, SIZE_2D]
     bloch_vecs = [0, 0]
-    data = JaxDataArray(values=values, coords=dict(orders_x=ORDERS_X, orders_y=ORDERS_Y, f=FS))
+    data = JaxDataArray(values=values, coords={"orders_x": ORDERS_X, "orders_y": ORDERS_Y, "f": FS})
 
     diff_data = JaxDiffractionData(
         monitor=DIFFRACTION_MONITOR,
@@ -1342,7 +1342,7 @@ def test_value_filter():
     """Ensure value filter works as expected."""
 
     values = np.array([1, 0.5 * VALUE_FILTER_THRESHOLD, 2 * VALUE_FILTER_THRESHOLD, 0])
-    coords = dict(x=list(range(4)))
+    coords = {"x": list(range(4))}
     data = JaxDataArray(values=values, coords=coords)
 
     values_after, _ = data.nonzero_val_coords
@@ -1492,12 +1492,12 @@ def _test_custom_medium_3D(use_emulated_run):
     def make_custom_medium(Nx: int, Ny: int, Nz: int) -> JaxCustomMedium:
         # custom medium
         (xmin, ymin, zmin), (xmax, ymax, zmax) = jax_box.bounds
-        coords = dict(
-            x=np.linspace(xmin, xmax, Nx).tolist(),
-            y=np.linspace(ymin, ymax, Ny).tolist(),
-            z=np.linspace(zmin, zmax, Nz).tolist(),
-            f=[FREQ0],
-        )
+        coords = {
+            "x": np.linspace(xmin, xmax, Nx).tolist(),
+            "y": np.linspace(ymin, ymax, Ny).tolist(),
+            "z": np.linspace(zmin, zmax, Nz).tolist(),
+            "f": [FREQ0],
+        }
 
         values = np.random.random((Nx, Ny, Nz, 1))
         eps_ii = JaxDataArray(values=values, coords=coords)
@@ -1527,12 +1527,12 @@ def test_custom_medium_size(use_emulated_run):
 
         # custom medium
         (xmin, ymin, zmin), (xmax, ymax, zmax) = jax_box.bounds
-        coords = dict(
-            x=np.linspace(xmin, xmax, Nx).tolist(),
-            y=np.linspace(ymin, ymax, Ny).tolist(),
-            z=np.linspace(zmin, zmax, Nz).tolist(),
-            f=[FREQ0],
-        )
+        coords = {
+            "x": np.linspace(xmin, xmax, Nx).tolist(),
+            "y": np.linspace(ymin, ymax, Ny).tolist(),
+            "z": np.linspace(zmin, zmax, Nz).tolist(),
+            "f": [FREQ0],
+        }
 
         values = np.random.random((Nx, Ny, Nz, 1))
         eps_ii = JaxDataArray(values=values, coords=coords)
@@ -1562,12 +1562,12 @@ def test_jax_sim_io(tmp_path):
 
         # custom medium
         (xmin, ymin, zmin), (xmax, ymax, zmax) = jax_box.bounds
-        coords = dict(
-            x=np.linspace(xmin, xmax, Nx).tolist(),
-            y=np.linspace(ymin, ymax, Ny).tolist(),
-            z=np.linspace(zmin, zmax, Nz).tolist(),
-            f=[FREQ0],
-        )
+        coords = {
+            "x": np.linspace(xmin, xmax, Nx).tolist(),
+            "y": np.linspace(ymin, ymax, Ny).tolist(),
+            "z": np.linspace(zmin, zmax, Nz).tolist(),
+            "f": [FREQ0],
+        }
 
         values = np.random.random((Nx, Ny, Nz, 1)) + 1.0
         eps_ii = JaxDataArray(values=values, coords=coords)
@@ -1954,11 +1954,11 @@ def test_package_flux():
     """Test handling of packaging flux data for single and multi-freq."""
 
     value = 1.0
-    da_single = JaxDataArray(values=[value], coords=dict(f=[1.0]))
+    da_single = JaxDataArray(values=[value], coords={"f": [1.0]})
     res_single = JaxFieldData.package_flux_results(None, da_single)
     assert res_single == value
 
-    da_multi = JaxDataArray(values=[1.0, 2.0], coords=dict(f=[1.0, 2.0]))
+    da_multi = JaxDataArray(values=[1.0, 2.0], coords={"f": [1.0, 2.0]})
     res_multi = JaxFieldData.package_flux_results(None, da_multi)
     assert res_multi == da_multi
 
@@ -2090,13 +2090,13 @@ class TestJaxComplexPolySlab:
         return np.deg2rad(sidewall_angle_deg)
 
     def test_matches_complexpolyslab(self, vertices, sidewall_angle, dilation):
-        kwargs = dict(
-            vertices=vertices,
-            sidewall_angle=sidewall_angle,
-            slab_bounds=self.slab_bounds,
-            dilation=dilation,
-            axis=POLYSLAB_AXIS,
-        )
+        kwargs = {
+            "vertices": vertices,
+            "sidewall_angle": sidewall_angle,
+            "slab_bounds": self.slab_bounds,
+            "dilation": dilation,
+            "axis": POLYSLAB_AXIS,
+        }
         cp = ComplexPolySlab(**kwargs)
         jcp = JaxComplexPolySlab(**kwargs)
 

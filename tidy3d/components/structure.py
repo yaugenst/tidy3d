@@ -245,10 +245,10 @@ class Structure(AbstractStructure):
     def get_monitor_name(index: int, data_type: str) -> str:
         """Get the monitor name for either a field or permittivity monitor at given index."""
 
-        monitor_name_map = dict(
-            fld=f"adjoint_fld_{index}",
-            eps=f"adjoint_eps_{index}",
-        )
+        monitor_name_map = {
+            "fld": f"adjoint_fld_{index}",
+            "eps": f"adjoint_eps_{index}",
+        }
 
         if data_type not in monitor_name_map:
             raise KeyError(f"'data_type' must be in {monitor_name_map.keys()}")

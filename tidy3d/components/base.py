@@ -70,7 +70,7 @@ def cached_property(cached_property_getter):
 def ndarray_encoder(val):
     """How a ``np.ndarray`` gets handled before saving to json."""
     if np.any(np.iscomplex(val)):
-        return dict(real=val.real.tolist(), imag=val.imag.tolist())
+        return {"real": val.real.tolist(), "imag": val.imag.tolist()}
     return val.real.tolist()
 
 

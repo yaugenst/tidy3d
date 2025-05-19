@@ -414,7 +414,7 @@ def temperature_monitor_data(monitors):
     y = np.linspace(0, 2, ny)
     z = np.linspace(0, 3, nz)
     T = np.random.default_rng().uniform(300, 350, (nx, ny, nz))
-    coords = dict(x=x, y=y, z=z)
+    coords = {"x": x, "y": y, "z": z}
     temperature_field = td.SpatialDataArray(T, coords=coords)
 
     mnt_data1 = td.TemperatureData(monitor=temp_mnt1, temperature=temperature_field)
@@ -492,7 +492,7 @@ def voltage_monitor_data(monitors):
     y = np.linspace(0, 2, ny)
     z = np.linspace(0, 3, nz)
     T = np.random.default_rng().uniform(-5, 5, (nx, ny, nz))
-    coords = dict(x=x, y=y, z=z)
+    coords = {"x": x, "y": y, "z": z}
     voltage_field = td.SpatialDataArray(T, coords=coords)
 
     mnt_data1 = td.SteadyPotentialData(monitor=volt_mnt1, potential=voltage_field)
@@ -1369,13 +1369,13 @@ def test_bandgap_monitor():
 
     tri_grid_values_single_voltage = td.IndexedVoltageDataArray(
         [[0.0], [0], [3], [3]],
-        coords=dict(index=np.arange(4), voltage=[1]),
+        coords={"index": np.arange(4), "voltage": [1]},
         name="test",
     )
 
     tri_grid_values_multi_voltage = td.IndexedVoltageDataArray(
         [[0.0, 0.0], [0, 0], [3, -3], [3, -3]],
-        coords=dict(index=np.arange(4), voltage=[-1, 1]),
+        coords={"index": np.arange(4), "voltage": [-1, 1]},
         name="test",
     )
 
@@ -1417,7 +1417,7 @@ def test_bandgap_monitor():
 
     tet_grid_values_single_voltage = td.IndexedVoltageDataArray(
         [[0.0], [0.0], [0.0], [0.0], [3.0], [3.0], [3.0], [3.0]],
-        coords=dict(index=np.arange(8), voltage=[1]),
+        coords={"index": np.arange(8), "voltage": [1]},
         name="test_tet",
     )
 
@@ -1432,7 +1432,7 @@ def test_bandgap_monitor():
             [3.0, 3.5],
             [3.0, 3.5],
         ],
-        coords=dict(index=np.arange(8), voltage=[-1, 1]),
+        coords={"index": np.arange(8), "voltage": [-1, 1]},
         name="test_tet",
     )
 

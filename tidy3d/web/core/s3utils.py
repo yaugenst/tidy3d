@@ -6,9 +6,10 @@ import os
 import pathlib
 import tempfile
 import urllib
+from collections.abc import Mapping
 from datetime import datetime
 from enum import Enum
-from typing import Callable, Mapping
+from typing import Callable
 
 import boto3
 from boto3.s3.transfer import TransferConfig

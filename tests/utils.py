@@ -265,18 +265,18 @@ def make_spatial_data(
     data = lims[0] + (lims[1] - lims[0]) * rng.random(size)
     arr = td.SpatialDataArray(
         data,
-        coords=dict(
-            x=np.linspace(bounds[0][0], bounds[1][0], size[0]),
-            y=np.linspace(bounds[0][1], bounds[1][1], size[1]),
-            z=np.linspace(bounds[0][2], bounds[1][2], size[2]),
-        ),
+        coords={
+            "x": np.linspace(bounds[0][0], bounds[1][0], size[0]),
+            "y": np.linspace(bounds[0][1], bounds[1][1], size[1]),
+            "z": np.linspace(bounds[0][2], bounds[1][2], size[2]),
+        },
     )
     if unstructured:
         return cartesian_to_unstructured(arr, pert=perturbation, method=method, seed=seed_grid)
     return arr
 
 
-COORDS = dict(x=[-1.5, -0.5], y=[0, 1], z=[0, 1])
+COORDS = {"x": [-1.5, -0.5], "y": [0, 1], "z": [0, 1]}
 CUSTOM_SIZE = (2, 2, 2)
 CUSTOM_BOUNDS = [[-1.5, 0, 0], [-0.5, 1, 1]]
 CUSTOM_GRID_SEED = 12345
@@ -423,7 +423,7 @@ SIM_FULL = td.Simulation(
                 slab_bounds=(-0.1, 0.1),
             ),
             medium=td.CustomMedium(
-                permittivity=td.SpatialDataArray(tracer_arr, coords=dict(x=[-1], y=[0], z=[0]))
+                permittivity=td.SpatialDataArray(tracer_arr, coords={"x": [-1], "y": [0], "z": [0]})
             ),
             name="traced custom polyslab",
         ),
@@ -736,12 +736,12 @@ SIM_FULL = td.Simulation(
             field_dataset=td.FieldDataset(
                 Ex=td.ScalarFieldDataArray(
                     np.ones((101, 101, 1, 1)),
-                    coords=dict(
-                        x=np.linspace(-1, 1, 101),
-                        y=np.linspace(-1, 1, 101),
-                        z=np.array([0]),
-                        f=[2e14],
-                    ),
+                    coords={
+                        "x": np.linspace(-1, 1, 101),
+                        "y": np.linspace(-1, 1, 101),
+                        "z": np.array([0]),
+                        "f": [2e14],
+                    },
                 )
             ),
         ),
@@ -755,12 +755,12 @@ SIM_FULL = td.Simulation(
             current_dataset=td.FieldDataset(
                 Ex=td.ScalarFieldDataArray(
                     np.ones((101, 101, 1, 1)),
-                    coords=dict(
-                        x=np.linspace(-1, 1, 101),
-                        y=np.linspace(-1, 1, 101),
-                        z=np.array([0]),
-                        f=[2e14],
-                    ),
+                    coords={
+                        "x": np.linspace(-1, 1, 101),
+                        "y": np.linspace(-1, 1, 101),
+                        "z": np.array([0]),
+                        "f": [2e14],
+                    },
                 )
             ),
         ),
@@ -1028,7 +1028,7 @@ def run_emulated(simulation: td.Simulation, path=None, **kwargs) -> td.Simulatio
         f = list(monitor.freqs)
         orders_x = np.linspace(-1, 1, 3)
         orders_y = np.linspace(-2, 2, 5)
-        coords = dict(orders_x=orders_x, orders_y=orders_y, f=f)
+        coords = {"orders_x": orders_x, "orders_y": orders_y, "f": f}
         values = DATA_GEN_FN((len(orders_x), len(orders_y), len(f)))
         data = td.DiffractionDataArray(values, coords=coords)
         field_data = dict.fromkeys(("Er", "Etheta", "Ephi", "Hr", "Htheta", "Hphi"), data)
@@ -1043,7 +1043,7 @@ def run_emulated(simulation: td.Simulation, path=None, **kwargs) -> td.Simulatio
         n_complex = make_data(
             coords=index_coords, data_array_type=td.ModeIndexDataArray, is_complex=True
         )
-        coords_amps = dict(direction=["+", "-"])
+        coords_amps = {"direction": ["+", "-"]}
         coords_amps.update(index_coords)
         amps = make_data(coords=coords_amps, data_array_type=td.ModeAmpsDataArray, is_complex=True)
         field_cmps = {}
@@ -1066,7 +1066,7 @@ def run_emulated(simulation: td.Simulation, path=None, **kwargs) -> td.Simulatio
     def make_flux_data(monitor: td.FluxMonitor) -> td.FluxData:
         """make a random ModeData from a ModeMonitor."""
 
-        coords = dict(f=list(monitor.freqs))
+        coords = {"f": list(monitor.freqs)}
         flux = make_data(coords=coords, data_array_type=td.FluxDataArray, is_complex=False)
         return td.FluxData(monitor=monitor, flux=flux)
 
@@ -1077,9 +1077,9 @@ def run_emulated(simulation: td.Simulation, path=None, **kwargs) -> td.Simulatio
         r = np.atleast_1d(monitor.proj_distance)
         theta = list(monitor.theta)
         phi = list(monitor.phi)
-        fluxcoords = dict(f=f)
+        fluxcoords = {"f": f}
         fluxdata = make_data(coords=fluxcoords, data_array_type=td.FluxDataArray, is_complex=False)
-        coords = dict(r=r, theta=theta, phi=phi, f=f)
+        coords = {"r": r, "theta": theta, "phi": phi, "f": f}
         scalar_field = make_data(
             coords=coords, data_array_type=td.FieldProjectionAngleDataArray, is_complex=True
         )
@@ -1104,7 +1104,7 @@ def run_emulated(simulation: td.Simulation, path=None, **kwargs) -> td.Simulatio
         theta = list(monitor.theta)
         phi = list(monitor.phi)
 
-        coords = dict(r=r, theta=theta, phi=phi, f=f)
+        coords = {"r": r, "theta": theta, "phi": phi, "f": f}
         scalar_field = make_data(
             coords=coords,
             data_array_type=td.FieldProjectionAngleDataArray,
@@ -1136,26 +1136,26 @@ def run_emulated(simulation: td.Simulation, path=None, **kwargs) -> td.Simulatio
 
         # map the two planes to global (x, y, z) depending on the normal axis
         if monitor.proj_axis == 0:  # (y, z)
-            coords = dict(
-                x=np.atleast_1d(proj_distance),
-                y=x_plane,
-                z=y_plane,
-                f=f,
-            )
+            coords = {
+                "x": np.atleast_1d(proj_distance),
+                "y": x_plane,
+                "z": y_plane,
+                "f": f,
+            }
         elif monitor.proj_axis == 1:  # (x, z)
-            coords = dict(
-                x=x_plane,
-                y=np.atleast_1d(proj_distance),
-                z=y_plane,
-                f=f,
-            )
+            coords = {
+                "x": x_plane,
+                "y": np.atleast_1d(proj_distance),
+                "z": y_plane,
+                "f": f,
+            }
         else:  # (x, y)
-            coords = dict(
-                x=x_plane,
-                y=y_plane,
-                z=np.atleast_1d(proj_distance),
-                f=f,
-            )
+            coords = {
+                "x": x_plane,
+                "y": y_plane,
+                "z": np.atleast_1d(proj_distance),
+                "f": f,
+            }
 
         scalar_field = make_data(
             coords=coords,
@@ -1183,7 +1183,7 @@ def run_emulated(simulation: td.Simulation, path=None, **kwargs) -> td.Simulatio
         ux = list(monitor.ux)
         uy = list(monitor.uy)
 
-        coords = dict(ux=ux, uy=uy, r=r, f=f)
+        coords = {"ux": ux, "uy": uy, "r": r, "f": f}
         scalar_field = make_data(
             coords=coords,
             data_array_type=td.FieldProjectionKSpaceDataArray,

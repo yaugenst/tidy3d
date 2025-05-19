@@ -147,13 +147,13 @@ def make_scalar_field_data_array(grid_key: str, symmetry=True, colocate: bool = 
         monitor = monitor.updated_copy(colocate=colocate)
     XS, YS, ZS = get_xyz(monitor, grid_key, symmetry)
     values = (1 + 1j) * np.random.random((len(XS), len(YS), len(ZS), len(FS)))
-    return td.ScalarFieldDataArray(values, coords=dict(x=XS, y=YS, z=ZS, f=FS))
+    return td.ScalarFieldDataArray(values, coords={"x": XS, "y": YS, "z": ZS, "f": FS})
 
 
 def make_scalar_field_time_data_array(grid_key: str, symmetry=True):
     XS, YS, ZS = get_xyz(FIELD_TIME_MONITOR, grid_key, symmetry)
     values = np.random.random((len(XS), len(YS), len(ZS), len(TS)))
-    return td.ScalarFieldTimeDataArray(values, coords=dict(x=XS, y=YS, z=ZS, t=TS))
+    return td.ScalarFieldTimeDataArray(values, coords={"x": XS, "y": YS, "z": ZS, "t": TS})
 
 
 def make_scalar_mode_field_data_array(grid_key: str, symmetry=True, colocate: bool = None):
@@ -164,7 +164,7 @@ def make_scalar_mode_field_data_array(grid_key: str, symmetry=True, colocate: bo
     values = (1 + 0.1j) * np.random.random((len(XS), 1, len(ZS), len(FS), len(MODE_INDICES)))
 
     return td.ScalarModeFieldDataArray(
-        values, coords=dict(x=XS, y=[0.0], z=ZS, f=FS, mode_index=MODE_INDICES)
+        values, coords={"x": XS, "y": [0.0], "z": ZS, "f": FS, "mode_index": MODE_INDICES}
     )
 
 
@@ -183,35 +183,37 @@ def make_scalar_mode_field_data_array_smooth(grid_key: str, symmetry=True, rot: 
     )
 
     return td.ScalarModeFieldDataArray(
-        values, coords=dict(x=XS, y=[0.0], z=ZS, f=FS, mode_index=MODE_INDICES)
+        values, coords={"x": XS, "y": [0.0], "z": ZS, "f": FS, "mode_index": MODE_INDICES}
     )
 
 
 def make_mode_amps_data_array():
     values = (1 + 1j) * np.random.random((len(DIRECTIONS), len(MODE_INDICES), len(FS)))
     return td.ModeAmpsDataArray(
-        values, coords=dict(direction=DIRECTIONS, mode_index=MODE_INDICES, f=FS)
+        values, coords={"direction": DIRECTIONS, "mode_index": MODE_INDICES, "f": FS}
     )
 
 
 def make_mode_index_data_array():
     values = (1 + 0.1j) * np.random.random((len(FS), len(MODE_INDICES)))
-    return td.ModeIndexDataArray(values, coords=dict(f=FS, mode_index=MODE_INDICES))
+    return td.ModeIndexDataArray(values, coords={"f": FS, "mode_index": MODE_INDICES})
 
 
 def make_far_field_data_array():
     values = (1 + 1j) * np.random.random((len(PD), len(THETAS), len(PHIS), len(FS)))
-    return td.FieldProjectionAngleDataArray(values, coords=dict(r=PD, theta=THETAS, phi=PHIS, f=FS))
+    return td.FieldProjectionAngleDataArray(
+        values, coords={"r": PD, "theta": THETAS, "phi": PHIS, "f": FS}
+    )
 
 
 def make_flux_data_array():
     values = np.random.random(len(FS))
-    return td.FluxDataArray(values, coords=dict(f=FS))
+    return td.FluxDataArray(values, coords={"f": FS})
 
 
 def make_flux_time_data_array():
     values = np.random.random(len(TS))
-    return td.FluxTimeDataArray(values, coords=dict(t=TS))
+    return td.FluxTimeDataArray(values, coords={"t": TS})
 
 
 def make_diffraction_data_array():
@@ -219,7 +221,9 @@ def make_diffraction_data_array():
     return (
         [SIZE_2D[0], SIZE_2D[2]],
         [1.0, 2.0],
-        td.DiffractionDataArray(values, coords=dict(orders_x=ORDERS_X, orders_y=ORDERS_Y, f=FS)),
+        td.DiffractionDataArray(
+            values, coords={"orders_x": ORDERS_X, "orders_y": ORDERS_Y, "f": FS}
+        ),
     )
 
 
@@ -296,11 +300,11 @@ def test_ops():
 def test_empty_field_time():
     _ = td.ScalarFieldTimeDataArray(
         np.random.rand(5, 5, 5, 0),
-        coords=dict(x=np.arange(5), y=np.arange(5), z=np.arange(5), t=[]),
+        coords={"x": np.arange(5), "y": np.arange(5), "z": np.arange(5), "t": []},
     )
     _ = td.ScalarFieldTimeDataArray(
         np.random.rand(5, 5, 5, 0),
-        coords=dict(x=np.arange(5), y=np.arange(5), z=np.arange(5), t=[]),
+        coords={"x": np.arange(5), "y": np.arange(5), "z": np.arange(5), "t": []},
     )
 
 
@@ -311,7 +315,7 @@ def test_abs():
 
 def test_heat_data_array():
     T = [0, 1e-12, 2e-12]
-    _ = td.HeatDataArray((1 + 1j) * np.random.random((3,)), coords=dict(T=T))
+    _ = td.HeatDataArray((1 + 1j) * np.random.random((3,)), coords={"T": T})
 
 
 def test_steady_voltage_data_array():
@@ -323,34 +327,34 @@ def test_steady_voltage_data_array():
 def test_charge_data_array():
     n = [0, 1e-12, 2e-12]
     p = [0, 3e-12, 4e-12]
-    _ = td.ChargeDataArray((1 + 1j) * np.random.random((3, 3)), coords=dict(n=n, p=p))
+    _ = td.ChargeDataArray((1 + 1j) * np.random.random((3, 3)), coords={"n": n, "p": p})
 
 
 def test_point_data_array():
     _ = td.PointDataArray(
         np.random.rand(2, 3),
-        coords=dict(index=np.arange(2), axis=np.arange(3)),
+        coords={"index": np.arange(2), "axis": np.arange(3)},
     )
 
 
 def test_cell_data_array():
     _ = td.CellDataArray(
         [[0, 1, 2], [1, 2, 3]],
-        coords=dict(cell_index=np.arange(2), vertex_index=np.arange(3)),
+        coords={"cell_index": np.arange(2), "vertex_index": np.arange(3)},
     )
 
 
 def test_indexed_data_array():
     _ = td.IndexedDataArray(
         np.random.rand(10),
-        coords=dict(index=np.arange(10)),
+        coords={"index": np.arange(10)},
     )
 
 
 def test_spatial_data_array():
     arr = td.SpatialDataArray(
         [[[0, 1], [2, 3]], [[4, 5], [6, 7]]],
-        coords=dict(x=[0, 1], y=[1, 2], z=[2, 3]),
+        coords={"x": [0, 1], "y": [1, 2], "z": [2, 3]},
     )
 
     # make it non sorted
@@ -361,7 +365,7 @@ def test_spatial_data_array():
 
     reflected_expected = td.SpatialDataArray(
         [[[4, 5], [6, 7]], [[0, 1], [2, 3]], [[0, 1], [2, 3]], [[4, 5], [6, 7]]],
-        coords=dict(x=[-2, -1, 0, 1], y=[1, 2], z=[2, 3]),
+        coords={"x": [-2, -1, 0, 1], "y": [1, 2], "z": [2, 3]},
     )
 
     assert reflected == reflected_expected
@@ -371,7 +375,7 @@ def test_spatial_data_array():
 
     reflected_expected = td.SpatialDataArray(
         [[[4, 5], [6, 7]], [[0, 1], [2, 3]]],
-        coords=dict(x=[-2, -1], y=[1, 2], z=[2, 3]),
+        coords={"x": [-2, -1], "y": [1, 2], "z": [2, 3]},
     )
 
     assert reflected == reflected_expected
@@ -381,7 +385,7 @@ def test_spatial_data_array():
 
     reflected_expected = td.SpatialDataArray(
         [[[2, 3], [0, 1], [2, 3]], [[6, 7], [4, 5], [6, 7]]],
-        coords=dict(x=[0, 1], y=[0, 1, 2], z=[2, 3]),
+        coords={"x": [0, 1], "y": [0, 1, 2], "z": [2, 3]},
     )
 
     assert reflected == reflected_expected
@@ -391,7 +395,7 @@ def test_spatial_data_array():
 
     reflected_expected = td.SpatialDataArray(
         [[[2, 3], [0, 1]], [[6, 7], [4, 5]]],
-        coords=dict(x=[0, 1], y=[0, 1], z=[2, 3]),
+        coords={"x": [0, 1], "y": [0, 1], "z": [2, 3]},
     )
 
     assert reflected == reflected_expected
@@ -406,11 +410,11 @@ def test_sel_inside(nx):
     nz = 12
     arr = td.SpatialDataArray(
         np.random.random((nx, ny, nz)),
-        coords=dict(
-            x=np.linspace(0, 1, nx),
-            y=np.linspace(2, 3, ny),
-            z=np.linspace(0, 2, nz),
-        ),
+        coords={
+            "x": np.linspace(0, 1, nx),
+            "y": np.linspace(2, 3, ny),
+            "z": np.linspace(0, 2, nz),
+        },
     )
 
     bounds_small = [[0.1, 2, 2], [1, 2.5, 2]]
@@ -432,20 +436,20 @@ def test_uniform_check():
     """check if each element in the array is of equal value."""
     arr = td.SpatialDataArray(
         np.ones((2, 2, 2), dtype=np.complex128),
-        coords=dict(x=[0, 1], y=[1, 2], z=[2, 3]),
+        coords={"x": [0, 1], "y": [1, 2], "z": [2, 3]},
     )
     assert arr.is_uniform
 
     # small variation is still considered as uniform
     arr = td.SpatialDataArray(
         np.ones((2, 2, 2)) + np.random.random((2, 2, 2)) * 1e-6,
-        coords=dict(x=[0, 1], y=[1, 2], z=[2, 3]),
+        coords={"x": [0, 1], "y": [1, 2], "z": [2, 3]},
     )
     assert arr.is_uniform
 
     arr = td.SpatialDataArray(
         np.ones((2, 2, 2)) + np.random.random((2, 2, 2)) * 1e-4,
-        coords=dict(x=[0, 1], y=[1, 2], z=[2, 3]),
+        coords={"x": [0, 1], "y": [1, 2], "z": [2, 3]},
     )
     assert not arr.is_uniform
 

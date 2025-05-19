@@ -4232,7 +4232,7 @@ class Simulation(AbstractYeeGridSimulation):
 
         mnts_fld, mnts_eps = self.make_adjoint_monitors(sim_fields_keys=sim_fields_keys)
         monitors = list(self.monitors) + list(mnts_fld) + list(mnts_eps)
-        return self.copy(update=dict(monitors=monitors))
+        return self.copy(update={"monitors": monitors})
 
     def make_adjoint_monitors(self, sim_fields_keys: list) -> tuple[list, list]:
         """Get lists of field and permittivity monitors for this simulation."""
@@ -5173,7 +5173,7 @@ class Simulation(AbstractYeeGridSimulation):
                 elif len(data.values.dims) > 1:
                     new_values = IndexedDataArray(
                         np.array(data.values.data).flatten(),
-                        coords=dict(index=data.values.index.data),
+                        coords={"index": data.values.index.data},
                     )
                     if isinstance(data, TetrahedralGridDataset):
                         new_carrier_data[carrier] = TetrahedralGridDataset(

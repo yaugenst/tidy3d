@@ -298,7 +298,7 @@ class TopologyDesignRegion(DesignRegion):
         rmin, rmax = self.geometry.bounds
         params_shape = self.params_shape
 
-        coords = dict()
+        coords = {}
         for dim, ptmin, ptmax, length, num_pts in zip("xyz", rmin, rmax, lengths, params_shape):
             step_size = length / num_pts
             if np.isinf(length):

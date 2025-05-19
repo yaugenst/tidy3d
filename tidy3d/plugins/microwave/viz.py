@@ -13,13 +13,13 @@ LOBE_PEAK_COLOR = "tab:red"
 LOBE_WIDTH_COLOR = "tab:orange"
 LOBE_FNBW_COLOR = "tab:blue"
 PATH_LINEWIDTH = 2
-ARROW_CURRENT = dict(
-    arrowstyle="-|>",
-    mutation_scale=32,
-    linestyle="",
-    lw=PATH_LINEWIDTH,
-    color=CURRENT_COLOR,
-)
+ARROW_CURRENT = {
+    "arrowstyle": "-|>",
+    "mutation_scale": 32,
+    "linestyle": "",
+    "lw": PATH_LINEWIDTH,
+    "color": CURRENT_COLOR,
+}
 
 plot_params_voltage_path = PathPlotParams(
     alpha=1.0,

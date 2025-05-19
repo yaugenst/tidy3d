@@ -50,12 +50,14 @@ def test_MaterialItem():
         medium=td.PoleResidue(),
         reference=[ReferenceData(doi="etc2.com", journal="paper2", url="www2")],
     )
-    material = MaterialItem(name="material", variants=dict(v1=variant1, v2=variant2), default="v1")
+    material = MaterialItem(
+        name="material", variants={"v1": variant1, "v2": variant2}, default="v1"
+    )
     assert material["v1"] == material.medium
 
     with pytest.raises(pydantic.ValidationError):
         material = MaterialItem(
-            name="material", variants=dict(v1=variant1, v2=variant2), default="v3"
+            name="material", variants={"v1": variant1, "v2": variant2}, default="v3"
         )
 
 
@@ -135,7 +137,7 @@ def test_uniaxial_material():
         extraordinary=td.PoleResidue(eps_inf=6),
     )
     material = MaterialItemUniaxial(
-        name="material", variants=dict(v1=variant1, v2=variant2), default="v1"
+        name="material", variants={"v1": variant1, "v2": variant2}, default="v1"
     )
 
     for optical_axis in range(3):

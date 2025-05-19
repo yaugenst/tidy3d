@@ -253,11 +253,11 @@ class TriangleMesh(base.Geometry, ABC):
                 f"Provided 'triangles' must be an N x 3 x 3 array, given {triangles.shape}."
             )
         num_faces = len(triangles)
-        coords = dict(
-            face_index=np.arange(num_faces),
-            vertex_index=np.arange(3),
-            axis=np.arange(3),
-        )
+        coords = {
+            "face_index": np.arange(num_faces),
+            "vertex_index": np.arange(3),
+            "axis": np.arange(3),
+        }
         vertices = TriangleMeshDataArray(triangles, coords=coords)
         mesh_dataset = TriangleMeshDataset(surface_mesh=vertices)
         return TriangleMesh(mesh_dataset=mesh_dataset)

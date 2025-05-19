@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from functools import reduce, wraps
-from typing import Any, Callable, Iterable, List, Union
+from typing import Any, Callable, List, Union
 
 import autograd.numpy as anp
 import numpy as np

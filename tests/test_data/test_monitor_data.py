@@ -242,17 +242,17 @@ def make_field_dataset_using_power_density(
         phi=phi,
     )
 
-    coords = dict(r=r_proj, theta=theta, phi=phi, f=freqs)
+    coords = {"r": r_proj, "theta": theta, "phi": phi, "f": freqs}
     field = td.FieldProjectionAngleDataArray(values, coords=coords)
 
-    field_components = dict(
-        Er=field,
-        Etheta=field,
-        Ephi=field,
-        Hr=field,
-        Htheta=-1.0 * field,
-        Hphi=field,
-    )
+    field_components = {
+        "Er": field,
+        "Etheta": field,
+        "Ephi": field,
+        "Hr": field,
+        "Htheta": -1.0 * field,
+        "Hphi": field,
+    }
     field_dataset = xr.Dataset(field_components)
     return monitor, field_dataset
 
@@ -401,7 +401,7 @@ def test_directivity_data(planar_monitor):
     _ = data.flux
     f = data.flux.f.values
     # make some dummy data to represent power supplied to antenna
-    power_in = FreqDataArray(np.abs(np.random.random(size=np.shape(f))), coords=dict(f=f))
+    power_in = FreqDataArray(np.abs(np.random.random(size=np.shape(f))), coords={"f": f})
     assert isinstance(data.partial_radiation_intensity(), xr.Dataset)
     assert isinstance(data.radiation_intensity, xr.DataArray)
     assert isinstance(data.partial_directivity(), xr.Dataset)
@@ -664,7 +664,7 @@ def test_data_array_hdf5_no_warnings(tmp_path):
 
 def test_diffraction_data_use_medium():
     data = make_diffraction_data()
-    data = data.copy(update=dict(medium=td.Medium(permittivity=4)))
+    data = data.copy(update={"medium": td.Medium(permittivity=4)})
     assert np.allclose(data.eta, np.real(td.ETA_0 / 2.0))
 
 
