@@ -51,7 +51,7 @@ joblib = "*"
 ### Optional dependencies ###
 # development core
 bump-my-version = { version = "*", optional = true }
-ruff = { version = "0.5.5", optional = true }
+ruff = { version = "0.11.10", optional = true }
 coverage = { version = "*", optional = true }
 dill = { version = "*", optional = true }
 ipython = { version = "*", optional = true }
