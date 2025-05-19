@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Tuple
-
 import numpy as np
 import pytest
 import xarray.testing as xrt
@@ -127,7 +125,7 @@ SIM = td.Simulation(
 
 def get_xyz(
     monitor: td.components.monitor.MonitorType, grid_key: str, symmetry: bool
-) -> Tuple[List[float], List[float], List[float]]:
+) -> tuple[list[float], list[float], list[float]]:
     sim = SIM_SYM if symmetry else SIM
     grid = sim.discretize_monitor(monitor)
     if monitor.colocate:

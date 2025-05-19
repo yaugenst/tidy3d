@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Callable, Dict, Literal, Optional, Tuple, Union
+from typing import Callable, Literal, Optional, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -33,7 +33,7 @@ class AbstractJaxMedium(ABC, JaxObject):
 
     def _get_volume_disc(
         self, grad_data: FieldData, sim_bounds: Bound, wvl_mat: float
-    ) -> Tuple[Dict[str, np.ndarray], float]:
+    ) -> tuple[dict[str, np.ndarray], float]:
         """Get the coordinates and volume element for the inside of the corresponding structure."""
 
         # find intersecting volume between structure and simulation
@@ -63,7 +63,7 @@ class AbstractJaxMedium(ABC, JaxObject):
         return vol_coords, d_vol
 
     @staticmethod
-    def make_inside_mask(vol_coords: Dict[str, np.ndarray], inside_fn: Callable) -> xr.DataArray:
+    def make_inside_mask(vol_coords: dict[str, np.ndarray], inside_fn: Callable) -> xr.DataArray:
         """Make a 3D mask of where the volume coordinates are inside a supplied function."""
 
         meshgrid_args = [vol_coords[dim] for dim in "xyz" if dim in vol_coords]
@@ -77,7 +77,7 @@ class AbstractJaxMedium(ABC, JaxObject):
         field: Literal["Ex", "Ey", "Ez"],
         grad_data_fwd: FieldData,
         grad_data_adj: FieldData,
-        vol_coords: Dict[str, np.ndarray],
+        vol_coords: dict[str, np.ndarray],
         d_vol: float,
         inside_fn: Callable,
     ) -> xr.DataArray:

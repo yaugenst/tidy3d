@@ -3,8 +3,6 @@ NOTE: Keeping this class for backward compatibility only"""
 
 from __future__ import annotations
 
-from typing import Tuple
-
 import pydantic.v1 as pd
 
 from tidy3d.components.tcad.simulation.heat_charge import HeatChargeSimulation
@@ -68,8 +66,8 @@ class HeatSimulation(HeatChargeSimulation):
         source_alpha: float = None,
         monitor_alpha: float = None,
         colorbar: str = "conductivity",
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
     ) -> Ax:
         """Plot each of simulation's components on a plane defined by one nonzero x,y,z coordinate.
 

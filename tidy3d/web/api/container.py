@@ -8,7 +8,7 @@ import time
 from abc import ABC
 from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, Literal, Optional, Tuple
+from typing import Literal, Optional
 
 import pydantic.v1 as pd
 from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeElapsedColumn
@@ -164,7 +164,7 @@ class Job(WebContainer):
         description="Type of simulation, used internally only.",
     )
 
-    parent_tasks: Tuple[TaskId, ...] = pd.Field(
+    parent_tasks: tuple[TaskId, ...] = pd.Field(
         None, title="Parent Tasks", description="Tuple of parent task ids, used internally only."
     )
 
@@ -411,13 +411,13 @@ class BatchData(Tidy3dBaseModel, Mapping):
         * `Performing parallel / batch processing of simulations <../../notebooks/ParameterScan.html>`_
     """
 
-    task_paths: Dict[TaskName, str] = pd.Field(
+    task_paths: dict[TaskName, str] = pd.Field(
         ...,
         title="Data Paths",
         description="Mapping of task_name to path to corresponding data for each task in batch.",
     )
 
-    task_ids: Dict[TaskName, str] = pd.Field(
+    task_ids: dict[TaskName, str] = pd.Field(
         ..., title="Task IDs", description="Mapping of task_name to task_id for each task in batch."
     )
 
@@ -499,7 +499,7 @@ class Batch(WebContainer):
         * `Inverse taper edge coupler <../../notebooks/EdgeCoupler.html>`_
     """
 
-    simulations: Dict[TaskName, annotate_type(SimulationType)] = pd.Field(
+    simulations: dict[TaskName, annotate_type(SimulationType)] = pd.Field(
         ...,
         title="Simulations",
         description="Mapping of task names to Simulations to run as a batch.",
@@ -536,7 +536,7 @@ class Batch(WebContainer):
         description="Type of each simulation in the batch, used internally only.",
     )
 
-    parent_tasks: Dict[str, Tuple[TaskId, ...]] = pd.Field(
+    parent_tasks: dict[str, tuple[TaskId, ...]] = pd.Field(
         None,
         title="Parent Tasks",
         description="Collection of parent task ids for each job in batch, used internally only.",
@@ -563,7 +563,7 @@ class Batch(WebContainer):
         description="Specify the payment method.",
     )
 
-    jobs_cached: Dict[TaskName, Job] = pd.Field(
+    jobs_cached: dict[TaskName, Job] = pd.Field(
         None,
         title="Jobs (Cached)",
         description="Optional field to specify ``jobs``. Only used as a workaround internally "
@@ -610,7 +610,7 @@ class Batch(WebContainer):
         return self.load(path_dir=path_dir)
 
     @cached_property
-    def jobs(self) -> Dict[TaskName, Job]:
+    def jobs(self) -> dict[TaskName, Job]:
         """Create a series of tasks in the :class:`.Batch` and upload them to server.
 
         Note
@@ -694,7 +694,7 @@ class Batch(WebContainer):
                         completed += 1
                         progress.update(pbar, completed=completed)
 
-    def get_info(self) -> Dict[TaskName, TaskInfo]:
+    def get_info(self) -> dict[TaskName, TaskInfo]:
         """Get information about each task in the :class:`Batch`.
 
         Returns
@@ -723,7 +723,7 @@ class Batch(WebContainer):
             for _, job in self.jobs.items():
                 executor.submit(job.start)
 
-    def get_run_info(self) -> Dict[TaskName, RunInfo]:
+    def get_run_info(self) -> dict[TaskName, RunInfo]:
         """get information about a each of the tasks in the :class:`Batch`.
 
         Returns

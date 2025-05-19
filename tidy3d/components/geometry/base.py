@@ -5,7 +5,7 @@ from __future__ import annotations
 import functools
 import pathlib
 from abc import ABC, abstractmethod
-from typing import Any, Callable, List, Tuple, Union
+from typing import Any, Callable, Union
 
 import autograd.numpy as np
 import pydantic.v1 as pydantic
@@ -152,7 +152,7 @@ class Geometry(Tidy3dBaseModel, ABC):
 
     def _inds_inside_bounds(
         self, x: np.ndarray[float], y: np.ndarray[float], z: np.ndarray[float]
-    ) -> Tuple[slice, slice, slice]:
+    ) -> tuple[slice, slice, slice]:
         """Return slices into the sorted input arrays that are inside the geometry bounds.
 
         Parameters
@@ -214,7 +214,7 @@ class Geometry(Tidy3dBaseModel, ABC):
     @abstractmethod
     def intersections_tilted_plane(
         self, normal: Coordinate, origin: Coordinate, to_2D: MatrixReal4x4
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Return a list of shapely geometries at the plane specified by normal and origin.
 
         Parameters
@@ -236,7 +236,7 @@ class Geometry(Tidy3dBaseModel, ABC):
 
     def intersections_plane(
         self, x: float = None, y: float = None, z: float = None
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Returns list of shapely geometries at plane specified by one non-None value of x,y,z.
 
         Parameters
@@ -264,7 +264,7 @@ class Geometry(Tidy3dBaseModel, ABC):
             to_2D = to_2D[list(indices) + [last, 3]]
         return self.intersections_tilted_plane(normal, origin, to_2D)
 
-    def intersections_2dbox(self, plane: Box) -> List[Shapely]:
+    def intersections_2dbox(self, plane: Box) -> list[Shapely]:
         """Returns list of shapely geometries representing the intersections of the geometry with
         a 2D box.
 
@@ -281,7 +281,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         return plane.intersections_with(self)
 
     def intersects(
-        self, other, strict_inequality: Tuple[bool, bool, bool] = [False, False, False]
+        self, other, strict_inequality: tuple[bool, bool, bool] = [False, False, False]
     ) -> bool:
         """Returns ``True`` if two :class:`Geometry` have intersecting `.bounds`.
 
@@ -319,7 +319,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         return True
 
     def contains(
-        self, other: Geometry, strict_inequality: Tuple[bool, bool, bool] = [False, False, False]
+        self, other: Geometry, strict_inequality: tuple[bool, bool, bool] = [False, False, False]
     ) -> bool:
         """Returns ``True`` if the `.bounds` of  ``other`` are contained within the
         `.bounds` of ``self``.
@@ -428,7 +428,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         return Box.from_bounds(*self.bounds)
 
     @cached_property
-    def zero_dims(self) -> List[Axis]:
+    def zero_dims(self) -> list[Axis]:
         """A list of axes along which the :class:`Geometry` is zero-sized based on its bounds."""
         zero_dims = []
         for dim in range(3):
@@ -436,7 +436,7 @@ class Geometry(Tidy3dBaseModel, ABC):
                 zero_dims.append(dim)
         return zero_dims
 
-    def _pop_bounds(self, axis: Axis) -> Tuple[Coordinate2D, Tuple[Coordinate2D, Coordinate2D]]:
+    def _pop_bounds(self, axis: Axis) -> tuple[Coordinate2D, tuple[Coordinate2D, Coordinate2D]]:
         """Returns min and max bounds in plane normal to and tangential to ``axis``.
 
         Parameters
@@ -476,7 +476,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         """Get the normal to the given geometry, checking that it is a 2D geometry."""
         raise ValidationError("'Medium2D' is not compatible with this geometry class.")
 
-    def _update_from_bounds(self, bounds: Tuple[float, float], axis: Axis) -> Geometry:
+    def _update_from_bounds(self, bounds: tuple[float, float], axis: Axis) -> Geometry:
         """Returns an updated geometry which has been transformed to fit within ``bounds``
         along the ``axis`` direction."""
         raise NotImplementedError(
@@ -587,7 +587,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         return False
 
     @staticmethod
-    def _get_plot_labels(axis: Axis) -> Tuple[str, str]:
+    def _get_plot_labels(axis: Axis) -> tuple[str, str]:
         """Returns planar coordinate x and y axis labels for cross section plots.
 
         Parameters
@@ -605,7 +605,7 @@ class Geometry(Tidy3dBaseModel, ABC):
 
     def _get_plot_limits(
         self, axis: Axis, buffer: float = PLOT_BUFFER
-    ) -> Tuple[Coordinate2D, Coordinate2D]:
+    ) -> tuple[Coordinate2D, Coordinate2D]:
         """Gets planar coordinate limits for cross section plots.
 
         Parameters
@@ -719,7 +719,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         return shape
 
     @staticmethod
-    def pop_axis(coord: Tuple[Any, Any, Any], axis: int) -> Tuple[Any, Tuple[Any, Any]]:
+    def pop_axis(coord: tuple[Any, Any, Any], axis: int) -> tuple[Any, tuple[Any, Any]]:
         """Separates coordinate at ``axis`` index from coordinates on the plane tangent to ``axis``.
 
         Parameters
@@ -741,7 +741,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         return axis_val, tuple(plane_vals)
 
     @staticmethod
-    def unpop_axis(ax_coord: Any, plane_coords: Tuple[Any, Any], axis: int) -> Tuple[Any, Any, Any]:
+    def unpop_axis(ax_coord: Any, plane_coords: tuple[Any, Any], axis: int) -> tuple[Any, Any, Any]:
         """Combine coordinate along axis with coordinates on the plane tangent to the axis.
 
         Parameters
@@ -763,7 +763,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         return tuple(coords)
 
     @staticmethod
-    def parse_xyz_kwargs(**xyz) -> Tuple[Axis, float]:
+    def parse_xyz_kwargs(**xyz) -> tuple[Axis, float]:
         """Turns x,y,z kwargs into index of the normal axis and position along that axis.
 
         Parameters
@@ -788,7 +788,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         return axis, position
 
     @staticmethod
-    def parse_two_xyz_kwargs(**xyz) -> List[Tuple[Axis, float]]:
+    def parse_two_xyz_kwargs(**xyz) -> list[tuple[Axis, float]]:
         """Turns x,y,z kwargs into indices of axes and the position along each axis.
 
         Parameters
@@ -987,7 +987,7 @@ class Geometry(Tidy3dBaseModel, ABC):
     """ Field and coordinate transformations """
 
     @staticmethod
-    def car_2_sph(x: float, y: float, z: float) -> Tuple[float, float, float]:
+    def car_2_sph(x: float, y: float, z: float) -> tuple[float, float, float]:
         """Convert Cartesian to spherical coordinates.
 
         Parameters
@@ -1010,7 +1010,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         return r, theta, phi
 
     @staticmethod
-    def sph_2_car(r: float, theta: float, phi: float) -> Tuple[float, float, float]:
+    def sph_2_car(r: float, theta: float, phi: float) -> tuple[float, float, float]:
         """Convert spherical to Cartesian coordinates.
 
         Parameters
@@ -1036,7 +1036,7 @@ class Geometry(Tidy3dBaseModel, ABC):
     @staticmethod
     def sph_2_car_field(
         f_r: float, f_theta: float, f_phi: float, theta: float, phi: float
-    ) -> Tuple[complex, complex, complex]:
+    ) -> tuple[complex, complex, complex]:
         """Convert vector field components in spherical coordinates to cartesian.
 
         Parameters
@@ -1069,7 +1069,7 @@ class Geometry(Tidy3dBaseModel, ABC):
     @staticmethod
     def car_2_sph_field(
         f_x: float, f_y: float, f_z: float, theta: float, phi: float
-    ) -> Tuple[complex, complex, complex]:
+    ) -> tuple[complex, complex, complex]:
         """Convert vector field components in cartesian coordinates to spherical.
 
         Parameters
@@ -1101,7 +1101,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         return f_r, f_theta, f_phi
 
     @staticmethod
-    def kspace_2_sph(ux: float, uy: float, axis: Axis) -> Tuple[float, float]:
+    def kspace_2_sph(ux: float, uy: float, axis: Axis) -> tuple[float, float]:
         """Convert normalized k-space coordinates to angles.
 
         Parameters
@@ -1141,7 +1141,7 @@ class Geometry(Tidy3dBaseModel, ABC):
     @verify_packages_import(["gdstk", "gdspy"], required="any")
     def load_gds_vertices_gdstk(
         gds_cell, gds_layer: int, gds_dtype: int = None, gds_scale: pydantic.PositiveFloat = 1.0
-    ) -> List[ArrayFloat2D]:
+    ) -> list[ArrayFloat2D]:
         """Load polygon vertices from a ``gdstk.Cell``.
 
         Parameters
@@ -1190,7 +1190,7 @@ class Geometry(Tidy3dBaseModel, ABC):
     @verify_packages_import(["gdstk", "gdspy"], required="any")
     def load_gds_vertices_gdspy(
         gds_cell, gds_layer: int, gds_dtype: int = None, gds_scale: pydantic.PositiveFloat = 1.0
-    ) -> List[ArrayFloat2D]:
+    ) -> list[ArrayFloat2D]:
         """Load polygon vertices from a ``gdspy.Cell``.
 
         Parameters
@@ -1234,7 +1234,7 @@ class Geometry(Tidy3dBaseModel, ABC):
     def from_gds(
         gds_cell,
         axis: Axis,
-        slab_bounds: Tuple[float, float],
+        slab_bounds: tuple[float, float],
         gds_layer: int,
         gds_dtype: int = None,
         gds_scale: pydantic.PositiveFloat = 1.0,
@@ -1323,7 +1323,7 @@ class Geometry(Tidy3dBaseModel, ABC):
     def from_shapely(
         shape: Shapely,
         axis: Axis,
-        slab_bounds: Tuple[float, float],
+        slab_bounds: tuple[float, float],
         dilation: float = 0.0,
         sidewall_angle: float = 0,
         reference_plane: PlanePosition = "middle",
@@ -1366,7 +1366,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         z: float = None,
         gds_layer: pydantic.NonNegativeInt = 0,
         gds_dtype: pydantic.NonNegativeInt = 0,
-    ) -> List:
+    ) -> list:
         """Convert a Geometry object's planar slice to a .gds type polygon.
 
         Parameters
@@ -1415,7 +1415,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         z: float = None,
         gds_layer: pydantic.NonNegativeInt = 0,
         gds_dtype: pydantic.NonNegativeInt = 0,
-    ) -> List:
+    ) -> list:
         """Convert a Geometry object's planar slice to a .gds type polygon.
 
         Parameters
@@ -1573,7 +1573,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         """Compute the adjoint derivatives for this object."""
         raise NotImplementedError(f"Can't compute derivative for 'Geometry': '{type(self)}'.")
 
-    def _as_union(self) -> List[Geometry]:
+    def _as_union(self) -> list[Geometry]:
         """Return a list of geometries that, united, make up the given geometry."""
         if isinstance(self, GeometryGroup):
             return self.geometries
@@ -1673,7 +1673,7 @@ class SimplePlaneIntersection(Geometry, ABC):
 
     def intersections_tilted_plane(
         self, normal: Coordinate, origin: Coordinate, to_2D: MatrixReal4x4
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Return a list of shapely geometries at the plane specified by normal and origin.
         Checks special cases before relying on the complete computation.
 
@@ -1716,7 +1716,7 @@ class SimplePlaneIntersection(Geometry, ABC):
     @abstractmethod
     def _do_intersections_tilted_plane(
         self, normal: Coordinate, origin: Coordinate, to_2D: MatrixReal4x4
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Return a list of shapely geometries at the plane specified by normal and origin.
 
         Parameters
@@ -1873,7 +1873,7 @@ class Planar(SimplePlaneIntersection, Geometry, ABC):
         axis_index.insert(self.axis, 2)
         return axis_index[axis]
 
-    def _order_by_axis(self, plane_val: Any, axis_val: Any, axis: int) -> Tuple[Any, Any]:
+    def _order_by_axis(self, plane_val: Any, axis_val: Any, axis: int) -> tuple[Any, Any]:
         """Orders a value in the plane and value along axis in correct (x,y) order for plotting.
            Note: sometimes if axis=1 and we compute cross section values orthogonal to axis,
            they can either be x or y in the plots.
@@ -2111,7 +2111,7 @@ class Box(SimplePlaneIntersection, Centered):
     @verify_packages_import(["trimesh"])
     def _do_intersections_tilted_plane(
         self, normal: Coordinate, origin: Coordinate, to_2D: MatrixReal4x4
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Return a list of shapely geometries at the plane specified by normal and origin.
 
         Parameters
@@ -2290,7 +2290,7 @@ class Box(SimplePlaneIntersection, Centered):
         return Box(center=self.center, size=self.size)
 
     @cached_property
-    def zero_dims(self) -> List[Axis]:
+    def zero_dims(self) -> list[Axis]:
         """A list of axes along which the :class:`Box` is zero-sized."""
         return [dim for dim, size in enumerate(self.size) if size == 0]
 
@@ -2303,7 +2303,7 @@ class Box(SimplePlaneIntersection, Centered):
             )
         return self.size.index(0)
 
-    def _update_from_bounds(self, bounds: Tuple[float, float], axis: Axis) -> Box:
+    def _update_from_bounds(self, bounds: tuple[float, float], axis: Axis) -> Box:
         """Returns an updated geometry which has been transformed to fit within ``bounds``
         along the ``axis`` direction."""
         new_center = list(self.center)
@@ -2314,7 +2314,7 @@ class Box(SimplePlaneIntersection, Centered):
 
     def _plot_arrow(
         self,
-        direction: Tuple[float, float, float],
+        direction: tuple[float, float, float],
         x: float = None,
         y: float = None,
         z: float = None,
@@ -2740,7 +2740,7 @@ class Transformed(Geometry):
 
     def intersections_tilted_plane(
         self, normal: Coordinate, origin: Coordinate, to_2D: MatrixReal4x4
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Return a list of shapely geometries at the plane specified by normal and origin.
 
         Parameters
@@ -2937,7 +2937,7 @@ class Transformed(Geometry):
 
         return normal
 
-    def _update_from_bounds(self, bounds: Tuple[float, float], axis: Axis) -> Transformed:
+    def _update_from_bounds(self, bounds: tuple[float, float], axis: Axis) -> Transformed:
         """Returns an updated geometry which has been transformed to fit within ``bounds``
         along the ``axis`` direction."""
         min_bound = np.array([0, 0, 0, 1.0])
@@ -2985,7 +2985,7 @@ class ClipOperation(Geometry):
         return val
 
     @staticmethod
-    def to_polygon_list(base_geometry: Shapely) -> List[Shapely]:
+    def to_polygon_list(base_geometry: Shapely) -> list[Shapely]:
         """Return a list of valid polygons from a shapely geometry, discarding points, lines, and
         empty polygons.
 
@@ -3031,7 +3031,7 @@ class ClipOperation(Geometry):
 
     def intersections_tilted_plane(
         self, normal: Coordinate, origin: Coordinate, to_2D: MatrixReal4x4
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Return a list of shapely geometries at the plane specified by normal and origin.
 
         Parameters
@@ -3058,7 +3058,7 @@ class ClipOperation(Geometry):
 
     def intersections_plane(
         self, x: float = None, y: float = None, z: float = None
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Returns list of shapely geometries at plane specified by one non-None value of x,y,z.
 
         Parameters
@@ -3195,7 +3195,7 @@ class ClipOperation(Geometry):
             )
         return normal_a
 
-    def _update_from_bounds(self, bounds: Tuple[float, float], axis: Axis) -> ClipOperation:
+    def _update_from_bounds(self, bounds: tuple[float, float], axis: Axis) -> ClipOperation:
         """Returns an updated geometry which has been transformed to fit within ``bounds``
         along the ``axis`` direction."""
         new_geom_a = self.geometry_a._update_from_bounds(bounds=bounds, axis=axis)
@@ -3206,7 +3206,7 @@ class ClipOperation(Geometry):
 class GeometryGroup(Geometry):
     """A collection of Geometry objects that can be called as a single geometry object."""
 
-    geometries: Tuple[annotate_type(GeometryType), ...] = pydantic.Field(
+    geometries: tuple[annotate_type(GeometryType), ...] = pydantic.Field(
         ...,
         title="Geometries",
         description="Tuple of geometries in a single grouping. "
@@ -3239,7 +3239,7 @@ class GeometryGroup(Geometry):
 
     def intersections_tilted_plane(
         self, normal: Coordinate, origin: Coordinate, to_2D: MatrixReal4x4
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Return a list of shapely geometries at the plane specified by normal and origin.
 
         Parameters
@@ -3266,7 +3266,7 @@ class GeometryGroup(Geometry):
 
     def intersections_plane(
         self, x: float = None, y: float = None, z: float = None
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Returns list of shapely geometries at plane specified by one non-None value of x,y,z.
 
         Parameters
@@ -3386,7 +3386,7 @@ class GeometryGroup(Geometry):
             )
         return normal
 
-    def _update_from_bounds(self, bounds: Tuple[float, float], axis: Axis) -> GeometryGroup:
+    def _update_from_bounds(self, bounds: tuple[float, float], axis: Axis) -> GeometryGroup:
         """Returns an updated geometry which has been transformed to fit within ``bounds``
         along the ``axis`` direction."""
         new_geometries = [

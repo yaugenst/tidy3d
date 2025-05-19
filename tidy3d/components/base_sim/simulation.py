@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple
+from typing import Optional
 
 import autograd.numpy as anp
 import pydantic.v1 as pd
@@ -44,7 +44,7 @@ class AbstractSimulation(Box, ABC):
     Background medium of simulation, defaults to vacuum if not specified.
     """
 
-    structures: Tuple[Structure, ...] = pd.Field(
+    structures: tuple[Structure, ...] = pd.Field(
         (),
         title="Structures",
         description="Tuple of structures present in simulation. "
@@ -73,7 +73,7 @@ class AbstractSimulation(Box, ABC):
         )
     """
 
-    symmetry: Tuple[Symmetry, Symmetry, Symmetry] = pd.Field(
+    symmetry: tuple[Symmetry, Symmetry, Symmetry] = pd.Field(
         (0, 0, 0),
         title="Symmetries",
         description="Tuple of integers defining reflection symmetry across a plane "
@@ -81,7 +81,7 @@ class AbstractSimulation(Box, ABC):
         "at the simulation center of each axis, respectively. ",
     )
 
-    sources: Tuple[None, ...] = pd.Field(
+    sources: tuple[None, ...] = pd.Field(
         (),
         title="Sources",
         description="Sources in the simulation.",
@@ -93,7 +93,7 @@ class AbstractSimulation(Box, ABC):
         description="Specification of boundary conditions.",
     )
 
-    monitors: Tuple[None, ...] = pd.Field(
+    monitors: tuple[None, ...] = pd.Field(
         (),
         title="Monitors",
         description="Monitors in the simulation. ",
@@ -233,8 +233,8 @@ class AbstractSimulation(Box, ABC):
         ax: Ax = None,
         source_alpha: float = None,
         monitor_alpha: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         fill_structures: bool = True,
         **patch_kwargs,
     ) -> Ax:
@@ -295,8 +295,8 @@ class AbstractSimulation(Box, ABC):
         x: float = None,
         y: float = None,
         z: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         alpha: float = None,
         ax: Ax = None,
     ) -> Ax:
@@ -343,8 +343,8 @@ class AbstractSimulation(Box, ABC):
         x: float = None,
         y: float = None,
         z: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         alpha: float = None,
         ax: Ax = None,
     ) -> Ax:
@@ -391,8 +391,8 @@ class AbstractSimulation(Box, ABC):
         x: float = None,
         y: float = None,
         z: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot each of simulation's symmetries on a plane defined by one nonzero x,y,z coordinate.
@@ -501,8 +501,8 @@ class AbstractSimulation(Box, ABC):
         y: float = None,
         z: float = None,
         ax: Ax = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         fill: bool = True,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
@@ -549,8 +549,8 @@ class AbstractSimulation(Box, ABC):
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
         The permittivity is plotted in grayscale based on its value at the specified frequency.
@@ -615,8 +615,8 @@ class AbstractSimulation(Box, ABC):
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
         The permittivity is plotted in grayscale based on its value at the specified frequency.

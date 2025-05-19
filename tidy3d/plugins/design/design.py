@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import inspect
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Union
 
 import pydantic.v1 as pd
 
@@ -64,7 +64,7 @@ class DesignSpace(Tidy3dBaseModel):
 
     """
 
-    parameters: Tuple[ParameterType, ...] = pd.Field(
+    parameters: tuple[ParameterType, ...] = pd.Field(
         (),
         title="Parameters",
         description="Set of parameters defining the dimensions and allowed values for the design space.",
@@ -101,18 +101,18 @@ class DesignSpace(Tidy3dBaseModel):
     )
 
     @cached_property
-    def dims(self) -> Tuple[str]:
+    def dims(self) -> tuple[str]:
         """dimensions defined by the design parameter names."""
         return tuple(param.name for param in self.parameters)
 
     def _package_run_results(
         self,
         fn_args: list[dict[str, Any]],
-        fn_values: List[Any],
+        fn_values: list[Any],
         fn_source: str,
-        task_names: Tuple[str] = None,
+        task_names: tuple[str] = None,
         task_paths: list = None,
-        aux_values: List[Any] = None,
+        aux_values: list[Any] = None,
         opt_output: Any = None,
     ) -> Result:
         """How to package results from ``method.run`` and ``method.run_batch``"""
@@ -245,12 +245,12 @@ class DesignSpace(Tidy3dBaseModel):
             opt_output=opt_output,
         )
 
-    def run_single(self, fn: Callable, console: Console) -> Tuple(list[dict], list, list[Any]):
+    def run_single(self, fn: Callable, console: Console) -> tuple(list[dict], list, list[Any]):
         """Run a single function of parameter inputs."""
         evaluate_fn = self._get_evaluate_fn_single(fn=fn)
         return self.method._run(run_fn=evaluate_fn, parameters=self.parameters, console=console)
 
-    def run_pre_post(self, fn_pre: Callable, fn_post: Callable, console: Console) -> Tuple(
+    def run_pre_post(self, fn_pre: Callable, fn_post: Callable, console: Console) -> tuple(
         list[dict], list[dict], list[Any]
     ):
         """Run a function with Tidy3D implicitly called in between."""
@@ -454,9 +454,9 @@ class DesignSpace(Tidy3dBaseModel):
 
     def run_batch(
         self,
-        fn_pre: Callable[Any, Union[Simulation, List[Simulation], Dict[str, Simulation]]],
+        fn_pre: Callable[Any, Union[Simulation, list[Simulation], dict[str, Simulation]]],
         fn_post: Callable[
-            Union[SimulationData, List[SimulationData], Dict[str, SimulationData]], Any
+            Union[SimulationData, list[SimulationData], dict[str, SimulationData]], Any
         ],
         path_dir: str = ".",
         **batch_kwargs,

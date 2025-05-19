@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import builtins
 import json
-from typing import List, Optional
+from typing import Optional
 
 from pydantic.v1 import Field, parse_obj_as, validator
 
@@ -31,7 +32,7 @@ class MaterialLibray(Queryable, smart_union=True):
         return json.loads(values)
 
     @classmethod
-    def list(cls) -> List[MaterialLibray]:
+    def list(cls) -> builtins.list[MaterialLibray]:
         """List all material libraries.
 
         Returns
@@ -40,4 +41,4 @@ class MaterialLibray(Queryable, smart_union=True):
             List of material libraries/
         """
         resp = http.get("tidy3d/libraries")
-        return parse_obj_as(List[MaterialLibray], resp) if resp else None
+        return parse_obj_as(list[MaterialLibray], resp) if resp else None

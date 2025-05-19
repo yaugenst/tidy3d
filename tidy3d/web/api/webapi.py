@@ -7,7 +7,7 @@ import os
 import tempfile
 import time
 from datetime import datetime, timedelta
-from typing import Callable, Dict, List, Literal, Union
+from typing import Callable, Literal, Union
 
 import pytz
 from requests import HTTPError
@@ -203,7 +203,7 @@ def upload(
     verbose: bool = True,
     progress_callback: Callable[[float], None] = None,
     simulation_type: str = "tidy3d",
-    parent_tasks: List[str] = None,
+    parent_tasks: list[str] = None,
     source_required: bool = True,
     solver_version: str = None,
     reduce_simulation: Literal["auto", True, False] = "auto",
@@ -910,7 +910,7 @@ def abort(task_id: TaskId):
 @wait_for_connection
 def get_tasks(
     num_tasks: int = None, order: Literal["new", "old"] = "new", folder: str = "default"
-) -> List[Dict]:
+) -> list[dict]:
     """Get a list with the metadata of the last ``num_tasks`` tasks.
 
     Parameters

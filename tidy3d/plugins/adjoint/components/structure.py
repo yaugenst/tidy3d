@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Union
+from typing import Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -83,7 +83,7 @@ class AbstractJaxStructure(Structure, JaxObject):
 
         return cls.parse_obj(struct_dict)
 
-    def make_grad_monitors(self, freqs: List[float], name: str) -> FieldMonitor:
+    def make_grad_monitors(self, freqs: list[float], name: str) -> FieldMonitor:
         """Return gradient monitor associated with this object."""
         if "geometry" not in self._differentiable_fields:
             # make a fake JaxBox to be able to call .make_grad_monitors
@@ -96,7 +96,7 @@ class AbstractJaxStructure(Structure, JaxObject):
     def _get_medium_params(
         self,
         grad_data_eps: PermittivityData,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Compute params in the material of this structure."""
         freq_max = float(max(grad_data_eps.eps_xx.f))
         eps_in = self.medium.eps_model(frequency=freq_max)

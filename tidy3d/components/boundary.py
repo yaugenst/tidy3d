@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import List, Tuple, Union
+from typing import Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -906,7 +906,7 @@ class BoundarySpec(Tidy3dBaseModel):
         )
 
     @cached_property
-    def to_list(self) -> List[Tuple[BoundaryEdgeType, BoundaryEdgeType]]:
+    def to_list(self) -> list[tuple[BoundaryEdgeType, BoundaryEdgeType]]:
         """Returns edge-wise boundary conditions along each dimension for internal use."""
         return [
             (self.x.minus, self.x.plus),

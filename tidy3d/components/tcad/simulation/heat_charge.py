@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Dict, List, Tuple, Union
+from typing import Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -260,19 +260,19 @@ class HeatChargeSimulation(AbstractSimulation):
     Background medium of simulation, defaults to a standard dispersion-less :class:`Medium` if not specified.
     """
 
-    sources: Tuple[annotate_type(HeatChargeSourceType), ...] = pd.Field(
+    sources: tuple[annotate_type(HeatChargeSourceType), ...] = pd.Field(
         (),
         title="Heat and Charge sources",
         description="List of heat and/or charge sources.",
     )
 
-    monitors: Tuple[annotate_type(HeatChargeMonitorType), ...] = pd.Field(
+    monitors: tuple[annotate_type(HeatChargeMonitorType), ...] = pd.Field(
         (),
         title="Monitors",
         description="Monitors in the simulation.",
     )
 
-    boundary_spec: Tuple[annotate_type(Union[HeatChargeBoundarySpec, HeatBoundarySpec]), ...] = (
+    boundary_spec: tuple[annotate_type(Union[HeatChargeBoundarySpec, HeatBoundarySpec]), ...] = (
         pd.Field(
             (),
             title="Boundary Condition Specifications",
@@ -287,7 +287,7 @@ class HeatChargeSimulation(AbstractSimulation):
         discriminator=TYPE_TAG_STR,
     )
 
-    symmetry: Tuple[ScalarSymmetry, ScalarSymmetry, ScalarSymmetry] = pd.Field(
+    symmetry: tuple[ScalarSymmetry, ScalarSymmetry, ScalarSymmetry] = pd.Field(
         (0, 0, 0),
         title="Symmetries",
         description="Tuple of integers defining reflection symmetry across a plane "
@@ -315,7 +315,7 @@ class HeatChargeSimulation(AbstractSimulation):
         return val
 
     @staticmethod
-    def _check_cross_solids(objs: Tuple[Box, ...], values: Dict) -> Tuple[int, ...]:
+    def _check_cross_solids(objs: tuple[Box, ...], values: dict) -> tuple[int, ...]:
         """Given model dictionary ``values``, check whether objects in list ``objs`` cross
         a ``SolidSpec`` medium.
         """
@@ -722,7 +722,7 @@ class HeatChargeSimulation(AbstractSimulation):
 
     @staticmethod
     def _check_simulation_types(
-        values: Dict,
+        values: dict,
         HeatBCTypes=HeatBCTypes,
         ElectricBCTypes=ElectricBCTypes,
         HeatSourceTypes=HeatSourceTypes,
@@ -846,8 +846,8 @@ class HeatChargeSimulation(AbstractSimulation):
         source_alpha: float = None,
         monitor_alpha: float = None,
         property: str = "heat_conductivity",
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
     ) -> Ax:
         """Plot each of simulation's components on a plane defined by one nonzero x,y,z coordinate.
 
@@ -945,8 +945,8 @@ class HeatChargeSimulation(AbstractSimulation):
         source_alpha: float = None,
         monitor_alpha: float = None,
         colorbar: str = "conductivity",
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         **kwargs,
     ) -> Ax:
         """
@@ -1107,9 +1107,9 @@ class HeatChargeSimulation(AbstractSimulation):
     @staticmethod
     def _structure_to_bc_spec_map(
         plane: Box,
-        structures: Tuple[Structure, ...],
-        boundary_spec: Tuple[HeatChargeBoundarySpec, ...],
-    ) -> Dict[str, HeatChargeBoundarySpec]:
+        structures: tuple[Structure, ...],
+        boundary_spec: tuple[HeatChargeBoundarySpec, ...],
+    ) -> dict[str, HeatChargeBoundarySpec]:
         """Construct structure name to bc spec inverse mapping. One structure may correspond to
         multiple boundary conditions."""
 
@@ -1143,9 +1143,9 @@ class HeatChargeSimulation(AbstractSimulation):
     @staticmethod
     def _medium_to_bc_spec_map(
         plane: Box,
-        structures: Tuple[Structure, ...],
-        boundary_spec: Tuple[HeatChargeBoundarySpec, ...],
-    ) -> Dict[str, HeatChargeBoundarySpec]:
+        structures: tuple[Structure, ...],
+        boundary_spec: tuple[HeatChargeBoundarySpec, ...],
+    ) -> dict[str, HeatChargeBoundarySpec]:
         """Construct medium name to bc spec inverse mapping. One medium may correspond to
         multiple boundary conditions."""
 
@@ -1168,11 +1168,11 @@ class HeatChargeSimulation(AbstractSimulation):
 
     @staticmethod
     def _construct_forward_boundaries(
-        shapes: Tuple[Tuple[str, str, Shapely, Tuple[float, float, float, float]], ...],
-        struct_to_bc_spec: Dict[str, HeatChargeBoundarySpec],
-        med_to_bc_spec: Dict[str, HeatChargeBoundarySpec],
+        shapes: tuple[tuple[str, str, Shapely, tuple[float, float, float, float]], ...],
+        struct_to_bc_spec: dict[str, HeatChargeBoundarySpec],
+        med_to_bc_spec: dict[str, HeatChargeBoundarySpec],
         background_structure_shape: Shapely,
-    ) -> Tuple[Tuple[HeatChargeBoundarySpec, Shapely], ...]:
+    ) -> tuple[tuple[HeatChargeBoundarySpec, Shapely], ...]:
         """Construct Simulation, StructureSimulation, Structure, and MediumMedium boundaries."""
 
         # forward foop to take care of Simulation, StructureSimulation, Structure,
@@ -1260,10 +1260,10 @@ class HeatChargeSimulation(AbstractSimulation):
 
     @staticmethod
     def _construct_reverse_boundaries(
-        shapes: Tuple[Tuple[str, str, Shapely, Bound], ...],
-        struct_to_bc_spec: Dict[str, HeatChargeBoundarySpec],
+        shapes: tuple[tuple[str, str, Shapely, Bound], ...],
+        struct_to_bc_spec: dict[str, HeatChargeBoundarySpec],
         background_structure_shape: Shapely,
-    ) -> Tuple[Tuple[HeatChargeBoundarySpec, Shapely], ...]:
+    ) -> tuple[tuple[HeatChargeBoundarySpec, Shapely], ...]:
         """Construct StructureStructure boundaries."""
 
         # backward foop to take care of StructureStructure
@@ -1328,10 +1328,10 @@ class HeatChargeSimulation(AbstractSimulation):
 
     @staticmethod
     def _construct_heat_charge_boundaries(
-        structures: List[Structure],
+        structures: list[Structure],
         plane: Box,
-        boundary_spec: List[HeatChargeBoundarySpec],
-    ) -> List[Tuple[HeatChargeBoundarySpec, Shapely]]:
+        boundary_spec: list[HeatChargeBoundarySpec],
+    ) -> list[tuple[HeatChargeBoundarySpec, Shapely]]:
         """Compute list of boundary lines to plot on plane.
 
         Parameters
@@ -1399,8 +1399,8 @@ class HeatChargeSimulation(AbstractSimulation):
         y: float = None,
         z: float = None,
         property: str = "heat_conductivity",
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         alpha: float = None,
         ax: Ax = None,
     ) -> Ax:
@@ -1506,7 +1506,7 @@ class HeatChargeSimulation(AbstractSimulation):
         except ValueError:
             return None
 
-    def source_bounds(self, property: str = "heat_conductivity") -> Tuple[float, float]:
+    def source_bounds(self, property: str = "heat_conductivity") -> tuple[float, float]:
         """Compute range of heat sources present in the simulation."""
 
         if property == "heat_conductivity" or property == "source":

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pathlib
 from collections import defaultdict
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import autograd.numpy as anp
 import numpy as np
@@ -193,7 +193,7 @@ class Structure(AbstractStructure):
     def viz_spec(self):
         return self.medium.viz_spec
 
-    def eps_diagonal(self, frequency: float, coords: Coords) -> Tuple[complex, complex, complex]:
+    def eps_diagonal(self, frequency: float, coords: Coords) -> tuple[complex, complex, complex]:
         """Main diagonal of the complex-valued permittivity tensor as a function of frequency.
 
         Parameters
@@ -659,7 +659,7 @@ class MeshOverrideStructure(AbstractStructure):
     >>> struct_override = MeshOverrideStructure(geometry=box, dl=(0.1,0.2,0.3), name='override_box')
     """
 
-    dl: Tuple[
+    dl: tuple[
         Optional[pydantic.PositiveFloat],
         Optional[pydantic.PositiveFloat],
         Optional[pydantic.PositiveFloat],

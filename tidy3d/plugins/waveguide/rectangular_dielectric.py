@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated, Any, List, Literal, Tuple, Union
+from typing import Annotated, Any, Literal, Union
 
 import numpy
 import pydantic.v1 as pydantic
@@ -73,14 +73,14 @@ class RectangularDielectric(Tidy3dBaseModel):
         discriminator=TYPE_TAG_STR,
     )
 
-    clad_medium: Union[AnnotatedMedium, Tuple[AnnotatedMedium, ...]] = pydantic.Field(
+    clad_medium: Union[AnnotatedMedium, tuple[AnnotatedMedium, ...]] = pydantic.Field(
         ...,
         title="Clad Medium",
         description="Medium associated with the upper cladding layer. A sequence of mediums can "
         "be used to create a layered clad.",
     )
 
-    box_medium: Union[AnnotatedMedium, Tuple[AnnotatedMedium, ...]] = pydantic.Field(
+    box_medium: Union[AnnotatedMedium, tuple[AnnotatedMedium, ...]] = pydantic.Field(
         None,
         title="Box Medium",
         description="Medium associated with the lower cladding layer. A sequence of mediums can "
@@ -340,14 +340,14 @@ class RectangularDielectric(Tidy3dBaseModel):
         return values
 
     @property
-    def _clad_medium(self) -> Tuple[MediumType, ...]:
+    def _clad_medium(self) -> tuple[MediumType, ...]:
         """Normalize data type to tuple."""
         if not isinstance(self.clad_medium, tuple):
             return (self.clad_medium,)
         return self.clad_medium
 
     @property
-    def _box_medium(self) -> Tuple[MediumType, ...]:
+    def _box_medium(self) -> tuple[MediumType, ...]:
         """Normalize data type to tuple."""
         if not isinstance(self.box_medium, tuple):
             return (self.box_medium,)
@@ -374,7 +374,7 @@ class RectangularDielectric(Tidy3dBaseModel):
 
     def _swap_axis(
         self, lateral_coord: Any, normal_coord: Any, propagation_coord: Any
-    ) -> List[Any]:
+    ) -> list[Any]:
         """Swap the model coordinates to desired axes."""
         result = [None, None, None]
         result[self.lateral_axis] = lateral_coord
@@ -384,13 +384,13 @@ class RectangularDielectric(Tidy3dBaseModel):
 
     def _translate(
         self, lateral_coord: float, normal_coord: float, propagation_coord: float
-    ) -> List[float]:
+    ) -> list[float]:
         """Swap the model coordinates to desired axes and translate to origin."""
         coordinates = self._swap_axis(lateral_coord, normal_coord, propagation_coord)
         result = [a + b for a, b in zip(self.origin, coordinates)]
         return result
 
-    def _transform_in_plane(self, lateral_coord: float, propagation_coord: float) -> List[float]:
+    def _transform_in_plane(self, lateral_coord: float, propagation_coord: float) -> list[float]:
         """Swap the model coordinates to desired axes in the substrate plane."""
         result = self._translate(lateral_coord, 0, propagation_coord)
         _, result = Box.pop_axis(result, self.normal_axis)
@@ -410,14 +410,14 @@ class RectangularDielectric(Tidy3dBaseModel):
         return w
 
     @property
-    def _core_starts(self) -> List[float]:
+    def _core_starts(self) -> list[float]:
         """Starting positions of each waveguide (x is the position in the lateral direction)."""
         core_x = [-0.5 * (self.core_width.sum() + self.gap.sum())]
         core_x.extend(core_x[0] + numpy.cumsum(self.core_width[:-1]) + numpy.cumsum(self.gap))
         return core_x
 
     @property
-    def _override_structures(self) -> List[Structure]:
+    def _override_structures(self) -> list[Structure]:
         """Build override structures to define the simulation grid."""
 
         # Grid resolution factor applied to the materials (increase for waveguide corners
@@ -548,7 +548,7 @@ class RectangularDielectric(Tidy3dBaseModel):
         return grid_spec
 
     @cached_property
-    def structures(self) -> List[Structure]:
+    def structures(self) -> list[Structure]:
         """Waveguide structures for simulation, including the core(s), slabs (if any), and bottom
         cladding, if different from the top. For bend modes, the structure is a 270 degree bend
         regardless of :attr:`length`."""

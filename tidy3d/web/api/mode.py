@@ -7,7 +7,7 @@ import pathlib
 import tempfile
 import time
 from datetime import datetime
-from typing import Callable, List, Literal, Optional, Union
+from typing import Callable, Literal, Optional, Union
 
 import pydantic.v1 as pydantic
 from botocore.exceptions import ClientError
@@ -146,17 +146,17 @@ def run(
 
 
 def run_batch(
-    mode_solvers: List[ModeSolver],
+    mode_solvers: list[ModeSolver],
     task_name: str = "BatchModeSolver",
     folder_name: str = "BatchModeSolvers",
-    results_files: List[str] = None,
+    results_files: list[str] = None,
     verbose: bool = True,
     max_workers: int = DEFAULT_NUM_WORKERS,
     max_retries: int = DEFAULT_MAX_RETRIES,
     retry_delay: float = DEFAULT_RETRY_DELAY,
     progress_callback_upload: Callable[[float], None] = None,
     progress_callback_download: Callable[[float], None] = None,
-) -> List[ModeSolverData]:
+) -> list[ModeSolverData]:
     """
     Submits a batch of ModeSolver to the server concurrently, manages progress, and retrieves results.
 

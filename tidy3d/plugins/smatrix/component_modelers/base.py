@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple, Union, get_args
+from typing import Union, get_args
 
 import numpy as np
 import pydantic.v1 as pd
@@ -41,7 +41,7 @@ class AbstractComponentModeler(ABC, Tidy3dBaseModel):
         description="Simulation describing the device without any sources present.",
     )
 
-    ports: Tuple[Union[Port, TerminalPortType], ...] = pd.Field(
+    ports: tuple[Union[Port, TerminalPortType], ...] = pd.Field(
         (),
         title="Ports",
         description="Collection of ports describing the scattering matrix elements. "
@@ -139,7 +139,7 @@ class AbstractComponentModeler(ABC, Tidy3dBaseModel):
         return f"smatrix_{port.name}"
 
     @cached_property
-    def sim_dict(self) -> Dict[str, Simulation]:
+    def sim_dict(self) -> dict[str, Simulation]:
         """Generate all the :class:`.Simulation` objects for the S matrix calculation."""
 
     def to_file(self, fname: str) -> None:

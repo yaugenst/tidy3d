@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Generator
-from typing import TYPE_CHECKING, Any, Optional, Type
+from typing import TYPE_CHECKING, Any, Optional
 
 from tidy3d.components.base import Tidy3dBaseModel
 from tidy3d.components.types import TYPE_TAG_STR
@@ -63,7 +63,7 @@ class Expression(Tidy3dBaseModel, ABC):
         return subclass(**obj)
 
     def filter(
-        self, target_type: Type[Expression], target_field: Optional[str] = None
+        self, target_type: type[Expression], target_field: Optional[str] = None
     ) -> Generator[Expression, None, None]:
         """
         Find all instances of a given type or field in the expression.

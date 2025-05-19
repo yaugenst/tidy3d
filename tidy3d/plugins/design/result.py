@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import numpy as np
 import pandas
@@ -30,26 +30,26 @@ class Result(Tidy3dBaseModel):
     >>> # df.head() # print out first 5 elements of data
     """
 
-    dims: Tuple[str, ...] = pd.Field(
+    dims: tuple[str, ...] = pd.Field(
         (),
         title="Dimensions",
         description="The dimensions of the design variables (indexed by 'name').",
     )
 
-    values: Tuple[Any, ...] = pd.Field(
+    values: tuple[Any, ...] = pd.Field(
         (),
         title="Values",
         description="The return values from the design problem function.",
     )
 
-    coords: Tuple[Tuple[Any, ...], ...] = pd.Field(
+    coords: tuple[tuple[Any, ...], ...] = pd.Field(
         (),
         title="Coordinates",
         description="The values of the coordinates corresponding to each of the dims."
         "Note: shaped (D, N) where D is the ``len(dims)`` and N is the ``len(values)``",
     )
 
-    output_names: Tuple[str, ...] = pd.Field(
+    output_names: tuple[str, ...] = pd.Field(
         None,
         title="Output Names",
         description="Names for each of the outputs stored in ``values``. If not specified, default "
@@ -78,7 +78,7 @@ class Result(Tidy3dBaseModel):
         "Stored in the same format as the output of fn_pre i.e. if pre outputs a dict, this output is a dict with the keys preserved.",
     )
 
-    aux_values: Tuple[Any, ...] = pd.Field(
+    aux_values: tuple[Any, ...] = pd.Field(
         None,
         title="Auxiliary values output from the user function",
         description="The auxiliary return values from the design problem function. This is the collection of objects returned "
@@ -131,7 +131,7 @@ class Result(Tidy3dBaseModel):
 
         return val
 
-    def value_as_dict(self, value) -> Dict[str, Any]:
+    def value_as_dict(self, value) -> dict[str, Any]:
         """How to convert an output function value as a dictionary."""
         if isinstance(value, dict):
             return value
@@ -141,7 +141,7 @@ class Result(Tidy3dBaseModel):
         return dict(zip(keys, value))
 
     @staticmethod
-    def default_value_keys(value) -> Tuple[str, ...]:
+    def default_value_keys(value) -> tuple[str, ...]:
         """The default keys for a given value."""
 
         # if a dict already, just use the existing keys as labels
@@ -155,7 +155,7 @@ class Result(Tidy3dBaseModel):
         # if simply single value (float, int, bool, etc) just label "output"
         return ("output",)
 
-    def items(self) -> Tuple[dict, Any]:
+    def items(self) -> tuple[dict, Any]:
         """Iterate through coordinates (args) and values (outputs) one by one."""
 
         for coord_tuple, val in zip(self.coords, self.values):
@@ -163,7 +163,7 @@ class Result(Tidy3dBaseModel):
             yield coord_dict, val
 
     @cached_property
-    def data(self) -> Dict[tuple, Any]:
+    def data(self) -> dict[tuple, Any]:
         """Dict mapping tuple of fn args to their value."""
 
         result = {}
@@ -246,7 +246,7 @@ class Result(Tidy3dBaseModel):
         return df
 
     @classmethod
-    def from_dataframe(cls, df: pandas.DataFrame, dims: List[str] = None) -> Result:
+    def from_dataframe(cls, df: pandas.DataFrame, dims: list[str] = None) -> Result:
         """Load a result directly from a `pandas.DataFrame` object.
 
         Parameters
@@ -346,14 +346,14 @@ class Result(Tidy3dBaseModel):
         """Special syntax for design_result1 + design_result2."""
         return self.combine(other)
 
-    def get_index(self, fn_args: Dict[str, float]) -> int:
+    def get_index(self, fn_args: dict[str, float]) -> int:
         """Get index into the data for a specific set of arguments."""
 
         key_list = list(self.coords)
         arg_key = tuple(fn_args[dim] for dim in self.dims)
         return key_list.index(arg_key)
 
-    def delete(self, fn_args: Dict[str, float]) -> Result:
+    def delete(self, fn_args: dict[str, float]) -> Result:
         """Delete a specific set of arguments from the result.
 
         Parameters
@@ -392,7 +392,7 @@ class Result(Tidy3dBaseModel):
 
         return self.updated_copy(values=new_values, coords=new_coords)
 
-    def add(self, fn_args: Dict[str, float], value: Any) -> Result:
+    def add(self, fn_args: dict[str, float], value: Any) -> Result:
         """Add a specific argument and value the result.
 
         Parameters

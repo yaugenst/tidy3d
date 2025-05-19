@@ -6,7 +6,7 @@ import functools
 import warnings
 from abc import ABC, abstractmethod
 from math import isclose
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Optional, Union
 
 import autograd as ag
 import autograd.numpy as np
@@ -172,17 +172,17 @@ class NonlinearModel(ABC, Tidy3dBaseModel):
         """Any additional validation that depends on the medium"""
         pass
 
-    def _validate_medium_freqs(self, medium: AbstractMedium, freqs: List[pd.PositiveFloat]) -> None:
+    def _validate_medium_freqs(self, medium: AbstractMedium, freqs: list[pd.PositiveFloat]) -> None:
         """Any additional validation that depends on the central frequencies of the sources."""
         pass
 
     def _hardcode_medium_freqs(
-        self, medium: AbstractMedium, freqs: List[pd.PositiveFloat]
+        self, medium: AbstractMedium, freqs: list[pd.PositiveFloat]
     ) -> NonlinearSpec:
         """Update the nonlinear model to hardcode information on medium and freqs."""
         return self
 
-    def _get_freq0(self, freq0, freqs: List[pd.PositiveFloat]) -> float:
+    def _get_freq0(self, freq0, freqs: list[pd.PositiveFloat]) -> float:
         """Get a single value for freq0."""
 
         # freq0 is not specified; need to calculate it
@@ -219,7 +219,7 @@ class NonlinearModel(ABC, Tidy3dBaseModel):
         self,
         n0: complex,
         medium: AbstractMedium,
-        freqs: List[pd.PositiveFloat],
+        freqs: list[pd.PositiveFloat],
     ) -> complex:
         """Get a single value for n0."""
         if freqs is None:
@@ -265,7 +265,7 @@ class NonlinearModel(ABC, Tidy3dBaseModel):
         return False
 
     @property
-    def aux_fields(self) -> List[str]:
+    def aux_fields(self) -> list[str]:
         """List of available aux fields in this model."""
         return []
 
@@ -468,7 +468,7 @@ class TwoPhotonAbsorption(NonlinearModel):
             )
         return val
 
-    def _validate_medium_freqs(self, medium: AbstractMedium, freqs: List[pd.PositiveFloat]) -> None:
+    def _validate_medium_freqs(self, medium: AbstractMedium, freqs: list[pd.PositiveFloat]) -> None:
         """Any validation that depends on knowing the central frequencies of the sources.
         This includes passivity checking, if necessary."""
         n0 = self._get_n0(self.n0, medium, freqs)
@@ -487,7 +487,7 @@ class TwoPhotonAbsorption(NonlinearModel):
                 )
 
     def _hardcode_medium_freqs(
-        self, medium: AbstractMedium, freqs: List[pd.PositiveFloat]
+        self, medium: AbstractMedium, freqs: list[pd.PositiveFloat]
     ) -> TwoPhotonAbsorption:
         """Update the nonlinear model to hardcode information on medium and freqs."""
         n0 = self._get_n0(n0=self.n0, medium=medium, freqs=freqs)
@@ -506,7 +506,7 @@ class TwoPhotonAbsorption(NonlinearModel):
         return self.use_complex_fields
 
     @property
-    def aux_fields(self) -> List[str]:
+    def aux_fields(self) -> list[str]:
         """List of available aux fields in this model."""
         if self.tau == 0:
             return []
@@ -602,7 +602,7 @@ class KerrNonlinearity(NonlinearModel):
             )
         return val
 
-    def _validate_medium_freqs(self, medium: AbstractMedium, freqs: List[pd.PositiveFloat]) -> None:
+    def _validate_medium_freqs(self, medium: AbstractMedium, freqs: list[pd.PositiveFloat]) -> None:
         """Any validation that depends on knowing the central frequencies of the sources.
         This includes passivity checking, if necessary."""
         n0 = self._get_n0(self.n0, medium, freqs)
@@ -627,7 +627,7 @@ class KerrNonlinearity(NonlinearModel):
             self._validate_medium_freqs(medium, [])
 
     def _hardcode_medium_freqs(
-        self, medium: AbstractMedium, freqs: List[pd.PositiveFloat]
+        self, medium: AbstractMedium, freqs: list[pd.PositiveFloat]
     ) -> KerrNonlinearity:
         """Update the nonlinear model to hardcode information on medium and freqs."""
         n0 = self._get_n0(n0=self.n0, medium=medium, freqs=freqs)
@@ -657,7 +657,7 @@ class NonlinearSpec(ABC, Tidy3dBaseModel):
     >>> medium = Medium(permittivity=2, nonlinear_spec=nonlinear_spec)
     """
 
-    models: Tuple[NonlinearModelType, ...] = pd.Field(
+    models: tuple[NonlinearModelType, ...] = pd.Field(
         (),
         title="Nonlinear models",
         description="The nonlinear models present in this nonlinear spec. "
@@ -720,7 +720,7 @@ class NonlinearSpec(ABC, Tidy3dBaseModel):
         return val
 
     def _hardcode_medium_freqs(
-        self, medium: AbstractMedium, freqs: List[pd.PositiveFloat]
+        self, medium: AbstractMedium, freqs: list[pd.PositiveFloat]
     ) -> NonlinearSpec:
         """Update the nonlinear spec to hardcode information on medium and freqs."""
         new_models = []
@@ -730,7 +730,7 @@ class NonlinearSpec(ABC, Tidy3dBaseModel):
         return self.updated_copy(models=new_models)
 
     @property
-    def aux_fields(self) -> List[str]:
+    def aux_fields(self) -> list[str]:
         """List of available aux fields in all present models."""
         fields = []
         for model in self.models:
@@ -779,7 +779,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
     )
 
     @cached_property
-    def _nonlinear_models(self) -> List:
+    def _nonlinear_models(self) -> list:
         """The nonlinear models in the nonlinear_spec."""
         if self.nonlinear_spec is None:
             return []
@@ -923,7 +923,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
         return isinstance(self, FullyAnisotropicMedium)
 
     @cached_property
-    def _incompatible_material_types(self) -> List[str]:
+    def _incompatible_material_types(self) -> list[str]:
         """A list of material properties present which may lead to incompatibilities."""
         properties = [
             self.is_time_modulated,
@@ -974,7 +974,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
             Complex-valued relative permittivity evaluated at ``frequency``.
         """
 
-    def nk_model(self, frequency: float) -> Tuple[float, float]:
+    def nk_model(self, frequency: float) -> tuple[float, float]:
         """Real and imaginary parts of the refactive index as a function of frequency.
 
         Parameters
@@ -990,7 +990,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
         eps_complex = self.eps_model(frequency=frequency)
         return self.eps_complex_to_nk(eps_complex)
 
-    def loss_tangent_model(self, frequency: float) -> Tuple[float, float]:
+    def loss_tangent_model(self, frequency: float) -> tuple[float, float]:
         """Permittivity and loss tangent as a function of frequency.
 
         Parameters
@@ -1007,7 +1007,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
         return self.eps_complex_to_eps_loss_tangent(eps_complex)
 
     @ensure_freq_in_range
-    def eps_diagonal(self, frequency: float) -> Tuple[complex, complex, complex]:
+    def eps_diagonal(self, frequency: float) -> tuple[complex, complex, complex]:
         """Main diagonal of the complex-valued permittivity tensor as a function of frequency.
 
         Parameters
@@ -1025,7 +1025,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
         eps = self.eps_model(frequency)
         return (eps, eps, eps)
 
-    def eps_diagonal_numerical(self, frequency: float) -> Tuple[complex, complex, complex]:
+    def eps_diagonal_numerical(self, frequency: float) -> tuple[complex, complex, complex]:
         """Main diagonal of the complex-valued permittivity tensor for numerical considerations
         such as meshing and runtime estimation.
 
@@ -1163,7 +1163,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
         return eps_real + 1j * eps_imag
 
     @staticmethod
-    def eps_complex_to_nk(eps_c: complex) -> Tuple[float, float]:
+    def eps_complex_to_nk(eps_c: complex) -> tuple[float, float]:
         """Convert complex permittivity to n, k values.
 
         Parameters
@@ -1181,7 +1181,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
         return np.real(ref_index), np.imag(ref_index)
 
     @staticmethod
-    def nk_to_eps_sigma(n: float, k: float, freq: float) -> Tuple[float, float]:
+    def nk_to_eps_sigma(n: float, k: float, freq: float) -> tuple[float, float]:
         """Convert ``n``, ``k`` at frequency ``freq`` to permittivity and conductivity values.
 
         Parameters
@@ -1230,7 +1230,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
         return eps_real + 1j * sigma / omega / EPSILON_0
 
     @staticmethod
-    def eps_complex_to_eps_sigma(eps_complex: complex, freq: float) -> Tuple[float, float]:
+    def eps_complex_to_eps_sigma(eps_complex: complex, freq: float) -> tuple[float, float]:
         """Convert complex permittivity at frequency ``freq``
         to permittivity and conductivity values.
 
@@ -1252,7 +1252,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
         return eps_real, sigma
 
     @staticmethod
-    def eps_complex_to_eps_loss_tangent(eps_complex: complex) -> Tuple[float, float]:
+    def eps_complex_to_eps_loss_tangent(eps_complex: complex) -> tuple[float, float]:
         """Convert complex permittivity to permittivity and loss tangent.
 
         Parameters
@@ -1460,7 +1460,7 @@ class AbstractCustomMedium(AbstractMedium, ABC):
     @abstractmethod
     def eps_dataarray_freq(
         self, frequency: float
-    ) -> Tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
+    ) -> tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
         """Permittivity array at ``frequency``.
 
         Parameters
@@ -1494,7 +1494,7 @@ class AbstractCustomMedium(AbstractMedium, ABC):
         self,
         frequency: float,
         coords: Coords,
-    ) -> Tuple[ArrayComplex3D, ArrayComplex3D, ArrayComplex3D]:
+    ) -> tuple[ArrayComplex3D, ArrayComplex3D, ArrayComplex3D]:
         """Spatial profile of main diagonal of the complex-valued permittivity
         at ``frequency`` interpolated at the supplied coordinates.
 
@@ -1564,7 +1564,7 @@ class AbstractCustomMedium(AbstractMedium, ABC):
         )
 
     @ensure_freq_in_range
-    def eps_diagonal(self, frequency: float) -> Tuple[complex, complex, complex]:
+    def eps_diagonal(self, frequency: float) -> tuple[complex, complex, complex]:
         """Main diagonal of the complex-valued permittivity tensor
         at ``frequency``. Spatially, we take max{||eps||}, so that autoMesh generation
         works appropriately.
@@ -1585,7 +1585,7 @@ class AbstractCustomMedium(AbstractMedium, ABC):
 
     def _eps_bounds(
         self, frequency: float = None, eps_component: Optional[PermittivityComponent] = None
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Returns permittivity bounds for setting the color bounds when plotting.
 
         Parameters
@@ -1614,7 +1614,7 @@ class AbstractCustomMedium(AbstractMedium, ABC):
 
     @staticmethod
     def _validate_isreal_dataarray_tuple(
-        dataarray_tuple: Tuple[CustomSpatialDataType, ...],
+        dataarray_tuple: tuple[CustomSpatialDataType, ...],
     ) -> bool:
         """Validate that the dataarray is real"""
         return np.all([AbstractCustomMedium._validate_isreal_dataarray(f) for f in dataarray_tuple])
@@ -2077,7 +2077,7 @@ class CustomIsotropicMedium(AbstractCustomMedium, Medium):
 
     def eps_dataarray_freq(
         self, frequency: float
-    ) -> Tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
+    ) -> tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
         """Permittivity array at ``frequency``.
 
         Parameters
@@ -2505,7 +2505,7 @@ class CustomMedium(AbstractCustomMedium):
 
     def eps_dataarray_freq(
         self, frequency: float
-    ) -> Tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
+    ) -> tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
         """Permittivity array at ``frequency``. ()
 
         Parameters
@@ -2540,7 +2540,7 @@ class CustomMedium(AbstractCustomMedium):
         self,
         frequency: float,
         coords: Coords,
-    ) -> Tuple[ArrayComplex3D, ArrayComplex3D, ArrayComplex3D]:
+    ) -> tuple[ArrayComplex3D, ArrayComplex3D, ArrayComplex3D]:
         """Spatial profile of main diagonal of the complex-valued permittivity
         at ``frequency`` interpolated at the supplied coordinates.
 
@@ -2560,7 +2560,7 @@ class CustomMedium(AbstractCustomMedium):
         return self._medium.eps_diagonal_on_grid(frequency, coords)
 
     @ensure_freq_in_range
-    def eps_diagonal(self, frequency: float) -> Tuple[complex, complex, complex]:
+    def eps_diagonal(self, frequency: float) -> tuple[complex, complex, complex]:
         """Main diagonal of the complex-valued permittivity tensor
         at ``frequency``. Spatially, we take max{|eps|}, so that autoMesh generation
         works appropriately.
@@ -2731,7 +2731,7 @@ class CustomMedium(AbstractCustomMedium):
         sigma = SpatialDataArray(sigma.squeeze(dim="f", drop=True))
         return cls(permittivity=eps_real, conductivity=sigma, interp_method=interp_method, **kwargs)
 
-    def grids(self, bounds: Bound) -> Dict[str, Grid]:
+    def grids(self, bounds: Bound) -> dict[str, Grid]:
         """Make a :class:`.Grid` corresponding to the data in each ``eps_ii`` component.
         The min and max coordinates along each dimension are bounded by ``bounds``."""
 
@@ -2742,7 +2742,7 @@ class CustomMedium(AbstractCustomMedium):
         def make_grid(scalar_field: Union[ScalarFieldDataArray, SpatialDataArray]) -> Grid:
             """Make a grid for a single dataset."""
 
-            def make_bound_coords(coords: np.ndarray, pt_min: float, pt_max: float) -> List[float]:
+            def make_bound_coords(coords: np.ndarray, pt_min: float, pt_max: float) -> list[float]:
                 """Convert user supplied coords into boundary coords to use in :class:`.Grid`."""
 
                 # get coordinates of the bondaries halfway between user-supplied data
@@ -3021,7 +3021,7 @@ class DispersiveMedium(AbstractMedium, ABC):
         return _validate_conductivity_modulation
 
     @abstractmethod
-    def _pole_residue_dict(self) -> Dict:
+    def _pole_residue_dict(self) -> dict:
         """Dict representation of Medium as a pole-residue model."""
 
     @cached_property
@@ -3045,14 +3045,14 @@ class DispersiveMedium(AbstractMedium, ABC):
         return n
 
     @staticmethod
-    def tuple_to_complex(value: Tuple[float, float]) -> complex:
+    def tuple_to_complex(value: tuple[float, float]) -> complex:
         """Convert a tuple of real and imaginary parts to complex number."""
 
         val_r, val_i = value
         return val_r + 1j * val_i
 
     @staticmethod
-    def complex_to_tuple(value: complex) -> Tuple[float, float]:
+    def complex_to_tuple(value: complex) -> tuple[float, float]:
         """Convert a complex number to a tuple of real and imaginary parts."""
 
         return (value.real, value.imag)
@@ -3170,7 +3170,7 @@ class PoleResidue(DispersiveMedium):
         units=PERMITTIVITY,
     )
 
-    poles: Tuple[TracedPoleAndResidue, ...] = pd.Field(
+    poles: tuple[TracedPoleAndResidue, ...] = pd.Field(
         (),
         title="Poles",
         description="Tuple of complex-valued (:math:`a_i, c_i`) poles for the model.",
@@ -3190,7 +3190,7 @@ class PoleResidue(DispersiveMedium):
 
     @staticmethod
     def _eps_model(
-        eps_inf: pd.PositiveFloat, poles: Tuple[PoleAndResidue, ...], frequency: float
+        eps_inf: pd.PositiveFloat, poles: tuple[PoleAndResidue, ...], frequency: float
     ) -> complex:
         """Complex-valued permittivity as a function of frequency."""
 
@@ -3208,7 +3208,7 @@ class PoleResidue(DispersiveMedium):
         """Complex-valued permittivity as a function of frequency."""
         return self._eps_model(eps_inf=self.eps_inf, poles=self.poles, frequency=frequency)
 
-    def _pole_residue_dict(self) -> Dict:
+    def _pole_residue_dict(self) -> dict:
         """Dict representation of Medium as a pole-residue model."""
 
         return {
@@ -3270,7 +3270,7 @@ class PoleResidue(DispersiveMedium):
 
     @staticmethod
     def lo_to_eps_model(
-        poles: Tuple[Tuple[float, float, float, float], ...],
+        poles: tuple[tuple[float, float, float, float], ...],
         eps_inf: pd.PositiveFloat,
         frequency: float,
     ) -> complex:
@@ -3302,7 +3302,7 @@ class PoleResidue(DispersiveMedium):
 
     @classmethod
     def from_lo_to(
-        cls, poles: Tuple[Tuple[float, float, float, float], ...], eps_inf: pd.PositiveFloat = 1
+        cls, poles: tuple[tuple[float, float, float, float], ...], eps_inf: pd.PositiveFloat = 1
     ) -> PoleResidue:
         """Construct a pole residue model from the LO-TO form
         (longitudinal and transverse optical modes).
@@ -3374,7 +3374,7 @@ class PoleResidue(DispersiveMedium):
         return PoleResidue(eps_inf=eps_inf, poles=list(zip(a_coeffs, c_coeffs)))
 
     @staticmethod
-    def imag_ep_extrema(poles: Tuple[PoleAndResidue, ...]) -> ArrayFloat1D:
+    def imag_ep_extrema(poles: tuple[PoleAndResidue, ...]) -> ArrayFloat1D:
         """Extrema of Im[eps] in the same unit as poles.
 
         Parameters
@@ -3723,7 +3723,7 @@ class CustomPoleResidue(CustomDispersiveMedium, PoleResidue):
         units=PERMITTIVITY,
     )
 
-    poles: Tuple[Tuple[CustomSpatialDataTypeAnnotated, CustomSpatialDataTypeAnnotated], ...] = (
+    poles: tuple[tuple[CustomSpatialDataTypeAnnotated, CustomSpatialDataTypeAnnotated], ...] = (
         pd.Field(
             (),
             title="Poles",
@@ -3773,7 +3773,7 @@ class CustomPoleResidue(CustomDispersiveMedium, PoleResidue):
 
     def eps_dataarray_freq(
         self, frequency: float
-    ) -> Tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
+    ) -> tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
         """Permittivity array at ``frequency``.
 
         Parameters
@@ -3805,7 +3805,7 @@ class CustomPoleResidue(CustomDispersiveMedium, PoleResidue):
         eps = PoleResidue.eps_model(self, frequency)
         return (eps, eps, eps)
 
-    def poles_on_grid(self, coords: Coords) -> Tuple[Tuple[ArrayComplex3D, ArrayComplex3D], ...]:
+    def poles_on_grid(self, coords: Coords) -> tuple[tuple[ArrayComplex3D, ArrayComplex3D], ...]:
         """Spatial profile of poles interpolated at the supplied coordinates.
 
         Parameters
@@ -4009,7 +4009,7 @@ class Sellmeier(DispersiveMedium):
     * `Modeling dispersive material in FDTD <https://www.flexcompute.com/fdtd101/Lecture-5-Modeling-dispersive-material-in-FDTD/>`_
     """
 
-    coeffs: Tuple[Tuple[float, pd.PositiveFloat], ...] = pd.Field(
+    coeffs: tuple[tuple[float, pd.PositiveFloat], ...] = pd.Field(
         title="Coefficients",
         description="List of Sellmeier (:math:`B_i, C_i`) coefficients.",
         units=(None, MICROMETER + "^2"),
@@ -4064,7 +4064,7 @@ class Sellmeier(DispersiveMedium):
         n = self._n_model(frequency)
         return AbstractMedium.nk_to_eps_complex(n)
 
-    def _pole_residue_dict(self) -> Dict:
+    def _pole_residue_dict(self) -> dict:
         """Dict representation of Medium as a pole-residue model"""
         poles = []
         for B, C in self.coeffs:
@@ -4153,7 +4153,7 @@ class CustomSellmeier(CustomDispersiveMedium, Sellmeier):
         * `Modeling dispersive material in FDTD <https://www.flexcompute.com/fdtd101/Lecture-5-Modeling-dispersive-material-in-FDTD/>`_
     """
 
-    coeffs: Tuple[Tuple[CustomSpatialDataTypeAnnotated, CustomSpatialDataTypeAnnotated], ...] = (
+    coeffs: tuple[tuple[CustomSpatialDataTypeAnnotated, CustomSpatialDataTypeAnnotated], ...] = (
         pd.Field(
             ...,
             title="Coefficients",
@@ -4207,7 +4207,7 @@ class CustomSellmeier(CustomDispersiveMedium, Sellmeier):
                     return False
         return True
 
-    def _pole_residue_dict(self) -> Dict:
+    def _pole_residue_dict(self) -> dict:
         """Dict representation of Medium as a pole-residue model."""
         poles_dict = Sellmeier._pole_residue_dict(self)
         if len(self.coeffs) > 0:
@@ -4216,7 +4216,7 @@ class CustomSellmeier(CustomDispersiveMedium, Sellmeier):
 
     def eps_dataarray_freq(
         self, frequency: float
-    ) -> Tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
+    ) -> tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
         """Permittivity array at ``frequency``.
 
         Parameters
@@ -4370,7 +4370,7 @@ class Lorentz(DispersiveMedium):
         units=PERMITTIVITY,
     )
 
-    coeffs: Tuple[Tuple[float, float, pd.NonNegativeFloat], ...] = pd.Field(
+    coeffs: tuple[tuple[float, float, pd.NonNegativeFloat], ...] = pd.Field(
         ...,
         title="Coefficients",
         description="List of (:math:`\\Delta\\epsilon_i, f_i, \\delta_i`) values for model.",
@@ -4413,7 +4413,7 @@ class Lorentz(DispersiveMedium):
             eps = eps + (de * f**2) / (f**2 - 2j * frequency * delta - frequency**2)
         return eps
 
-    def _pole_residue_dict(self) -> Dict:
+    def _pole_residue_dict(self) -> dict:
         """Dict representation of Medium as a pole-residue model."""
 
         poles = []
@@ -4551,8 +4551,8 @@ class CustomLorentz(CustomDispersiveMedium, Lorentz):
         units=PERMITTIVITY,
     )
 
-    coeffs: Tuple[
-        Tuple[
+    coeffs: tuple[
+        tuple[
             CustomSpatialDataTypeAnnotated,
             CustomSpatialDataTypeAnnotated,
             CustomSpatialDataTypeAnnotated,
@@ -4648,7 +4648,7 @@ class CustomLorentz(CustomDispersiveMedium, Lorentz):
 
     def eps_dataarray_freq(
         self, frequency: float
-    ) -> Tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
+    ) -> tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
         """Permittivity array at ``frequency``.
 
         Parameters
@@ -4760,7 +4760,7 @@ class Drude(DispersiveMedium):
         units=PERMITTIVITY,
     )
 
-    coeffs: Tuple[Tuple[float, pd.PositiveFloat], ...] = pd.Field(
+    coeffs: tuple[tuple[float, pd.PositiveFloat], ...] = pd.Field(
         ...,
         title="Coefficients",
         description="List of (:math:`f_i, \\delta_i`) values for model.",
@@ -4779,7 +4779,7 @@ class Drude(DispersiveMedium):
             eps = eps - (f**2) / (frequency**2 + 1j * frequency * delta)
         return eps
 
-    def _pole_residue_dict(self) -> Dict:
+    def _pole_residue_dict(self) -> dict:
         """Dict representation of Medium as a pole-residue model."""
 
         poles = []
@@ -4853,7 +4853,7 @@ class CustomDrude(CustomDispersiveMedium, Drude):
         units=PERMITTIVITY,
     )
 
-    coeffs: Tuple[Tuple[CustomSpatialDataTypeAnnotated, CustomSpatialDataTypeAnnotated], ...] = (
+    coeffs: tuple[tuple[CustomSpatialDataTypeAnnotated, CustomSpatialDataTypeAnnotated], ...] = (
         pd.Field(
             ...,
             title="Coefficients",
@@ -4907,7 +4907,7 @@ class CustomDrude(CustomDispersiveMedium, Drude):
 
     def eps_dataarray_freq(
         self, frequency: float
-    ) -> Tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
+    ) -> tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
         """Permittivity array at ``frequency``.
 
         Parameters
@@ -5012,7 +5012,7 @@ class Debye(DispersiveMedium):
         units=PERMITTIVITY,
     )
 
-    coeffs: Tuple[Tuple[float, pd.PositiveFloat], ...] = pd.Field(
+    coeffs: tuple[tuple[float, pd.PositiveFloat], ...] = pd.Field(
         ...,
         title="Coefficients",
         description="List of (:math:`\\Delta\\epsilon_i, \\tau_i`) values for model.",
@@ -5110,7 +5110,7 @@ class CustomDebye(CustomDispersiveMedium, Debye):
         units=PERMITTIVITY,
     )
 
-    coeffs: Tuple[Tuple[CustomSpatialDataTypeAnnotated, CustomSpatialDataTypeAnnotated], ...] = (
+    coeffs: tuple[tuple[CustomSpatialDataTypeAnnotated, CustomSpatialDataTypeAnnotated], ...] = (
         pd.Field(
             ...,
             title="Coefficients",
@@ -5179,7 +5179,7 @@ class CustomDebye(CustomDispersiveMedium, Debye):
 
     def eps_dataarray_freq(
         self, frequency: float
-    ) -> Tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
+    ) -> tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
         """Permittivity array at ``frequency``.
 
         Parameters
@@ -5410,7 +5410,7 @@ class HuraySurfaceRoughness(AbstractSurfaceRoughness):
         description="Relative area of the matte base compared to a flat surface",
     )
 
-    coeffs: Tuple[Tuple[pd.PositiveFloat, pd.PositiveFloat], ...] = pd.Field(
+    coeffs: tuple[tuple[pd.PositiveFloat, pd.PositiveFloat], ...] = pd.Field(
         ...,
         title="Coefficients for surface ratio and sphere radius",
         description="List of (:math:`f_i, r_i`) values for model, where :math:`f_i` is "
@@ -5548,7 +5548,7 @@ class LossyMetalMedium(Medium):
         return val
 
     @cached_property
-    def _fitting_result(self) -> Tuple[PoleResidue, float]:
+    def _fitting_result(self) -> tuple[PoleResidue, float]:
         """Fitted scaled surface impedance and residue."""
 
         omega_data = self.Hz_to_angular_freq(self.sampling_frequencies)
@@ -5622,7 +5622,7 @@ class LossyMetalMedium(Medium):
             self.fit_param.frequency_sampling_points,
         )
 
-    def eps_diagonal_numerical(self, frequency: float) -> Tuple[complex, complex, complex]:
+    def eps_diagonal_numerical(self, frequency: float) -> tuple[complex, complex, complex]:
         """Main diagonal of the complex-valued permittivity tensor for numerical considerations
         such as meshing and runtime estimation.
 
@@ -5766,7 +5766,7 @@ class AnisotropicMedium(AbstractMedium):
         return values
 
     @cached_property
-    def components(self) -> Dict[str, Medium]:
+    def components(self) -> dict[str, Medium]:
         """Dictionary of diagonal medium components."""
         return {"xx": self.xx, "yy": self.yy, "zz": self.zz}
 
@@ -5792,7 +5792,7 @@ class AnisotropicMedium(AbstractMedium):
         return np.mean(self.eps_diagonal(frequency), axis=0)
 
     @ensure_freq_in_range
-    def eps_diagonal(self, frequency: float) -> Tuple[complex, complex, complex]:
+    def eps_diagonal(self, frequency: float) -> tuple[complex, complex, complex]:
         """Main diagonal of the complex-valued permittivity tensor as a function of frequency."""
 
         eps_xx = self.xx.eps_model(frequency)
@@ -5876,7 +5876,7 @@ class AnisotropicMedium(AbstractMedium):
         return ax
 
     @property
-    def elements(self) -> Dict[str, IsotropicUniformMediumType]:
+    def elements(self) -> dict[str, IsotropicUniformMediumType]:
         """The diagonal elements of the medium as a dictionary."""
         return {"xx": self.xx, "yy": self.yy, "zz": self.zz}
 
@@ -6093,7 +6093,7 @@ class FullyAnisotropicMedium(AbstractMedium):
     @cached_property
     def eps_sigma_diag(
         self,
-    ) -> Tuple[Tuple[float, float, float], Tuple[float, float, float], TensorReal]:
+    ) -> tuple[tuple[float, float, float], tuple[float, float, float], TensorReal]:
         """Main components of permittivity and conductivity tensors and their directions."""
 
         perm_diag, vecs = np.linalg.eig(self.permittivity)
@@ -6113,7 +6113,7 @@ class FullyAnisotropicMedium(AbstractMedium):
         return np.mean(eps_diag)
 
     @ensure_freq_in_range
-    def eps_diagonal(self, frequency: float) -> Tuple[complex, complex, complex]:
+    def eps_diagonal(self, frequency: float) -> tuple[complex, complex, complex]:
         """Main diagonal of the complex-valued permittivity tensor as a function of frequency."""
 
         perm_diag, cond_diag, _ = self.eps_sigma_diag
@@ -6347,7 +6347,7 @@ class CustomAnisotropicMedium(AbstractCustomMedium, AnisotropicMedium):
 
     def eps_dataarray_freq(
         self, frequency: float
-    ) -> Tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
+    ) -> tuple[CustomSpatialDataType, CustomSpatialDataType, CustomSpatialDataType]:
         """Permittivity array at ``frequency``.
 
         Parameters
@@ -6383,7 +6383,7 @@ class CustomAnisotropicMedium(AbstractCustomMedium, AnisotropicMedium):
 
     def _eps_bounds(
         self, frequency: float = None, eps_component: Optional[PermittivityComponent] = None
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """Returns permittivity bounds for setting the color bounds when plotting.
 
         Parameters
@@ -6821,7 +6821,7 @@ class PerturbationPoleResidue(PoleResidue, AbstractPerturbationMedium):
     )
 
     poles_perturbation: Optional[
-        Tuple[Tuple[Optional[ParameterPerturbation], Optional[ParameterPerturbation]], ...]
+        tuple[tuple[Optional[ParameterPerturbation], Optional[ParameterPerturbation]], ...]
     ] = pd.Field(
         None,
         title="Perturbations of Poles",
@@ -7081,7 +7081,7 @@ class Medium2D(AbstractMedium):
 
     @classmethod
     def _weighted_avg(
-        cls, meds: List[IsotropicUniformMediumType], weights: List[float]
+        cls, meds: list[IsotropicUniformMediumType], weights: list[float]
     ) -> Union[PoleResidue, PECMedium]:
         """Average ``meds`` with weights ``weights``."""
         eps_inf = 1
@@ -7104,8 +7104,8 @@ class Medium2D(AbstractMedium):
     def volumetric_equivalent(
         self,
         axis: Axis,
-        adjacent_media: Tuple[MediumType3D, MediumType3D],
-        adjacent_dls: Tuple[float, float],
+        adjacent_media: tuple[MediumType3D, MediumType3D],
+        adjacent_dls: tuple[float, float],
     ) -> AnisotropicMedium:
         """Produces a 3D volumetric equivalent medium. The new medium has thickness equal to
         the average of the ``dls`` in the ``axis`` direction.
@@ -7309,7 +7309,7 @@ class Medium2D(AbstractMedium):
         return np.mean(self.eps_diagonal(frequency=frequency), axis=0)
 
     @ensure_freq_in_range
-    def eps_diagonal(self, frequency: float) -> Tuple[complex, complex]:
+    def eps_diagonal(self, frequency: float) -> tuple[complex, complex]:
         """Main diagonal of the complex-valued permittivity tensor as a function of frequency."""
         log.warning(
             "The permittivity of a 'Medium2D' is unphysical. "
@@ -7321,7 +7321,7 @@ class Medium2D(AbstractMedium):
         eps_tt = self.tt.eps_model(frequency)
         return (eps_ss, eps_tt)
 
-    def eps_diagonal_numerical(self, frequency: float) -> Tuple[complex, complex, complex]:
+    def eps_diagonal_numerical(self, frequency: float) -> tuple[complex, complex, complex]:
         """Main diagonal of the complex-valued permittivity tensor for numerical considerations
         such as meshing and runtime estimation.
 
@@ -7397,7 +7397,7 @@ class Medium2D(AbstractMedium):
         return np.mean([self.ss.sigma_model(freq), self.tt.sigma_model(freq)], axis=0)
 
     @property
-    def elements(self) -> Dict[str, IsotropicUniformMediumType]:
+    def elements(self) -> dict[str, IsotropicUniformMediumType]:
         """The diagonal elements of the 2D medium as a dictionary."""
         return {"ss": self.ss, "tt": self.tt}
 

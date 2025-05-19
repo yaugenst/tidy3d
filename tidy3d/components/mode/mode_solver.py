@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from functools import wraps
 from math import isclose
-from typing import Dict, List, Literal, Tuple, Union
+from typing import Literal, Union
 
 import numpy as np
 import pydantic.v1 as pydantic
@@ -75,7 +75,7 @@ except ImportError:
     log.warning(IMPORT_ERROR_MSG)
     LOCAL_SOLVER_IMPORTED = False
 
-FIELD = Tuple[ArrayComplex3D, ArrayComplex3D, ArrayComplex3D]
+FIELD = tuple[ArrayComplex3D, ArrayComplex3D, ArrayComplex3D]
 MODE_MONITOR_NAME = "<<<MODE_SOLVER_MONITOR>>>"
 
 # Warning for field intensity at edges over total field intensity larger than this value
@@ -168,7 +168,7 @@ class ModeSolver(Tidy3dBaseModel):
         "primal grid nodes). Default is ``True``.",
     )
 
-    fields: Tuple[EMField, ...] = pydantic.Field(
+    fields: tuple[EMField, ...] = pydantic.Field(
         ["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"],
         title="Field Components",
         description="Collection of field components to store in the monitor. Note that some "
@@ -257,7 +257,7 @@ class ModeSolver(Tidy3dBaseModel):
         return idx_plane.index(self.normal_axis)
 
     @staticmethod
-    def _solver_symmetry(simulation: Simulation, plane: Box) -> Tuple[Symmetry, Symmetry]:
+    def _solver_symmetry(simulation: Simulation, plane: Box) -> tuple[Symmetry, Symmetry]:
         """Get symmetry for solver for propagation along self.normal axis."""
         normal_axis = plane.size.index(0.0)
         mode_symmetry = list(simulation.symmetry)
@@ -268,7 +268,7 @@ class ModeSolver(Tidy3dBaseModel):
         return solver_sym
 
     @cached_property
-    def solver_symmetry(self) -> Tuple[Symmetry, Symmetry]:
+    def solver_symmetry(self) -> tuple[Symmetry, Symmetry]:
         """Get symmetry for solver for propagation along self.normal axis."""
         return self._solver_symmetry(simulation=self.simulation, plane=self.plane)
 
@@ -336,7 +336,7 @@ class ModeSolver(Tidy3dBaseModel):
         )
 
     @cached_property
-    def _num_cells_freqs_modes(self) -> Tuple[int, int, int]:
+    def _num_cells_freqs_modes(self) -> tuple[int, int, int]:
         """Get the number of spatial points, number of freqs, and number of modes requested."""
         num_cells = np.prod(self._solver_grid.num_cells)
         num_modes = self.mode_spec.num_modes
@@ -554,7 +554,7 @@ class ModeSolver(Tidy3dBaseModel):
 
         return self.updated_copy(simulation=rotated_simulation, mode_spec=rotated_mode_spec)
 
-    def _rotate_structures(self) -> List[Structure]:
+    def _rotate_structures(self) -> list[Structure]:
         """Rotate the structures intersecting with modal plane by angle theta
         if bend_correction is enabeled for bend simulations."""
 
@@ -599,7 +599,7 @@ class ModeSolver(Tidy3dBaseModel):
         return rotated_structures
 
     @cached_property
-    def rotated_bend_center(self) -> List:
+    def rotated_bend_center(self) -> list:
         """Calculate the center at the rotated bend such that the modal plane is normal
         to the azimuthal direction of the bend."""
         rotated_bend_center = list(self.plane.center)
@@ -635,7 +635,7 @@ class ModeSolver(Tidy3dBaseModel):
 
     def _car_2_cyn(
         self, mode_solver_data: ModeSolverData
-    ) -> Dict[Union[ScalarModeFieldCylindricalDataArray, ModeIndexDataArray]]:
+    ) -> dict[Union[ScalarModeFieldCylindricalDataArray, ModeIndexDataArray]]:
         """Convert cartesian fields to cylindrical fields centered at the
         rotated bend center."""
 
@@ -835,7 +835,7 @@ class ModeSolver(Tidy3dBaseModel):
 
     def _mode_rotation(
         self,
-        solver_ref_data_cylindrical: Dict[
+        solver_ref_data_cylindrical: dict[
             Union[ScalarModeFieldCylindricalDataArray, ModeIndexDataArray]
         ],
         solver: ModeSolver,
@@ -990,7 +990,7 @@ class ModeSolver(Tidy3dBaseModel):
         return EFFECTIVE_RADIUS_FACTOR * largest_dim
 
     @cached_property
-    def bend_center(self) -> List:
+    def bend_center(self) -> list:
         """Computes the bend center based on plane center, angle_theta and angle_phi."""
         _, id_bend_uv = self.plane.pop_axis((0, 1, 2), axis=self.bend_axis_3d)
 
@@ -1175,7 +1175,7 @@ class ModeSolver(Tidy3dBaseModel):
 
         return mode_solver_data
 
-    def _get_colocation_coordinates(self) -> Dict[str, ArrayFloat1D]:
+    def _get_colocation_coordinates(self) -> dict[str, ArrayFloat1D]:
         """Get colocation coordinates in the solver plane.
 
         Returns:
@@ -1363,9 +1363,9 @@ class ModeSolver(Tidy3dBaseModel):
 
     def _solve_all_freqs(
         self,
-        coords: Tuple[ArrayFloat1D, ArrayFloat1D],
-        symmetry: Tuple[Symmetry, Symmetry],
-    ) -> Tuple[List[float], List[Dict[str, ArrayComplex4D]], List[EpsSpecType]]:
+        coords: tuple[ArrayFloat1D, ArrayFloat1D],
+        symmetry: tuple[Symmetry, Symmetry],
+    ) -> tuple[list[float], list[dict[str, ArrayComplex4D]], list[EpsSpecType]]:
         """Call the mode solver at all requested frequencies."""
 
         fields = []
@@ -1382,10 +1382,10 @@ class ModeSolver(Tidy3dBaseModel):
 
     def _solve_all_freqs_relative(
         self,
-        coords: Tuple[ArrayFloat1D, ArrayFloat1D],
-        symmetry: Tuple[Symmetry, Symmetry],
-        basis_fields: List[Dict[str, ArrayComplex4D]],
-    ) -> Tuple[List[float], List[Dict[str, ArrayComplex4D]], List[EpsSpecType]]:
+        coords: tuple[ArrayFloat1D, ArrayFloat1D],
+        symmetry: tuple[Symmetry, Symmetry],
+        basis_fields: list[dict[str, ArrayComplex4D]],
+    ) -> tuple[list[float], list[dict[str, ArrayComplex4D]], list[EpsSpecType]]:
         """Call the mode solver at all requested frequencies."""
 
         fields = []
@@ -1425,9 +1425,9 @@ class ModeSolver(Tidy3dBaseModel):
     def _solve_single_freq(
         self,
         freq: float,
-        coords: Tuple[ArrayFloat1D, ArrayFloat1D],
-        symmetry: Tuple[Symmetry, Symmetry],
-    ) -> Tuple[float, Dict[str, ArrayComplex4D], EpsSpecType]:
+        coords: tuple[ArrayFloat1D, ArrayFloat1D],
+        symmetry: tuple[Symmetry, Symmetry],
+    ) -> tuple[float, dict[str, ArrayComplex4D], EpsSpecType]:
         """Call the mode solver at a single frequency.
 
         The fields are rotated from propagation coordinates back to global coordinates.
@@ -1478,10 +1478,10 @@ class ModeSolver(Tidy3dBaseModel):
     def _solve_single_freq_relative(
         self,
         freq: float,
-        coords: Tuple[ArrayFloat1D, ArrayFloat1D],
-        symmetry: Tuple[Symmetry, Symmetry],
-        basis_fields: Dict[str, ArrayComplex4D],
-    ) -> Tuple[float, Dict[str, ArrayComplex4D], EpsSpecType]:
+        coords: tuple[ArrayFloat1D, ArrayFloat1D],
+        symmetry: tuple[Symmetry, Symmetry],
+        basis_fields: dict[str, ArrayComplex4D],
+    ) -> tuple[float, dict[str, ArrayComplex4D], EpsSpecType]:
         """Call the mode solver at a single frequency.
         Modes are computed as linear combinations of ``basis_fields``.
         """
@@ -1517,7 +1517,7 @@ class ModeSolver(Tidy3dBaseModel):
     @staticmethod
     def _weighted_coord_max(
         array: ArrayFloat2D, u: ArrayFloat1D, v: ArrayFloat1D
-    ) -> Tuple[int, int]:
+    ) -> tuple[int, int]:
         """2D argmax for an array weighted in both directions."""
         if not np.all(np.isfinite(array)):  # make sure the array is valid
             return 0, 0
@@ -1535,7 +1535,7 @@ class ModeSolver(Tidy3dBaseModel):
         return i, j
 
     @staticmethod
-    def _inverted_gauge(e_field: FIELD, diff_coords: Tuple[ArrayFloat1D, ArrayFloat1D]) -> bool:
+    def _inverted_gauge(e_field: FIELD, diff_coords: tuple[ArrayFloat1D, ArrayFloat1D]) -> bool:
         """Check if the lower xy region of the mode has a negative sign."""
         dx, dy = diff_coords
         e_x, e_y = e_field[:2, :, :, 0]
@@ -1568,8 +1568,8 @@ class ModeSolver(Tidy3dBaseModel):
         mode_index: pydantic.NonNegativeInt,
         normal_axis: Axis,
         plane: MODE_PLANE_TYPE,
-        diff_coords: Tuple[ArrayFloat1D, ArrayFloat1D],
-    ) -> Tuple[FIELD, FIELD]:
+        diff_coords: tuple[ArrayFloat1D, ArrayFloat1D],
+    ) -> tuple[FIELD, FIELD]:
         """Transform solver fields to simulation axes and set gauge."""
 
         # Separate E and H fields (in solver coordinates)
@@ -1696,7 +1696,7 @@ class ModeSolver(Tidy3dBaseModel):
         return abs(self.mode_spec.angle_theta) > 0 or self._has_fully_anisotropic_media
 
     @cached_property
-    def _intersecting_media(self) -> List:
+    def _intersecting_media(self) -> list:
         """List of media (including simulation background) intersecting the mode plane."""
         total_structures = [self.simulation.scene.background_structure]
         total_structures += list(self.simulation.structures)
@@ -1793,7 +1793,7 @@ class ModeSolver(Tidy3dBaseModel):
             **kwargs,
         )
 
-    def to_monitor(self, freqs: List[float] = None, name: str = None) -> ModeMonitor:
+    def to_monitor(self, freqs: list[float] = None, name: str = None) -> ModeMonitor:
         """Creates :class:`ModeMonitor` from a :class:`ModeSolver` instance plus additional
         specifications.
 
@@ -1897,7 +1897,7 @@ class ModeSolver(Tidy3dBaseModel):
     @require_fdtd_simulation
     def sim_with_monitor(
         self,
-        freqs: List[float] = None,
+        freqs: list[float] = None,
         name: str = None,
     ) -> Simulation:
         """Creates :class:`.Simulation` from a :class:`ModeSolver`. Creates a copy of
@@ -2202,7 +2202,7 @@ class ModeSolver(Tidy3dBaseModel):
         )
 
     @classmethod
-    def _plane_grid(cls, simulation: Simulation, plane: Box) -> Tuple[Coords, Coords]:
+    def _plane_grid(cls, simulation: Simulation, plane: Box) -> tuple[Coords, Coords]:
         """Plane grid for mode solver."""
         # Get the mode plane normal axis, center, and limits.
         _, _, _, t_axes = cls._center_and_lims(simulation=simulation, plane=plane)
@@ -2218,7 +2218,7 @@ class ModeSolver(Tidy3dBaseModel):
     @classmethod
     def _effective_num_pml(
         cls, simulation: Simulation, plane: Box, mode_spec: ModeSpec
-    ) -> Tuple[pydantic.NonNegativeFloat, pydantic.NonNegativeFloat]:
+    ) -> tuple[pydantic.NonNegativeFloat, pydantic.NonNegativeFloat]:
         """Number of cells of the mode solver pml."""
         coord_0, coord_1 = cls._plane_grid(simulation=simulation, plane=plane)
 
@@ -2232,9 +2232,9 @@ class ModeSolver(Tidy3dBaseModel):
     @classmethod
     def _pml_thickness(
         cls, simulation: Simulation, plane: Box, mode_spec: ModeSpec
-    ) -> Tuple[
-        Tuple[pydantic.NonNegativeFloat, pydantic.NonNegativeFloat],
-        Tuple[pydantic.NonNegativeFloat, pydantic.NonNegativeFloat],
+    ) -> tuple[
+        tuple[pydantic.NonNegativeFloat, pydantic.NonNegativeFloat],
+        tuple[pydantic.NonNegativeFloat, pydantic.NonNegativeFloat],
     ]:
         """Thickness of the mode solver pml in the form
         ((plus0, minus0), (plus1, minus1))
@@ -2272,7 +2272,7 @@ class ModeSolver(Tidy3dBaseModel):
     @classmethod
     def _mode_plane_size(
         cls, simulation: Simulation, plane: Box
-    ) -> Tuple[pydantic.NonNegativeFloat, pydantic.NonNegativeFloat]:
+    ) -> tuple[pydantic.NonNegativeFloat, pydantic.NonNegativeFloat]:
         """The size of the mode plane intersected with the simulation."""
         _, h_lim, v_lim, _ = cls._center_and_lims(simulation=simulation, plane=plane)
         return h_lim[1] - h_lim[0], v_lim[1] - v_lim[0]
@@ -2280,7 +2280,7 @@ class ModeSolver(Tidy3dBaseModel):
     @classmethod
     def _mode_plane_size_no_pml(
         cls, simulation: Simulation, plane: Box, mode_spec: ModeSpec
-    ) -> Tuple[pydantic.NonNegativeFloat, pydantic.NonNegativeFloat]:
+    ) -> tuple[pydantic.NonNegativeFloat, pydantic.NonNegativeFloat]:
         """The size of the remaining portion of the mode plane, after the pml
         has been removed."""
         size = cls._mode_plane_size(simulation=simulation, plane=plane)
@@ -2363,7 +2363,7 @@ class ModeSolver(Tidy3dBaseModel):
         return ax
 
     @staticmethod
-    def _center_and_lims(simulation: Simulation, plane: Box) -> Tuple[List, List, List, List]:
+    def _center_and_lims(simulation: Simulation, plane: Box) -> tuple[list, list, list, list]:
         """Get the mode plane center and limits."""
         normal_axis = plane.size.index(0.0)
 

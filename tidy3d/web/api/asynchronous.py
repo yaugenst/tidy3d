@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Literal, Union
+from typing import Literal, Union
 
 from ...log import log
 from ..core.types import PayType
@@ -11,14 +11,14 @@ from .tidy3d_stub import SimulationType
 
 
 def run_async(
-    simulations: Dict[str, SimulationType],
+    simulations: dict[str, SimulationType],
     folder_name: str = "default",
     path_dir: str = DEFAULT_DATA_DIR,
     callback_url: str = None,
     num_workers: int = None,
     verbose: bool = True,
     simulation_type: str = "tidy3d",
-    parent_tasks: Dict[str, List[str]] = None,
+    parent_tasks: dict[str, list[str]] = None,
     reduce_simulation: Literal["auto", True, False] = "auto",
     pay_type: Union[PayType, str] = PayType.AUTO,
 ) -> BatchData:

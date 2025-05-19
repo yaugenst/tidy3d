@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Tuple, Union
+from typing import Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -56,7 +56,7 @@ class UniformUnstructuredGrid(UnstructuredGrid):
         description="Enforced minimum number of mesh segments per any side of an object.",
     )
 
-    non_refined_structures: Tuple[str, ...] = pd.Field(
+    non_refined_structures: tuple[str, ...] = pd.Field(
         (),
         title="Structures Without Refinement",
         description="List of structures for which ``min_edges_per_circumference`` and "
@@ -202,21 +202,21 @@ class DistanceUnstructuredGrid(UnstructuredGrid):
         "surface when computing distance values.",
     )
 
-    uniform_grid_mediums: Tuple[str, ...] = pd.Field(
+    uniform_grid_mediums: tuple[str, ...] = pd.Field(
         (),
         title="Mediums With Uniform Refinement",
         description="List of mediums for which ``dl_interface`` will be enforced everywhere "
         "in the volume.",
     )
 
-    non_refined_structures: Tuple[str, ...] = pd.Field(
+    non_refined_structures: tuple[str, ...] = pd.Field(
         (),
         title="Structures Without Refinement",
         description="List of structures for which ``dl_interface`` will not be enforced. "
         "``dl_bulk`` is used instead.",
     )
 
-    mesh_refinements: Tuple[annotate_type(Union[GridRefinementRegion, GridRefinementLine]), ...] = (
+    mesh_refinements: tuple[annotate_type(Union[GridRefinementRegion, GridRefinementLine]), ...] = (
         pd.Field(
             (),
             title="Mesh refinement structures",

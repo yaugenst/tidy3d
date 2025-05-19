@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -1227,17 +1227,17 @@ def run_emulated(simulation: td.Simulation, path=None, **kwargs) -> td.Simulatio
 class BatchDataTest(Tidy3dBaseModel):
     """Holds a collection of :class:`.SimulationData` returned by :class:`.Batch`."""
 
-    task_paths: Dict[str, str] = pd.Field(
+    task_paths: dict[str, str] = pd.Field(
         ...,
         title="Data Paths",
         description="Mapping of task_name to path to corresponding data for each task in batch.",
     )
 
-    task_ids: Dict[str, str] = pd.Field(
+    task_ids: dict[str, str] = pd.Field(
         ..., title="Task IDs", description="Mapping of task_name to task_id for each task in batch."
     )
 
-    sim_data: Dict[str, td.SimulationData]
+    sim_data: dict[str, td.SimulationData]
 
     def load_sim_data(self, task_name: str) -> td.SimulationData:
         """Load a :class:`.SimulationData` from file by task name."""
@@ -1245,7 +1245,7 @@ class BatchDataTest(Tidy3dBaseModel):
         _ = self.task_ids[task_name]
         return self.sim_data[task_name]
 
-    def items(self) -> Tuple[str, td.SimulationData]:
+    def items(self) -> tuple[str, td.SimulationData]:
         """Iterate through the :class:`.SimulationData` for each task_name."""
         for task_name in self.task_paths.keys():
             yield task_name, self.load_sim_data(task_name)
@@ -1255,7 +1255,7 @@ class BatchDataTest(Tidy3dBaseModel):
         return self.load_sim_data(task_name)
 
 
-def run_async_emulated(simulations: Dict[str, td.Simulation], **kwargs) -> BatchData:
+def run_async_emulated(simulations: dict[str, td.Simulation], **kwargs) -> BatchData:
     """Emulate an async run function."""
     task_ids = {task_name: f"task_id={i}" for i, task_name in enumerate(simulations.keys())}
     task_paths = dict.fromkeys(simulations.keys(), "NONE")
@@ -1265,7 +1265,7 @@ def run_async_emulated(simulations: Dict[str, td.Simulation], **kwargs) -> Batch
 
 
 def assert_log_level(
-    records: List[Tuple[int, str]], log_level_expected: str, contains_str: str = None
+    records: list[tuple[int, str]], log_level_expected: str, contains_str: str = None
 ) -> None:
     """Testing tool: Raises error if a log was not recorded as expected.
 

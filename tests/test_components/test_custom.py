@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Tuple
-
 import dill as pickle
 import numpy as np
 import pydantic.v1 as pydantic
@@ -92,7 +90,7 @@ FIELD_SRC = make_custom_field_source()
 CURRENT_SRC = make_custom_current_source()
 
 
-def get_dataset(custom_source_obj) -> Tuple[str, td.FieldDataset]:
+def get_dataset(custom_source_obj) -> tuple[str, td.FieldDataset]:
     """Get a dict containing dataset depending on type and its key."""
     if isinstance(custom_source_obj, td.CustomFieldSource):
         return "field_dataset", custom_source_obj.field_dataset

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import wraps
 from html import escape
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import pydantic.v1 as pd
 from numpy import array, concatenate, inf, ones
@@ -226,7 +226,7 @@ class VisualizationSpec(Tidy3dBaseModel):
         return is_valid_color(value)
 
     @pd.validator("edgecolor", always=True)
-    def validate_and_copy_color(value: str, values: Dict[str, Any]) -> str:
+    def validate_and_copy_color(value: str, values: dict[str, Any]) -> str:
         if (value == "") and "facecolor" in values:
             return is_valid_color(values["facecolor"])
 

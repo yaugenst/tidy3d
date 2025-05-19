@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Tuple, Union
+from typing import Callable, Union
 
 import autograd.numpy as np
 import pydantic.v1 as pd
@@ -16,13 +16,13 @@ from .parametrizations import FilterAndProject
 class ErosionDilationPenalty(Tidy3dBaseModel):
     """A class that computes a penalty for erosion/dilation of a parameter map not being unity."""
 
-    radius: Union[float, Tuple[float, ...]] = pd.Field(
+    radius: Union[float, tuple[float, ...]] = pd.Field(
         ..., title="Radius", description="The radius of the kernel."
     )
-    dl: Union[float, Tuple[float, ...]] = pd.Field(
+    dl: Union[float, tuple[float, ...]] = pd.Field(
         ..., title="Grid Spacing", description="The grid spacing."
     )
-    size_px: Union[int, Tuple[int, ...]] = pd.Field(
+    size_px: Union[int, tuple[int, ...]] = pd.Field(
         None, title="Size in Pixels", description="The size of the kernel in pixels."
     )
     beta: pd.NonNegativeFloat = pd.Field(
@@ -90,10 +90,10 @@ class ErosionDilationPenalty(Tidy3dBaseModel):
 
 
 def make_erosion_dilation_penalty(
-    radius: Union[float, Tuple[float, ...]],
-    dl: Union[float, Tuple[float, ...]],
+    radius: Union[float, tuple[float, ...]],
+    dl: Union[float, tuple[float, ...]],
     *,
-    size_px: Union[int, Tuple[int, ...]] = None,
+    size_px: Union[int, tuple[int, ...]] = None,
     beta: float = 20.0,
     eta: float = 0.5,
     delta_eta: float = 0.01,

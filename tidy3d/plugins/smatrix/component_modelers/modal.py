@@ -4,7 +4,7 @@
 # "ModalPort" to explicitly differentiate these from "TerminalComponentModeler" and "LumpedPort".
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 import pydantic.v1 as pd
@@ -22,8 +22,8 @@ from ....web.api.container import BatchData
 from ..ports.modal import ModalPortDataArray, Port
 from .base import FWIDTH_FRAC, AbstractComponentModeler
 
-MatrixIndex = Tuple[str, pd.NonNegativeInt]  # the 'i' in S_ij
-Element = Tuple[MatrixIndex, MatrixIndex]  # the 'ij' in S_ij
+MatrixIndex = tuple[str, pd.NonNegativeInt]  # the 'i' in S_ij
+Element = tuple[MatrixIndex, MatrixIndex]  # the 'ij' in S_ij
 
 
 class ComponentModeler(AbstractComponentModeler):
@@ -39,14 +39,14 @@ class ComponentModeler(AbstractComponentModeler):
         * `Computing the scattering matrix of a device <../../notebooks/SMatrix.html>`_
     """
 
-    ports: Tuple[Port, ...] = pd.Field(
+    ports: tuple[Port, ...] = pd.Field(
         (),
         title="Ports",
         description="Collection of ports describing the scattering matrix elements. "
         "For each input mode, one simulation will be run with a modal source.",
     )
 
-    element_mappings: Tuple[Tuple[Element, Element, Complex], ...] = pd.Field(
+    element_mappings: tuple[tuple[Element, Element, Complex], ...] = pd.Field(
         (),
         title="Element Mappings",
         description="Mapping between elements of the scattering matrix, "
@@ -59,7 +59,7 @@ class ComponentModeler(AbstractComponentModeler):
         "is skipped automatically.",
     )
 
-    run_only: Optional[Tuple[MatrixIndex, ...]] = pd.Field(
+    run_only: Optional[tuple[MatrixIndex, ...]] = pd.Field(
         None,
         title="Run Only",
         description="If given, a tuple of matrix indices, specified by (:class:`.Port`, ``int``),"
@@ -93,7 +93,7 @@ class ComponentModeler(AbstractComponentModeler):
         return val
 
     @cached_property
-    def sim_dict(self) -> Dict[str, Simulation]:
+    def sim_dict(self) -> dict[str, Simulation]:
         """Generate all the :class:`.Simulation` objects for the S matrix calculation."""
 
         sim_dict = {}
@@ -112,7 +112,7 @@ class ComponentModeler(AbstractComponentModeler):
         return sim_dict
 
     @cached_property
-    def matrix_indices_monitor(self) -> Tuple[MatrixIndex, ...]:
+    def matrix_indices_monitor(self) -> tuple[MatrixIndex, ...]:
         """Tuple of all the possible matrix indices (port, mode_index) in the Component Modeler."""
         matrix_indices = []
         for port in self.ports:
@@ -121,14 +121,14 @@ class ComponentModeler(AbstractComponentModeler):
         return tuple(matrix_indices)
 
     @cached_property
-    def matrix_indices_source(self) -> Tuple[MatrixIndex, ...]:
+    def matrix_indices_source(self) -> tuple[MatrixIndex, ...]:
         """Tuple of all the source matrix indices (port, mode_index) in the Component Modeler."""
         if self.run_only is not None:
             return self.run_only
         return self.matrix_indices_monitor
 
     @cached_property
-    def matrix_indices_run_sim(self) -> Tuple[MatrixIndex, ...]:
+    def matrix_indices_run_sim(self) -> tuple[MatrixIndex, ...]:
         """Tuple of all the source matrix indices (port, mode_index) in the Component Modeler."""
 
         if self.element_mappings is None or self.element_mappings == {}:
@@ -154,10 +154,10 @@ class ComponentModeler(AbstractComponentModeler):
         return source_indices_needed
 
     @cached_property
-    def port_names(self) -> Tuple[List[str], List[str]]:
+    def port_names(self) -> tuple[list[str], list[str]]:
         """List of port names for inputs and outputs, respectively."""
 
-        def get_port_names(matrix_elements: Tuple[str, int]) -> List[str]:
+        def get_port_names(matrix_elements: tuple[str, int]) -> list[str]:
             """Get the port names from a list of (port name, mode index)."""
             port_names = []
             for port_name, _ in matrix_elements:
@@ -182,7 +182,7 @@ class ComponentModeler(AbstractComponentModeler):
 
     def to_source(
         self, port: Port, mode_index: int, num_freqs: int = 1, **kwargs
-    ) -> List[ModeSource]:
+    ) -> list[ModeSource]:
         """Creates a list of mode sources from a given port."""
         freq0 = np.mean(self.freqs)
         fdiff = max(self.freqs) - min(self.freqs)
@@ -249,10 +249,10 @@ class ComponentModeler(AbstractComponentModeler):
         return normalize_amps.values
 
     @cached_property
-    def max_mode_index(self) -> Tuple[int, int]:
+    def max_mode_index(self) -> tuple[int, int]:
         """maximum mode indices for the smatrix dataset for the in and out ports, respectively."""
 
-        def get_max_mode_indices(matrix_elements: Tuple[str, int]) -> int:
+        def get_max_mode_indices(matrix_elements: tuple[str, int]) -> int:
             """Get the maximum mode index for a list of (port name, mode index)."""
             return max(mode_index for _, mode_index in matrix_elements)
 

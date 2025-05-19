@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Tuple, Union
+from typing import Callable, Union
 
 import pydantic.v1 as pd
 from numpy.typing import NDArray
@@ -16,13 +16,13 @@ from .projections import tanh_projection
 class FilterAndProject(Tidy3dBaseModel):
     """A class that combines filtering and projection operations."""
 
-    radius: Union[float, Tuple[float, ...]] = pd.Field(
+    radius: Union[float, tuple[float, ...]] = pd.Field(
         ..., title="Radius", description="The radius of the kernel."
     )
-    dl: Union[float, Tuple[float, ...]] = pd.Field(
+    dl: Union[float, tuple[float, ...]] = pd.Field(
         ..., title="Grid Spacing", description="The grid spacing."
     )
-    size_px: Union[int, Tuple[int, ...]] = pd.Field(
+    size_px: Union[int, tuple[int, ...]] = pd.Field(
         None, title="Size in Pixels", description="The size of the kernel in pixels."
     )
     beta: pd.NonNegativeFloat = pd.Field(
@@ -70,10 +70,10 @@ class FilterAndProject(Tidy3dBaseModel):
 
 
 def make_filter_and_project(
-    radius: Union[float, Tuple[float, ...]] = None,
-    dl: Union[float, Tuple[float, ...]] = None,
+    radius: Union[float, tuple[float, ...]] = None,
+    dl: Union[float, tuple[float, ...]] = None,
     *,
-    size_px: Union[int, Tuple[int, ...]] = None,
+    size_px: Union[int, tuple[int, ...]] = None,
     beta: float = BETA_DEFAULT,
     eta: float = ETA_DEFAULT,
     filter_type: KernelType = "conic",

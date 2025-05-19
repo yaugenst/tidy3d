@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from math import isclose
-from typing import List
 
 import autograd.numpy as anp
 import numpy as np
@@ -71,7 +70,7 @@ class Sphere(base.Centered, base.Circular):
 
     def intersections_tilted_plane(
         self, normal: Coordinate, origin: Coordinate, to_2D: MatrixReal4x4
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Return a list of shapely geometries at the plane specified by normal and origin.
 
         Parameters
@@ -370,7 +369,7 @@ class Cylinder(base.Centered, base.Circular, base.Planar):
     @verify_packages_import(["trimesh"])
     def _do_intersections_tilted_plane(
         self, normal: Coordinate, origin: Coordinate, to_2D: MatrixReal4x4
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Return a list of shapely geometries at the plane specified by normal and origin.
 
         Parameters
@@ -728,7 +727,7 @@ class Cylinder(base.Centered, base.Circular, base.Planar):
 
         return radius_middle - (z - self.center_axis) * self._tanq
 
-    def _local_to_global_side_cross_section(self, coords: List[float], axis: int) -> List[float]:
+    def _local_to_global_side_cross_section(self, coords: list[float], axis: int) -> list[float]:
         """Map a point (x,y) from local to global coordinate system in the
         side cross section.
 

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Tuple
-
 import numpy as np
 import scipy.linalg as linalg
 import scipy.sparse as sp
@@ -52,7 +50,7 @@ class EigSolver(Tidy3dBaseModel):
         direction="+",
         solver_basis_fields=None,
         plane_center: tuple[float, float] = None,
-    ) -> Tuple[Numpy, Numpy, EpsSpecType]:
+    ) -> tuple[Numpy, Numpy, EpsSpecType]:
         """
         Solve for the modes of a waveguide cross-section.
 
@@ -1047,6 +1045,6 @@ class EigSolver(Tidy3dBaseModel):
         return np.any(np.abs(material_response) > GOOD_CONDUCTOR_THRESHOLD * np.abs(pec_val))
 
 
-def compute_modes(*args, **kwargs) -> Tuple[Numpy, Numpy, str]:
+def compute_modes(*args, **kwargs) -> tuple[Numpy, Numpy, str]:
     """A wrapper around ``EigSolver.compute_modes``, which is used in ``ModeSolver``."""
     return EigSolver.compute_modes(*args, **kwargs)

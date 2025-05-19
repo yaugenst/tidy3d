@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from math import isclose
-from typing import Literal, Tuple, Union
+from typing import Literal, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -67,7 +67,7 @@ class ModeSpec(Tidy3dBaseModel):
         None, title="Target effective index", description="Guess for effective index of the mode."
     )
 
-    num_pml: Tuple[pd.NonNegativeInt, pd.NonNegativeInt] = pd.Field(
+    num_pml: tuple[pd.NonNegativeInt, pd.NonNegativeInt] = pd.Field(
         (0, 0),
         title="Number of PML layers",
         description="Number of standard pml layers to add in the two tangential axes.",

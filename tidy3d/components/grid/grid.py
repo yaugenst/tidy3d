@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Literal, Tuple, Union
+from typing import Literal, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -410,7 +410,7 @@ class Grid(Tidy3dBaseModel):
         return Coords(**{key: np.diff(val) for key, val in self.boundaries.to_dict.items()})
 
     @property
-    def num_cells(self) -> Tuple[int, int, int]:
+    def num_cells(self) -> tuple[int, int, int]:
         """Return sizes of the cells in the :class:`Grid`.
 
         Returns
@@ -452,7 +452,7 @@ class Grid(Tidy3dBaseModel):
         return float(max(max(sizes) for sizes in self.sizes.to_list))
 
     @property
-    def info(self) -> Dict:
+    def info(self) -> dict:
         """Dictionary collecting various properties of the grids."""
         num_cells = self.num_cells
         total_cells = int(np.prod(num_cells))
@@ -567,7 +567,7 @@ class Grid(Tidy3dBaseModel):
 
         return Coords(**yee_coords)
 
-    def discretize_inds(self, box: Box, extend: bool = False) -> List[Tuple[int, int]]:
+    def discretize_inds(self, box: Box, extend: bool = False) -> list[tuple[int, int]]:
         """Start and stopping indexes for the cells that intersect with a :class:`Box`.
 
         Parameters

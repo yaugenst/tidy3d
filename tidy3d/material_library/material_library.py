@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Dict, List, Union
+from typing import Union
 
 import pydantic.v1 as pd
 
@@ -68,7 +68,7 @@ def export_matlib_to_file(fname: str = "matlib.json") -> None:
 class AbstractVariantItem(Tidy3dBaseModel):
     """Reference, and data_source for a variant of a material."""
 
-    reference: List[ReferenceData] = pd.Field(
+    reference: list[ReferenceData] = pd.Field(
         None,
         title="Reference information",
         description="A list of references related to this variant model.",
@@ -82,7 +82,7 @@ class AbstractVariantItem(Tidy3dBaseModel):
     )
 
     @property
-    def summarize_mediums(self) -> Dict[str, Union[PoleResidue, Medium2D, MultiPhysicsMedium]]:
+    def summarize_mediums(self) -> dict[str, Union[PoleResidue, Medium2D, MultiPhysicsMedium]]:
         return {}
 
     def __str__(self):
@@ -105,7 +105,7 @@ class VariantItem(AbstractVariantItem):
     )
 
     @property
-    def summarize_mediums(self) -> Dict[str, Union[PoleResidue, Medium2D, MultiPhysicsMedium]]:
+    def summarize_mediums(self) -> dict[str, Union[PoleResidue, Medium2D, MultiPhysicsMedium]]:
         return {"medium": self.medium}
 
 
@@ -113,7 +113,7 @@ class MaterialItem(Tidy3dBaseModel):
     """A material that includes several variants."""
 
     name: str = pd.Field(..., title="Name", description="Unique name for the medium.")
-    variants: Dict[str, VariantItem] = pd.Field(
+    variants: dict[str, VariantItem] = pd.Field(
         ...,
         title="Dictionary of available variants for this material",
         description="A dictionary of available variants for this material "
@@ -169,14 +169,14 @@ class VariantItem2D(AbstractVariantItem):
     )
 
     @property
-    def summarize_mediums(self) -> Dict[str, Union[PoleResidue, Medium2D, MultiPhysicsMedium]]:
+    def summarize_mediums(self) -> dict[str, Union[PoleResidue, Medium2D, MultiPhysicsMedium]]:
         return {"medium": self.medium}
 
 
 class MaterialItem2D(MaterialItem):
     """A 2D material that includes several variants."""
 
-    variants: Dict[str, VariantItem2D] = pd.Field(
+    variants: dict[str, VariantItem2D] = pd.Field(
         ...,
         title="Dictionary of available variants for this material",
         description="A dictionary of available variants for this material "
@@ -220,14 +220,14 @@ class VariantItemUniaxial(AbstractVariantItem):
         return AnisotropicMedium.parse_obj(mat_dict)
 
     @property
-    def summarize_mediums(self) -> Dict[str, Union[PoleResidue, Medium2D, MultiPhysicsMedium]]:
+    def summarize_mediums(self) -> dict[str, Union[PoleResidue, Medium2D, MultiPhysicsMedium]]:
         return {"ordinary": self.ordinary, "extraordinary": self.extraordinary}
 
 
 class MaterialItemUniaxial(MaterialItem):
     """A material that includes several variants."""
 
-    variants: Dict[str, VariantItemUniaxial] = pd.Field(
+    variants: dict[str, VariantItemUniaxial] = pd.Field(
         ...,
         title="Dictionary of available variants for this material",
         description="A dictionary of available variants for this material "

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from enum import Enum
 from math import isclose
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 import pydantic as pydantic
@@ -31,10 +31,10 @@ GeometryType = Union[
 
 
 def merging_geometries_on_plane(
-    geometries: List[GeometryType],
+    geometries: list[GeometryType],
     plane: Box,
-    property_list: List[Any],
-) -> List[Tuple[Any, Shapely]]:
+    property_list: list[Any],
+) -> list[tuple[Any, Shapely]]:
     """Compute list of shapes on plane. Overlaps are removed or merged depending on
     provided property_list.
 
@@ -191,7 +191,7 @@ def traverse_geometries(geometry: GeometryType) -> GeometryType:
 def from_shapely(
     shape: Shapely,
     axis: Axis,
-    slab_bounds: Tuple[float, float],
+    slab_bounds: tuple[float, float],
     dilation: float = 0.0,
     sidewall_angle: float = 0,
     reference_plane: PlanePosition = "middle",

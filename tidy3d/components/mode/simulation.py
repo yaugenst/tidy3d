@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -138,7 +138,7 @@ class ModeSimulation(AbstractYeeGridSimulation):
         "primal grid nodes). Default is ``True``.",
     )
 
-    fields: Tuple[EMField, ...] = pd.Field(
+    fields: tuple[EMField, ...] = pd.Field(
         ["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"],
         title="Field Components",
         description="Collection of field components to store in the monitor. Note that some "
@@ -156,14 +156,14 @@ class ModeSimulation(AbstractYeeGridSimulation):
         "apply PML layers in the mode solver.",
     )
 
-    monitors: Tuple[ModeSimulationMonitorType, ...] = pd.Field(
+    monitors: tuple[ModeSimulationMonitorType, ...] = pd.Field(
         (),
         title="Monitors",
         description="Tuple of monitors in the simulation. "
         "Note: monitor names are used to access data after simulation is run.",
     )
 
-    sources: Tuple[()] = pd.Field(
+    sources: tuple[()] = pd.Field(
         (),
         title="Sources",
         description="Sources in the simulation. Note: sources are not supported in mode "

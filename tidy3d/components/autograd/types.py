@@ -37,7 +37,7 @@ TracedVertices = typing.Union[ArrayFloat2D, Box]
 
 # poles
 TracedComplex = typing.Union[Complex, Box]
-TracedPoleAndResidue = typing.Tuple[TracedComplex, TracedComplex]
+TracedPoleAndResidue = tuple[TracedComplex, TracedComplex]
 
 # The data type that we pass in and out of the web.run() @autograd.primitive
 AutogradTraced = typing.Union[Box, ArrayLike]

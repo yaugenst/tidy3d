@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Tuple
+from typing import Optional
 
 import pydantic.v1 as pydantic
 from typing_extensions import Literal
@@ -27,7 +27,7 @@ class CurrentSource(Source, ABC):
     )
 
     @cached_property
-    def _pol_vector(self) -> Tuple[float, float, float]:
+    def _pol_vector(self) -> tuple[float, float, float]:
         """Returns a vector indicating the source polarization for arrow plotting, if not None."""
         component = self.polarization[-1]  # 'x' 'y' or 'z'
         pol_axis = "xyz".index(component)
@@ -99,7 +99,7 @@ class PointDipole(CurrentSource, ReverseInterpolatedSource):
         * `Adjoint optimization of quantum emitter light extraction to an integrated waveguide <../../notebooks/AdjointPlugin12LightExtractor.html>`_
     """
 
-    size: Tuple[Literal[0], Literal[0], Literal[0]] = pydantic.Field(
+    size: tuple[Literal[0], Literal[0], Literal[0]] = pydantic.Field(
         (0, 0, 0),
         title="Size",
         description="Size in x, y, and z directions, constrained to ``(0, 0, 0)``.",

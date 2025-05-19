@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import inspect
 from datetime import datetime
-from typing import Callable, List, Tuple, Union
+from typing import Callable, Union
 
 from rich.console import Console
 from rich.text import Text
@@ -44,7 +44,7 @@ DEFAULT_LOG_STYLES = {
 CONSOLE_WIDTH = 80
 
 
-def _default_log_level_format(level: str, message: str) -> Tuple[str, str]:
+def _default_log_level_format(level: str, message: str) -> tuple[str, str]:
     """By default just return unformatted prefix and message."""
     return level, message
 
@@ -244,7 +244,7 @@ class Logger:
         message: str,
         *args,
         log_once: bool = False,
-        custom_loc: List = None,
+        custom_loc: list = None,
         capture: bool = True,
     ) -> None:
         """Distribute log messages to all handlers"""
@@ -313,7 +313,7 @@ class Logger:
         message: str,
         *args,
         log_once: bool = False,
-        custom_loc: List = None,
+        custom_loc: list = None,
         capture: bool = True,
     ) -> None:
         """Log (message) % (args) at warning level"""

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -161,7 +161,7 @@ class AbstractAntennaArrayCalculator(Tidy3dBaseModel, ABC):
 
     def _duplicate_or_expand_list_of_objects(
         self,
-        objects: Tuple[
+        objects: tuple[
             Union[Structure, MeshOverrideStructure, LayerRefinementSpec, LumpedElement], ...
         ],
         old_sim_bounds: Bound,
@@ -230,7 +230,7 @@ class AbstractAntennaArrayCalculator(Tidy3dBaseModel, ABC):
 
     def _expand_monitors(
         self,
-        monitors: Tuple[MonitorType, ...],
+        monitors: tuple[MonitorType, ...],
         antenna_bounds: Bound,
         new_sim_bounds: Bound,
         old_sim_bounds: Bound,
@@ -302,7 +302,7 @@ class AbstractAntennaArrayCalculator(Tidy3dBaseModel, ABC):
         return array_monitors
 
     def _duplicate_structures(
-        self, structures: Tuple[Structure, ...], new_sim_bounds: Bound, old_sim_bounds: Bound
+        self, structures: tuple[Structure, ...], new_sim_bounds: Bound, old_sim_bounds: Bound
     ):
         """Duplicate structures."""
 
@@ -312,8 +312,8 @@ class AbstractAntennaArrayCalculator(Tidy3dBaseModel, ABC):
 
     def _duplicate_sources(
         self,
-        sources: Tuple[SourceType, ...],
-        lumped_elements: Tuple[LumpedElement, ...],
+        sources: tuple[SourceType, ...],
+        lumped_elements: tuple[LumpedElement, ...],
         old_sim_bounds: Bound,
         new_sim_bounds: Bound,
     ):
@@ -621,23 +621,23 @@ class RectangularAntennaArrayCalculator(AbstractAntennaArrayCalculator):
     ... ) # doctest: +SKIP
     """
 
-    array_size: Tuple[PositiveInt, PositiveInt, PositiveInt] = pd.Field(
+    array_size: tuple[PositiveInt, PositiveInt, PositiveInt] = pd.Field(
         title="Array Size",
         description="Number of antennas along x, y, and z directions.",
     )
 
-    spacings: Tuple[NonNegativeFloat, NonNegativeFloat, NonNegativeFloat] = pd.Field(
+    spacings: tuple[NonNegativeFloat, NonNegativeFloat, NonNegativeFloat] = pd.Field(
         title="Antenna Spacings",
         description="Center-to-center spacings between antennas along x, y, and z directions.",
     )
 
-    phase_shifts: Tuple[float, float, float] = pd.Field(
+    phase_shifts: tuple[float, float, float] = pd.Field(
         (0, 0, 0),
         title="Phase Shifts",
         description="Phase-shifts between antennas along x, y, and z directions.",
     )
 
-    amp_multipliers: Tuple[Optional[ArrayLike], Optional[ArrayLike], Optional[ArrayLike]] = (
+    amp_multipliers: tuple[Optional[ArrayLike], Optional[ArrayLike], Optional[ArrayLike]] = (
         pd.Field(
             (None, None, None),
             title="Amplitude Multipliers",
@@ -704,7 +704,7 @@ class RectangularAntennaArrayCalculator(AbstractAntennaArrayCalculator):
         return np.ravel(sum(p for p in phase_shifts_grid))
 
     @property
-    def _extend_dims(self) -> Tuple[Axis, ...]:
+    def _extend_dims(self) -> tuple[Axis, ...]:
         """Dimensions along which antennas will be duplicated."""
         return [ind for ind, size in enumerate(self.array_size) if size > 1]
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Tuple, Union
+from typing import Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -39,7 +39,7 @@ class TerminalComponentModeler(AbstractComponentModeler):
     """Tool for modeling two-terminal multiport devices and computing port parameters
     with lumped and wave ports."""
 
-    ports: Tuple[TerminalPortType, ...] = pd.Field(
+    ports: tuple[TerminalPortType, ...] = pd.Field(
         (),
         title="Terminal Ports",
         description="Collection of lumped and wave ports associated with the network. "
@@ -90,7 +90,7 @@ class TerminalComponentModeler(AbstractComponentModeler):
         return sim_plot.plot_eps(x=x, y=y, z=z, ax=ax, **kwargs)
 
     @cached_property
-    def sim_dict(self) -> Dict[str, Simulation]:
+    def sim_dict(self) -> dict[str, Simulation]:
         """Generate all the :class:`.Simulation` objects for the port parameter calculation."""
 
         sim_dict = {}

@@ -11,7 +11,7 @@ import pathlib
 import tempfile
 from functools import wraps
 from math import ceil
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Union
 
 import h5py
 import numpy as np
@@ -92,7 +92,7 @@ def _get_valid_extension(fname: str) -> str:
     )
 
 
-def skip_if_fields_missing(fields: List[str], root=False):
+def skip_if_fields_missing(fields: list[str], root=False):
     """Decorate ``validator`` to check that other fields have passed validation."""
 
     def actual_decorator(validator):
@@ -590,7 +590,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
 
     @classmethod
     def dict_from_hdf5(
-        cls, fname: str, group_path: str = "", custom_decoders: List[Callable] = None
+        cls, fname: str, group_path: str = "", custom_decoders: list[Callable] = None
     ) -> dict:
         """Loads a dictionary containing the model contents from a .hdf5 file.
 
@@ -668,7 +668,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         cls,
         fname: str,
         group_path: str = "",
-        custom_decoders: List[Callable] = None,
+        custom_decoders: list[Callable] = None,
         **parse_obj_kwargs,
     ) -> Tidy3dBaseModel:
         """Loads :class:`Tidy3dBaseModel` instance to .hdf5 file.
@@ -698,7 +698,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         )
         return cls.parse_obj(model_dict, **parse_obj_kwargs)
 
-    def to_hdf5(self, fname: str, custom_encoders: List[Callable] = None) -> None:
+    def to_hdf5(self, fname: str, custom_encoders: list[Callable] = None) -> None:
         """Exports :class:`Tidy3dBaseModel` instance to .hdf5 file.
 
         Parameters
@@ -749,7 +749,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
 
     @classmethod
     def dict_from_hdf5_gz(
-        cls, fname: str, group_path: str = "", custom_decoders: List[Callable] = None
+        cls, fname: str, group_path: str = "", custom_decoders: list[Callable] = None
     ) -> dict:
         """Loads a dictionary containing the model contents from a .hdf5.gz file.
 
@@ -790,7 +790,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         cls,
         fname: str,
         group_path: str = "",
-        custom_decoders: List[Callable] = None,
+        custom_decoders: list[Callable] = None,
         **parse_obj_kwargs,
     ) -> Tidy3dBaseModel:
         """Loads :class:`Tidy3dBaseModel` instance to .hdf5.gz file.
@@ -820,7 +820,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         )
         return cls.parse_obj(model_dict, **parse_obj_kwargs)
 
-    def to_hdf5_gz(self, fname: str, custom_encoders: List[Callable] = None) -> None:
+    def to_hdf5_gz(self, fname: str, custom_encoders: list[Callable] = None) -> None:
         """Exports :class:`Tidy3dBaseModel` instance to .hdf5.gz file.
 
         Parameters
@@ -1132,7 +1132,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         doc += "\n"
         cls.__doc__ = doc
 
-    def get_submodels_by_hash(self) -> Dict[int, List[Union[str, Tuple[str, int]]]]:
+    def get_submodels_by_hash(self) -> dict[int, list[Union[str, tuple[str, int]]]]:
         """Return a dictionary of this object's sub-models indexed by their hash values."""
         fields = {}
         for key in self.__fields__:
@@ -1166,7 +1166,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
     @staticmethod
     def _scientific_notation(
         min_val: float, max_val: float, min_digits: int = 4
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """
         Convert numbers to scientific notation, displaying only digits up to the point of difference,
         with a minimum number of significant digits specified by `min_digits`.

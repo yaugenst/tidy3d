@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Dict
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pydantic.v1 as pydantic
@@ -290,7 +288,7 @@ def test_sellmeier_from_dispersion():
     assert np.allclose(-dn_df * td.C_0 / wvl**2, dn_dwvl)
 
 
-def eps_compare(medium: td.Medium, expected: Dict, tol: float = 1e-5):
+def eps_compare(medium: td.Medium, expected: dict, tol: float = 1e-5):
     for freq, val in expected.items():
         assert np.abs(medium.eps_model(freq) - val) < tol
 

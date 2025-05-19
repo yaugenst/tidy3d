@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import builtins
 import os
 import pathlib
 import tempfile
 from datetime import datetime
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, Optional, Union
 
 import pydantic.v1 as pd
 from botocore.exceptions import ClientError
@@ -47,7 +48,7 @@ class Folder(Tidy3DResource, Queryable, extra=Extra.allow):
         resp = http.get("tidy3d/projects")
         return (
             parse_obj_as(
-                List[Folder],
+                list[Folder],
                 resp,
             )
             if resp
@@ -101,7 +102,7 @@ class Folder(Tidy3DResource, Queryable, extra=Extra.allow):
 
         http.delete(f"tidy3d/projects/{self.folder_id}")
 
-    def list_tasks(self) -> List[Tidy3DResource]:
+    def list_tasks(self) -> builtins.list[Tidy3DResource]:
         """List all tasks in this folder.
 
         Returns
@@ -112,7 +113,7 @@ class Folder(Tidy3DResource, Queryable, extra=Extra.allow):
         resp = http.get(f"tidy3d/projects/{self.folder_id}/tasks")
         return (
             parse_obj_as(
-                List[SimulationTask],
+                list[SimulationTask],
                 resp,
             )
             if resp
@@ -198,7 +199,7 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
         folder_name: str = "default",
         callback_url: str = None,
         simulation_type: str = "tidy3d",
-        parent_tasks: List[str] = None,
+        parent_tasks: list[str] = None,
         file_type: str = "Gz",
     ) -> SimulationTask:
         """Create a new task on the server.
@@ -273,7 +274,7 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
         return task
 
     @classmethod
-    def get_running_tasks(cls) -> List[SimulationTask]:
+    def get_running_tasks(cls) -> list[SimulationTask]:
         """Get a list of running tasks from the server"
 
         Returns
@@ -285,7 +286,7 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
         resp = http.get("tidy3d/py/tasks")
         if not resp:
             return []
-        return parse_obj_as(List[SimulationTask], resp)
+        return parse_obj_as(list[SimulationTask], resp)
 
     def delete(self, versions: bool = False):
         """Delete current task from server.
@@ -577,7 +578,7 @@ class SimulationTask(ResourceLifecycle, Submittable, extra=Extra.allow):
             progress_callback=progress_callback,
         )
 
-    def get_running_info(self) -> Tuple[float, float]:
+    def get_running_info(self) -> tuple[float, float]:
         """Gets the % done and field_decay for a running task.
 
         Returns

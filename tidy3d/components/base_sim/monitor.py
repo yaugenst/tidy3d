@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Tuple
 
 import numpy as np
 import pydantic.v1 as pd
@@ -90,7 +89,7 @@ class AbstractMonitor(Box, ABC):
             inds = np.append(inds, size - 1)
         return arr[inds]
 
-    def downsampled_num_cells(self, num_cells: Tuple[int, int, int]) -> Tuple[int, int, int]:
+    def downsampled_num_cells(self, num_cells: tuple[int, int, int]) -> tuple[int, int, int]:
         """Given a tuple of the number of cells spanned by the monitor along each dimension,
         return the number of cells one would have after downsampling based on ``interval_space``.
         """

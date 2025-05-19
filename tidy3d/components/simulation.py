@@ -6,7 +6,7 @@ import math
 import pathlib
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Dict, List, Literal, Optional, Set, Tuple, Union, get_args
+from typing import Literal, Optional, Union, get_args
 
 import autograd.numpy as np
 
@@ -236,7 +236,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
     Abstract class for a simulation involving electromagnetic fields defined on a Yee grid.
     """
 
-    lumped_elements: Tuple[LumpedElementType, ...] = pydantic.Field(
+    lumped_elements: tuple[LumpedElementType, ...] = pydantic.Field(
         (),
         title="Lumped Elements",
         description="Tuple of lumped elements in the simulation. "
@@ -454,8 +454,8 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         source_alpha: float = None,
         monitor_alpha: float = None,
         lumped_element_alpha: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         fill_structures: bool = True,
         **patch_kwargs,
     ) -> Ax:
@@ -536,8 +536,8 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         source_alpha: float = None,
         monitor_alpha: float = None,
         lumped_element_alpha: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         ax: Ax = None,
         eps_component: Optional[PermittivityComponent] = None,
         eps_lim: Tuple[Union[float, None], Union[float, None]] = (None, None),
@@ -643,8 +643,8 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         eps_component: Optional[PermittivityComponent] = None,
         eps_lim: Tuple[Union[float, None], Union[float, None]] = (None, None),
     ) -> Ax:
@@ -729,8 +729,8 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         x: float = None,
         y: float = None,
         z: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot each of simulation's absorbing boundaries
@@ -771,7 +771,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
 
     # candidate for removal in 3.0
     @cached_property
-    def bounds_pml(self) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
+    def bounds_pml(self) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
         """Simulation bounds including the PML regions."""
         log.warning(
             "'Simulation.bounds_pml' will be removed in Tidy3D 3.0. "
@@ -780,7 +780,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         return self.simulation_bounds
 
     @cached_property
-    def simulation_bounds(self) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
+    def simulation_bounds(self) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
         """Simulation bounds including the PML regions."""
         pml_thick = self.pml_thicknesses
         bounds_in = self.bounds
@@ -789,7 +789,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
 
         return (bounds_min, bounds_max)
 
-    def _make_pml_boxes(self, normal_axis: Axis) -> List[Box]:
+    def _make_pml_boxes(self, normal_axis: Axis) -> list[Box]:
         """make a list of Box objects representing the pml to plot on plane."""
         pml_boxes = []
         pml_thicks = self.pml_thicknesses
@@ -822,7 +822,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         return pml_box
 
     # candidate for removal in 3.0
-    def eps_bounds(self, freq: float = None) -> Tuple[float, float]:
+    def eps_bounds(self, freq: float = None) -> tuple[float, float]:
         """Compute range of (real) permittivity present in the simulation at frequency "freq"."""
 
         log.warning(
@@ -832,7 +832,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         return self.scene.eps_bounds(freq=freq)
 
     @cached_property
-    def pml_thicknesses(self) -> List[Tuple[float, float]]:
+    def pml_thicknesses(self) -> list[tuple[float, float]]:
         """Thicknesses (um) of absorbers in all three axes and directions (-, +)
 
         Returns
@@ -850,7 +850,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         return pml_thicknesses
 
     @cached_property
-    def internal_override_structures(self) -> List[MeshOverrideStructure]:
+    def internal_override_structures(self) -> list[MeshOverrideStructure]:
         """Internal mesh override structures. So far, internal override structures all come from `layer_refinement_specs`.
 
         Returns
@@ -867,7 +867,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         )
 
     @cached_property
-    def internal_snapping_points(self) -> List[CoordinateOptional]:
+    def internal_snapping_points(self) -> list[CoordinateOptional]:
         """Internal snapping points. So far, internal snapping points are generated by `layer_refinement_specs`.
 
         Returns
@@ -886,8 +886,8 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         x: float = None,
         y: float = None,
         z: float = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         alpha: float = None,
         ax: Ax = None,
     ) -> Ax:
@@ -932,8 +932,8 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         y: float = None,
         z: float = None,
         ax: Ax = None,
-        hlim: Tuple[float, float] = None,
-        vlim: Tuple[float, float] = None,
+        hlim: tuple[float, float] = None,
+        vlim: tuple[float, float] = None,
         override_structures_alpha: float = 1,
         snapping_points_alpha: float = 1,
         **kwargs,
@@ -1200,7 +1200,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
     #    return plot_sim_3d(self, width=width, height=height)
 
     @cached_property
-    def _grid_and_snapping_lines(self) -> Tuple[Grid, List[CoordinateOptional]]:
+    def _grid_and_snapping_lines(self) -> tuple[Grid, list[CoordinateOptional]]:
         """FDTD grid spatial locations and information.
 
         Returns
@@ -1257,7 +1257,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         return grid
 
     @cached_property
-    def _gap_meshing_snapping_lines(self) -> List[CoordinateOptional]:
+    def _gap_meshing_snapping_lines(self) -> list[CoordinateOptional]:
         """Snapping points resulted from iterative gap meshing.
 
         Returns
@@ -1288,7 +1288,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         return np.prod(self.grid.num_cells, dtype=np.int64)
 
     @cached_property
-    def grid_info(self) -> Dict:
+    def grid_info(self) -> dict:
         """Dictionary collecting various properties of the grids in the simulation."""
         return self.grid.info
 
@@ -1309,7 +1309,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         return Grid(boundaries=Coords(**boundary_dict))
 
     @cached_property
-    def _periodic(self) -> Tuple[bool, bool, bool]:
+    def _periodic(self) -> tuple[bool, bool, bool]:
         """For each dimension, ``True`` if periodic/Bloch boundaries and ``False`` otherwise.
         We check on both sides but in practice there should be no cases in which a periodic/Bloch
         BC is on one side only. This is explicitly validated for Bloch, and implicitly done for
@@ -1321,7 +1321,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         return periodic
 
     @cached_property
-    def num_pml_layers(self) -> List[Tuple[float, float]]:
+    def num_pml_layers(self) -> list[tuple[float, float]]:
         """Number of absorbing layers in all three axes and directions (-, +).
 
         Returns
@@ -1566,7 +1566,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
             coords = grid[coord_key]
         return make_eps_data(coords)
 
-    def _volumetric_structures_grid(self, grid: Grid) -> Tuple[Structure]:
+    def _volumetric_structures_grid(self, grid: Grid) -> tuple[Structure]:
         """Generate a tuple of structures wherein any 2D materials are converted to 3D
         volumetric equivalents, using ``grid`` as the simulation grid."""
 
@@ -1576,7 +1576,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         ):
             return self.structures
 
-        def get_dls(geom: Geometry, axis: Axis, num_dls: int) -> List[float]:
+        def get_dls(geom: Geometry, axis: Axis, num_dls: int) -> list[float]:
             """Get grid size around the 2D material."""
             dls = self._discretize_grid(Box.from_bounds(*geom.bounds), grid=grid).sizes.to_list[
                 axis
@@ -1664,12 +1664,12 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         return tuple(new_structures)
 
     @cached_property
-    def volumetric_structures(self) -> Tuple[Structure]:
+    def volumetric_structures(self) -> tuple[Structure]:
         """Generate a tuple of structures wherein any 2D materials are converted to 3D
         volumetric equivalents."""
         return self._volumetric_structures_grid(self.grid)
 
-    def suggest_mesh_overrides(self, **kwargs) -> List[MeshOverrideStructure]:
+    def suggest_mesh_overrides(self, **kwargs) -> list[MeshOverrideStructure]:
         """Generate a :class:`.MeshOverrideStructure` `List` which is automatically generated
         from structures in the simulation.
         """
@@ -1686,9 +1686,9 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         region: Box,
         boundary_spec: BoundarySpec = None,
         grid_spec: Union[GridSpec, Literal["identical"]] = None,
-        symmetry: Tuple[Symmetry, Symmetry, Symmetry] = None,
-        sources: Tuple[SourceType, ...] = None,
-        monitors: Tuple[MonitorType, ...] = None,
+        symmetry: tuple[Symmetry, Symmetry, Symmetry] = None,
+        sources: tuple[SourceType, ...] = None,
+        monitors: tuple[MonitorType, ...] = None,
         remove_outside_structures: bool = True,
         remove_outside_custom_mediums: bool = False,
         include_pml_cells: bool = False,
@@ -2181,7 +2181,7 @@ class Simulation(AbstractYeeGridSimulation):
         *  `Numerical dispersion in FDTD <https://www.flexcompute.com/fdtd101/Lecture-8-Numerical-dispersion-in-FDTD/>`_
     """
 
-    lumped_elements: Tuple[LumpedElementType, ...] = pydantic.Field(
+    lumped_elements: tuple[LumpedElementType, ...] = pydantic.Field(
         (),
         title="Lumped Elements",
         description="Tuple of lumped elements in the simulation. ",
@@ -2410,7 +2410,7 @@ class Simulation(AbstractYeeGridSimulation):
     data. If ``None``, the raw field data is returned. If ``None``, the raw field data is returned unnormalized.
     """
 
-    monitors: Tuple[annotate_type(MonitorType), ...] = pydantic.Field(
+    monitors: tuple[annotate_type(MonitorType), ...] = pydantic.Field(
         (),
         title="Monitors",
         description="Tuple of monitors in the simulation. "
@@ -2426,7 +2426,7 @@ class Simulation(AbstractYeeGridSimulation):
         All the monitor implementations.
     """
 
-    sources: Tuple[annotate_type(SourceType), ...] = pydantic.Field(
+    sources: tuple[annotate_type(SourceType), ...] = pydantic.Field(
         (),
         title="Sources",
         description="Tuple of electric current sources injecting fields into the simulation.",
@@ -2478,7 +2478,7 @@ class Simulation(AbstractYeeGridSimulation):
     Set to ``0`` to disable this feature.
     """
 
-    structures: Tuple[Structure, ...] = pydantic.Field(
+    structures: tuple[Structure, ...] = pydantic.Field(
         (),
         title="Structures",
         description="Tuple of structures present in simulation. "
@@ -2543,7 +2543,7 @@ class Simulation(AbstractYeeGridSimulation):
     * `Structures <https://www.flexcompute.com/tidy3d/learning-center/tidy3d-gui/Lecture-3-Structures/#presentation-slides>`_
     """
 
-    symmetry: Tuple[Symmetry, Symmetry, Symmetry] = pydantic.Field(
+    symmetry: tuple[Symmetry, Symmetry, Symmetry] = pydantic.Field(
         (0, 0, 0),
         title="Symmetries",
         description="Tuple of integers defining reflection symmetry across a plane "
@@ -2863,7 +2863,7 @@ class Simulation(AbstractYeeGridSimulation):
         return val
 
     @staticmethod
-    def _get_fixed_angle_sources(sources: Tuple[SourceType, ...]) -> Tuple[SourceType, ...]:
+    def _get_fixed_angle_sources(sources: tuple[SourceType, ...]) -> tuple[SourceType, ...]:
         """Get list of plane wave sources with ``FixedAngleSpec``."""
 
         return [
@@ -3897,7 +3897,7 @@ class Simulation(AbstractYeeGridSimulation):
                         )
 
     @cached_property
-    def aux_fields(self) -> List[str]:
+    def aux_fields(self) -> list[str]:
         """All aux fields available in the simulation."""
         fields = []
         for medium in self.scene.mediums:
@@ -4002,7 +4002,7 @@ class Simulation(AbstractYeeGridSimulation):
     def _validate_modes_size(self) -> None:
         """Warn if mode sources or monitors have a large number of points."""
 
-        def warn_mode_size(monitor: AbstractModeMonitor, msg_header: str, custom_loc: List):
+        def warn_mode_size(monitor: AbstractModeMonitor, msg_header: str, custom_loc: list):
             """Warn if a mode component has a large number of points."""
             num_cells = np.prod(self.discretize_monitor(monitor).num_cells)
             if num_cells > WARN_MODE_NUM_CELLS:
@@ -4041,7 +4041,7 @@ class Simulation(AbstractYeeGridSimulation):
         of grid cells in their transverse dimensions."""
 
         def check_num_cells(
-            mode_object: Tuple[ModeSource, ModeMonitor], normal_axis: Axis, msg_header: str
+            mode_object: tuple[ModeSource, ModeMonitor], normal_axis: Axis, msg_header: str
         ):
             disc_grid = self.discretize(mode_object)
             _, check_axes = Box.pop_axis([0, 1, 2], axis=normal_axis)
@@ -4113,7 +4113,7 @@ class Simulation(AbstractYeeGridSimulation):
                 )
 
     @cached_property
-    def monitors_data_size(self) -> Dict[str, float]:
+    def monitors_data_size(self) -> dict[str, float]:
         """Dictionary mapping monitor names to their estimated storage size in bytes."""
         data_size = {}
         for monitor in self.monitors:
@@ -4316,7 +4316,7 @@ class Simulation(AbstractYeeGridSimulation):
 
     # candidate for removal in 3.0
     @cached_property
-    def mediums(self) -> Set[MediumType]:
+    def mediums(self) -> set[MediumType]:
         """Returns set of distinct :class:`.AbstractMedium` in simulation.
 
         Returns
@@ -4332,7 +4332,7 @@ class Simulation(AbstractYeeGridSimulation):
 
     # candidate for removal in 3.0
     @cached_property
-    def medium_map(self) -> Dict[MediumType, pydantic.NonNegativeInt]:
+    def medium_map(self) -> dict[MediumType, pydantic.NonNegativeInt]:
         """Returns dict mapping medium to index in material.
         ``medium_map[medium]`` returns unique global index of :class:`.AbstractMedium`
         in simulation.
@@ -4361,7 +4361,7 @@ class Simulation(AbstractYeeGridSimulation):
         return self.scene.background_structure
 
     @cached_property
-    def _fixed_angle_sources(self) -> Tuple[SourceType, ...]:
+    def _fixed_angle_sources(self) -> tuple[SourceType, ...]:
         """List of plane wave sources with ``FixedAngleSpec``."""
         return self._get_fixed_angle_sources(self.sources)
 
@@ -4373,8 +4373,8 @@ class Simulation(AbstractYeeGridSimulation):
     # candidate for removal in 3.0
     @staticmethod
     def intersecting_media(
-        test_object: Box, structures: Tuple[Structure, ...]
-    ) -> Tuple[MediumType, ...]:
+        test_object: Box, structures: tuple[Structure, ...]
+    ) -> tuple[MediumType, ...]:
         """From a given list of structures, returns a list of :class:`.AbstractMedium` associated
         with those structures that intersect with the ``test_object``, if it is a surface, or its
         surfaces, if it is a volume.
@@ -4401,8 +4401,8 @@ class Simulation(AbstractYeeGridSimulation):
     # candidate for removal in 3.0
     @staticmethod
     def intersecting_structures(
-        test_object: Box, structures: Tuple[Structure, ...]
-    ) -> Tuple[Structure, ...]:
+        test_object: Box, structures: tuple[Structure, ...]
+    ) -> tuple[Structure, ...]:
         """From a given list of structures, returns a list of :class:`.Structure` that intersect
         with the ``test_object``, if it is a surface, or its surfaces, if it is a volume.
 
@@ -4501,10 +4501,10 @@ class Simulation(AbstractYeeGridSimulation):
         z: float = None,
         permittivity_threshold: pydantic.NonNegativeFloat = 1,
         frequency: pydantic.PositiveFloat = 0,
-        gds_layer_dtype_map: Dict[
-            AbstractMedium, Tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
+        gds_layer_dtype_map: dict[
+            AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
         ] = None,
-    ) -> List:
+    ) -> list:
         """Convert a simulation's planar slice to a .gds type polygon list.
 
         Parameters
@@ -4569,10 +4569,10 @@ class Simulation(AbstractYeeGridSimulation):
         x: float = None,
         y: float = None,
         z: float = None,
-        gds_layer_dtype_map: Dict[
-            AbstractMedium, Tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
+        gds_layer_dtype_map: dict[
+            AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
         ] = None,
-    ) -> List:
+    ) -> list:
         """Convert a simulation's planar slice to a .gds type polygon list.
 
         Parameters
@@ -4631,8 +4631,8 @@ class Simulation(AbstractYeeGridSimulation):
         z: float = None,
         permittivity_threshold: pydantic.NonNegativeFloat = 1,
         frequency: pydantic.PositiveFloat = 0,
-        gds_layer_dtype_map: Dict[
-            AbstractMedium, Tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
+        gds_layer_dtype_map: dict[
+            AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
         ] = None,
     ) -> None:
         """Append the simulation structures to a .gds cell.
@@ -4696,8 +4696,8 @@ class Simulation(AbstractYeeGridSimulation):
         z: float = None,
         permittivity_threshold: pydantic.NonNegativeFloat = 1,
         frequency: pydantic.PositiveFloat = 0,
-        gds_layer_dtype_map: Dict[
-            AbstractMedium, Tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
+        gds_layer_dtype_map: dict[
+            AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
         ] = None,
         gds_cell_name: str = "MAIN",
     ) -> None:
@@ -4863,7 +4863,7 @@ class Simulation(AbstractYeeGridSimulation):
         return self.scene.background_structure
 
     @cached_property
-    def all_structures(self) -> List[Structure]:
+    def all_structures(self) -> list[Structure]:
         """List of all structures in the simulation (including the ``Simulation.medium``)."""
         return self.scene.all_structures
 
@@ -5066,7 +5066,7 @@ class Simulation(AbstractYeeGridSimulation):
         return nyquist_step
 
     @property
-    def custom_datasets(self) -> List[Dataset]:
+    def custom_datasets(self) -> list[Dataset]:
         """List of custom datasets for verification purposes. If the list is not empty, then
         the simulation needs to be exported to hdf5 to store the data.
         """

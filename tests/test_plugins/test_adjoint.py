@@ -5,7 +5,6 @@ from __future__ import annotations
 import builtins
 import time
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 import gdstk
 import h5py
@@ -203,13 +202,13 @@ def run_emulated_bwd(
 
 # Emulated forward and backward run functions
 def run_async_emulated_fwd(
-    simulations: Tuple[td.Simulation, ...],
-    jax_infos: Tuple[JaxInfo, ...],
+    simulations: tuple[td.Simulation, ...],
+    jax_infos: tuple[JaxInfo, ...],
     folder_name: str,
     path_dir: str,
     callback_url: str,
     verbose: bool,
-) -> Tuple[BatchData, Dict[str, str]]:
+) -> tuple[BatchData, dict[str, str]]:
     """Runs the forward simulation on our servers, stores the gradient data for later."""
 
     sim_datas_orig = {}
@@ -232,14 +231,14 @@ def run_async_emulated_fwd(
 
 
 def run_async_emulated_bwd(
-    simulations: Tuple[td.Simulation, ...],
-    jax_infos: Tuple[JaxInfo, ...],
+    simulations: tuple[td.Simulation, ...],
+    jax_infos: tuple[JaxInfo, ...],
     folder_name: str,
     path_dir: str,
     callback_url: str,
     verbose: bool,
-    parent_tasks: List[List[str]],
-) -> List[JaxSimulation]:
+    parent_tasks: list[list[str]],
+) -> list[JaxSimulation]:
     """Runs adjoint simulation on our servers, grabs the gradient data from fwd for processing."""
 
     sim_vjps_orig = []
@@ -262,7 +261,7 @@ def run_async_emulated_bwd(
 
 def make_sim(
     permittivity: float,
-    size: Tuple[float, float, float],
+    size: tuple[float, float, float],
     vertices: tuple,
     base_eps_val: float,
     custom_medium: bool = True,

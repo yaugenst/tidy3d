@@ -4,7 +4,7 @@ astigmatic Gaussian beam."""
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Union
 
 import autograd.numpy as np
 import pydantic.v1 as pd
@@ -375,7 +375,7 @@ class GaussianBeamProfile(BeamProfile):
         units=MICROMETER,
     )
 
-    def beam_params(self, z: Numpy, k0: Numpy) -> Tuple[Numpy, Numpy, Numpy]:
+    def beam_params(self, z: Numpy, k0: Numpy) -> tuple[Numpy, Numpy, Numpy]:
         """Compute the parameters needed to evaluate a Gaussian beam at z.
 
         Parameters
@@ -422,14 +422,14 @@ class AstigmaticGaussianBeamProfile(BeamProfile):
     See also :class:`.AstigmaticGaussianBeam`.
     """
 
-    waist_sizes: Tuple[pd.PositiveFloat, pd.PositiveFloat] = pd.Field(
+    waist_sizes: tuple[pd.PositiveFloat, pd.PositiveFloat] = pd.Field(
         (1.0, 1.0),
         title="Waist sizes",
         description="Size of the beam at the waist in the local x and y directions.",
         units=MICROMETER,
     )
 
-    waist_distances: Tuple[float, float] = pd.Field(
+    waist_distances: tuple[float, float] = pd.Field(
         (0.0, 0.0),
         title="Waist distances",
         description="Distance to the beam waist along the propagation direction "
@@ -441,7 +441,7 @@ class AstigmaticGaussianBeamProfile(BeamProfile):
         units=MICROMETER,
     )
 
-    def beam_params(self, z: Numpy, k0: Numpy) -> Tuple[Numpy, Numpy, Numpy, Numpy]:
+    def beam_params(self, z: Numpy, k0: Numpy) -> tuple[Numpy, Numpy, Numpy, Numpy]:
         """Compute the parameters needed to evaluate an astigmatic Gaussian beam at z.
 
         Parameters

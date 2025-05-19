@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import (
     Literal,  # We support py3.9+, so direct typing import is fine.
     Optional,
-    Tuple,
     Union,
 )
 
@@ -109,7 +108,7 @@ class ArrayLike:
 
 
 def constrained_array(
-    dtype: type = None, ndim: int = None, shape: Tuple[pydantic.NonNegativeInt, ...] = None
+    dtype: type = None, ndim: int = None, shape: tuple[pydantic.NonNegativeInt, ...] = None
 ) -> type:
     """Generate an ArrayLike sub-type with constraints built in."""
 
@@ -190,12 +189,12 @@ ScalarSymmetry = Literal[0, 1]
 """ geometric """
 
 Size1D = pydantic.NonNegativeFloat
-Size = Tuple[Size1D, Size1D, Size1D]
-Coordinate = Tuple[float, float, float]
-CoordinateOptional = Tuple[Optional[float], Optional[float], Optional[float]]
-Coordinate2D = Tuple[float, float]
-Bound = Tuple[Coordinate, Coordinate]
-GridSize = Union[pydantic.PositiveFloat, Tuple[pydantic.PositiveFloat, ...]]
+Size = tuple[Size1D, Size1D, Size1D]
+Coordinate = tuple[float, float, float]
+CoordinateOptional = tuple[Optional[float], Optional[float], Optional[float]]
+Coordinate2D = tuple[float, float]
+Bound = tuple[Coordinate, Coordinate]
+GridSize = Union[pydantic.PositiveFloat, tuple[pydantic.PositiveFloat, ...]]
 Axis = Literal[0, 1, 2]
 Axis2D = Literal[0, 1]
 Shapely = BaseGeometry
@@ -211,12 +210,12 @@ InterpMethod = Literal["nearest", "linear"]
 
 # Complex = Union[complex, ComplexNumber]
 Complex = Union[tidycomplex, ComplexNumber]
-PoleAndResidue = Tuple[Complex, Complex]
+PoleAndResidue = tuple[Complex, Complex]
 
 # PoleAndResidue = Tuple[Tuple[float, float], Tuple[float, float]]
 FreqBoundMax = float
 FreqBoundMin = float
-FreqBound = Tuple[FreqBoundMin, FreqBoundMax]
+FreqBound = tuple[FreqBoundMin, FreqBoundMax]
 
 PermittivityComponent = Literal["xx", "xy", "xz", "yx", "yy", "yz", "zx", "zy", "zz"]
 
@@ -229,8 +228,8 @@ Direction = Literal["+", "-"]
 
 EMField = Literal["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"]
 FieldType = Literal["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"]
-FreqArray = Union[Tuple[float, ...], ArrayFloat1D]
-ObsGridArray = Union[Tuple[float, ...], ArrayFloat1D]
+FreqArray = Union[tuple[float, ...], ArrayFloat1D]
+ObsGridArray = Union[tuple[float, ...], ArrayFloat1D]
 PolarizationBasis = Literal["linear", "circular"]
 AuxField = Literal["Nfx", "Nfy", "Nfz"]
 

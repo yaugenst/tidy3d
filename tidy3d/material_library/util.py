@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from io import StringIO
-from typing import List
 
 from rich.console import Console
 from rich.panel import Panel
@@ -57,7 +56,7 @@ def variant_name(v):
     return name
 
 
-def summarize_medium(med) -> List[str]:
+def summarize_medium(med) -> list[str]:
     """Returns relevant medium information for display."""
     lines = []
 

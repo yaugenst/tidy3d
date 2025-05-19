@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ssl
 from enum import Enum
-from typing import Literal, Optional, Tuple
+from typing import Literal, Optional
 
 import pydantic.v1 as pydantic
 import requests
@@ -109,18 +109,18 @@ class AdvancedFitterParam(Tidy3dBaseModel):
 class FitterData(AdvancedFitterParam):
     """Data class for request body of Fitter where dipsersion data is input through tuple."""
 
-    wvl_um: Tuple[float, ...] = Field(
+    wvl_um: tuple[float, ...] = Field(
         ...,
         title="Wavelengths",
         description="A set of wavelengths for dispersion data.",
         units=MICROMETER,
     )
-    n_data: Tuple[float, ...] = Field(
+    n_data: tuple[float, ...] = Field(
         ...,
         title="Index of refraction",
         description="Real part of the complex index of refraction at each wavelength.",
     )
-    k_data: Tuple[float, ...] = Field(
+    k_data: tuple[float, ...] = Field(
         None,
         title="Extinction coefficient",
         description="Imaginary part of the complex index of refraction at each wavelength.",
@@ -253,7 +253,7 @@ class FitterData(AdvancedFitterParam):
 
         return get_headers()
 
-    def run(self) -> Tuple[PoleResidue, float]:
+    def run(self) -> tuple[PoleResidue, float]:
         """Execute the data fit using the stable fitter in the server.
 
         Returns
@@ -315,7 +315,7 @@ def run(
     num_tries: PositiveInt = 50,
     tolerance_rms: NonNegativeFloat = 1e-2,
     advanced_param: AdvancedFitterParam = None,
-) -> Tuple[PoleResidue, float]:
+) -> tuple[PoleResidue, float]:
     """Execute the data fit using the stable fitter in the server.
 
     Parameters
@@ -360,7 +360,7 @@ class StableDispersionFitter(DispersionFitter):
         tolerance_rms: NonNegativeFloat = 1e-2,
         guess: PoleResidue = None,
         advanced_param: AdvancedFitterParam = None,
-    ) -> Tuple[PoleResidue, float]:
+    ) -> tuple[PoleResidue, float]:
         """Deprecated."""
         if advanced_param is None:
             advanced_param = AdvancedFitterParam()

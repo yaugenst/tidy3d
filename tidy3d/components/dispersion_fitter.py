@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 import scipy
@@ -111,7 +111,7 @@ def imag_resp_extrema_locs(poles: ArrayComplex1D, residues: ArrayComplex1D) -> A
 class AdvancedFastFitterParam(Tidy3dBaseModel):
     """Advanced fast fitter parameters."""
 
-    loss_bounds: Tuple[float, float] = Field(
+    loss_bounds: tuple[float, float] = Field(
         (0, np.inf),
         title="Loss bounds",
         description="Bounds (lower, upper) on Im[resp]. Default corresponds to only passivity. "
@@ -121,7 +121,7 @@ class AdvancedFastFitterParam(Tidy3dBaseModel):
         "A finite upper bound may be helpful when fitting lossless materials. "
         "In this case, consider also increasing the weight for fitting the imaginary part.",
     )
-    weights: Tuple[NonNegativeFloat, NonNegativeFloat] = Field(
+    weights: tuple[NonNegativeFloat, NonNegativeFloat] = Field(
         None,
         title="Weights",
         description="Weights (real, imag) in objective function for fitting. The weights "
@@ -350,7 +350,7 @@ class FastFitterData(AdvancedFastFitterParam):
         return self.poles[np.iscomplex(self.poles)]
 
     @classmethod
-    def get_default_weights(cls, eps: ArrayComplex1D) -> Tuple[float, float]:
+    def get_default_weights(cls, eps: ArrayComplex1D) -> tuple[float, float]:
         """Default weights based on real and imaginary part of eps."""
         rms = np.array([np.sqrt(np.mean(x**2)) for x in (np.real(eps), np.imag(eps))])
         rms = np.maximum(RMS_MIN, rms)
@@ -360,7 +360,7 @@ class FastFitterData(AdvancedFastFitterParam):
         return tuple(weights)
 
     @cached_property
-    def pole_residue(self) -> Tuple[float, ArrayComplex1D, ArrayComplex1D]:
+    def pole_residue(self) -> tuple[float, ArrayComplex1D, ArrayComplex1D]:
         """Parameters for pole-residue model in original units."""
         if self.eps_inf is None or self.poles is None:
             return 1, [], []
@@ -647,7 +647,7 @@ class FastFitterData(AdvancedFastFitterParam):
 
         return model
 
-    def iterate_passivity(self, passivity_omega: ArrayFloat1D) -> Tuple[FastFitterData, int]:
+    def iterate_passivity(self, passivity_omega: ArrayFloat1D) -> tuple[FastFitterData, int]:
         """Iterate passivity enforcement algorithm."""
 
         size = len(self.real_poles) + 2 * len(self.complex_poles)
@@ -724,7 +724,7 @@ class FastFitterData(AdvancedFastFitterParam):
 
 
 def _fit_fixed_parameters(
-    num_poles_range: Tuple[PositiveInt, PositiveInt], model: FastFitterData
+    num_poles_range: tuple[PositiveInt, PositiveInt], model: FastFitterData
 ) -> FastFitterData:
     def fit_non_passive(model: FastFitterData) -> FastFitterData:
         best_model = model
@@ -759,7 +759,7 @@ def fit(
     tolerance_rms: NonNegativeFloat = DEFAULT_TOLERANCE_RMS,
     advanced_param: AdvancedFastFitterParam = None,
     scale_factor: PositiveFloat = 1,
-) -> Tuple[Tuple[float, ArrayComplex1D, ArrayComplex1D], float]:
+) -> tuple[tuple[float, ArrayComplex1D, ArrayComplex1D], float]:
     """Fit data using a fast fitting algorithm.
 
     Note

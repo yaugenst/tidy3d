@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import importlib
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable
 
 import autograd.numpy as anp
 from autograd.extend import VJPNode, defjvp, register_notrace
@@ -34,9 +34,9 @@ def from_arraybox(cls, box: ArrayBox) -> TidyArrayBox:
 def __array_function__(
     self: Any,
     func: Callable,
-    types: List[Any],
-    args: Tuple[Any, ...],
-    kwargs: Dict[str, Any],
+    types: list[Any],
+    args: tuple[Any, ...],
+    kwargs: dict[str, Any],
 ) -> Any:
     """
     Handle the dispatch of NumPy functions to autograd's numpy implementation.
@@ -103,7 +103,7 @@ def __array_ufunc__(
     ufunc: Callable,
     method: str,
     *inputs: Any,
-    **kwargs: Dict[str, Any],
+    **kwargs: dict[str, Any],
 ) -> Any:
     """
     Handle the dispatch of NumPy ufuncs to autograd's numpy implementation.

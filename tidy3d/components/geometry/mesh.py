@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 import pydantic.v1 as pydantic
@@ -150,7 +150,7 @@ class TriangleMesh(base.Geometry, ABC):
         cls,
         filename: str,
         scale: float = 1.0,
-        origin: Tuple[float, float, float] = (0, 0, 0),
+        origin: tuple[float, float, float] = (0, 0, 0),
         solid_index: int = None,
         **kwargs,
     ) -> Union[TriangleMesh, base.GeometryGroup]:
@@ -348,7 +348,7 @@ class TriangleMesh(base.Geometry, ABC):
 
     def intersections_tilted_plane(
         self, normal: Coordinate, origin: Coordinate, to_2D: MatrixReal4x4
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Return a list of shapely geometries at the plane specified by normal and origin.
 
         Parameters
@@ -375,7 +375,7 @@ class TriangleMesh(base.Geometry, ABC):
 
     def intersections_plane(
         self, x: float = None, y: float = None, z: float = None
-    ) -> List[Shapely]:
+    ) -> list[Shapely]:
         """Returns list of shapely geometries at plane specified by one non-None value of x,y,z.
 
         Parameters

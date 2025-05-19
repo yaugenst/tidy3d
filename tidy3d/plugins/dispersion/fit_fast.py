@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Tuple
-
 import numpy as np
 from pydantic.v1 import NonNegativeFloat, PositiveInt
 
@@ -44,7 +42,7 @@ class FastDispersionFitter(DispersionFitter):
         eps_inf: float = None,
         tolerance_rms: NonNegativeFloat = DEFAULT_TOLERANCE_RMS,
         advanced_param: AdvancedFastFitterParam = None,
-    ) -> Tuple[PoleResidue, float]:
+    ) -> tuple[PoleResidue, float]:
         """Fit data using a fast fitting algorithm.
 
         Note
@@ -117,7 +115,7 @@ class FastDispersionFitter(DispersionFitter):
         cls,
         eps_real: float,
         loss_tangent: float,
-        frequency_range: Tuple[float, float],
+        frequency_range: tuple[float, float],
         max_num_poles: PositiveInt = DEFAULT_MAX_POLES,
         number_sampling_frequency: PositiveInt = 10,
         tolerance_rms: NonNegativeFloat = DEFAULT_TOLERANCE_RMS,

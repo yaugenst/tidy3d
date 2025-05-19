@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Tuple
 
 import pydantic.v1 as pydantic
 
@@ -49,12 +48,12 @@ class Source(Box, AbstractSource, ABC):
         return None
 
     @cached_property
-    def _dir_vector(self) -> Tuple[float, float, float]:
+    def _dir_vector(self) -> tuple[float, float, float]:
         """Returns a vector indicating the source direction for arrow plotting, if not None."""
         return None
 
     @cached_property
-    def _pol_vector(self) -> Tuple[float, float, float]:
+    def _pol_vector(self) -> tuple[float, float, float]:
         """Returns a vector indicating the source polarization for arrow plotting, if not None."""
         return None
 

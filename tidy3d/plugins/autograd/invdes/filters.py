@@ -3,7 +3,7 @@ from __future__ import annotations
 import abc
 from collections.abc import Iterable
 from functools import lru_cache, partial
-from typing import Annotated, Callable, Tuple, Union
+from typing import Annotated, Callable, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -21,7 +21,7 @@ from ..utilities import get_kernel_size_px, make_kernel
 class AbstractFilter(Tidy3dBaseModel, abc.ABC):
     """An abstract class for creating and applying convolution filters."""
 
-    kernel_size: Union[pd.PositiveInt, Tuple[pd.PositiveInt, ...]] = pd.Field(
+    kernel_size: Union[pd.PositiveInt, tuple[pd.PositiveInt, ...]] = pd.Field(
         ..., title="Kernel Size", description="Size of the kernel in pixels for each dimension."
     )
     normalize: bool = pd.Field(
@@ -33,7 +33,7 @@ class AbstractFilter(Tidy3dBaseModel, abc.ABC):
 
     @classmethod
     def from_radius_dl(
-        cls, radius: Union[float, Tuple[float, ...]], dl: Union[float, Tuple[float, ...]], **kwargs
+        cls, radius: Union[float, tuple[float, ...]], dl: Union[float, tuple[float, ...]], **kwargs
     ) -> AbstractFilter:
         """Create a filter from radius and grid spacing.
 
@@ -126,10 +126,10 @@ class CircularFilter(AbstractFilter):
 
 
 def _get_kernel_size(
-    radius: Union[float, Tuple[float, ...]],
-    dl: Union[float, Tuple[float, ...]],
-    size_px: Union[int, Tuple[int, ...]],
-) -> Tuple[int, ...]:
+    radius: Union[float, tuple[float, ...]],
+    dl: Union[float, tuple[float, ...]],
+    size_px: Union[int, tuple[int, ...]],
+) -> tuple[int, ...]:
     """Determine the kernel size based on the provided radius, grid spacing, or size in pixels.
 
     Parameters
@@ -165,10 +165,10 @@ def _get_kernel_size(
 
 
 def make_filter(
-    radius: Union[float, Tuple[float, ...]] = None,
-    dl: Union[float, Tuple[float, ...]] = None,
+    radius: Union[float, tuple[float, ...]] = None,
+    dl: Union[float, tuple[float, ...]] = None,
     *,
-    size_px: Union[int, Tuple[int, ...]] = None,
+    size_px: Union[int, tuple[int, ...]] = None,
     normalize: bool = True,
     padding: PaddingType = "reflect",
     filter_type: KernelType,

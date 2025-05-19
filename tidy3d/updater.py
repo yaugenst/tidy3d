@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import functools
 import json
-from typing import Callable, Dict
+from typing import Callable
 
 import pydantic.v1 as pd
 import yaml
@@ -186,7 +186,7 @@ def updates_from_version(version_from_string: str):
     return decorator
 
 
-def iterate_update_dict(update_dict: Dict, update_types: Dict[str, Callable]):
+def iterate_update_dict(update_dict: dict, update_types: dict[str, Callable]):
     """Recursively iterate nested ``update_dict``. For any nested ``nested_dict`` found,
     apply an update function if its ``nested_dict["type"]`` is in the keys of the ``update_types``
     dictionary. Also iterates lists and tuples.

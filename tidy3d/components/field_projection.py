@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import List, Tuple, Union
+from typing import Union
 
 import autograd.numpy as anp
 import numpy as np
@@ -45,7 +45,7 @@ PTS_PER_WVL = 10
 
 # Numpy float array and related array types
 
-ArrayLikeN2F = Union[float, Tuple[float, ...], ArrayComplex4D]
+ArrayLikeN2F = Union[float, tuple[float, ...], ArrayComplex4D]
 
 
 class FieldProjector(Tidy3dBaseModel):
@@ -71,7 +71,7 @@ class FieldProjector(Tidy3dBaseModel):
         description="Container for simulation data containing the near field monitors.",
     )
 
-    surfaces: Tuple[FieldProjectionSurface, ...] = pydantic.Field(
+    surfaces: tuple[FieldProjectionSurface, ...] = pydantic.Field(
         ...,
         title="Surface monitor with direction",
         description="Tuple of each :class:`.FieldProjectionSurface` to use as source of "
@@ -117,7 +117,7 @@ class FieldProjector(Tidy3dBaseModel):
         return sim.monitor_medium(monitor)
 
     @cached_property
-    def frequencies(self) -> List[float]:
+    def frequencies(self) -> list[float]:
         """Return the list of frequencies associated with the field monitors."""
         return self.surfaces[0].monitor.freqs
 
@@ -125,8 +125,8 @@ class FieldProjector(Tidy3dBaseModel):
     def from_near_field_monitors(
         cls,
         sim_data: SimulationData,
-        near_monitors: List[FieldMonitor],
-        normal_dirs: List[Direction],
+        near_monitors: list[FieldMonitor],
+        normal_dirs: list[Direction],
         pts_per_wavelength: int = PTS_PER_WVL,
         origin: Coordinate = None,
     ):
@@ -906,7 +906,7 @@ class FieldProjector(Tidy3dBaseModel):
         d2G_dr2 = dG_dr * (ikr - 1.0) / r + G / (r**2)
 
         # operations between unit vectors and currents
-        def r_x_current(current: Tuple[np.ndarray, ...]) -> Tuple[np.ndarray, ...]:
+        def r_x_current(current: tuple[np.ndarray, ...]) -> tuple[np.ndarray, ...]:
             """Cross product between the r unit vector and the current."""
             return [
                 sin_theta * sin_phi * current[2] - cos_theta * current[1],
@@ -914,7 +914,7 @@ class FieldProjector(Tidy3dBaseModel):
                 sin_theta * cos_phi * current[1] - sin_theta * sin_phi * current[0],
             ]
 
-        def r_dot_current(current: Tuple[np.ndarray, ...]) -> np.ndarray:
+        def r_dot_current(current: tuple[np.ndarray, ...]) -> np.ndarray:
             """Dot product between the r unit vector and the current."""
             return (
                 sin_theta * cos_phi * current[0]
@@ -922,7 +922,7 @@ class FieldProjector(Tidy3dBaseModel):
                 + cos_theta * current[2]
             )
 
-        def r_dot_current_dtheta(current: Tuple[np.ndarray, ...]) -> np.ndarray:
+        def r_dot_current_dtheta(current: tuple[np.ndarray, ...]) -> np.ndarray:
             """Theta derivative of the dot product between the r unit vector and the current."""
             return (
                 cos_theta * cos_phi * current[0]
@@ -930,12 +930,12 @@ class FieldProjector(Tidy3dBaseModel):
                 - sin_theta * current[2]
             )
 
-        def r_dot_current_dphi_div_sin_theta(current: Tuple[np.ndarray, ...]) -> np.ndarray:
+        def r_dot_current_dphi_div_sin_theta(current: tuple[np.ndarray, ...]) -> np.ndarray:
             """Phi derivative of the dot product between the r unit vector and the current,
             analytically divided by sin theta."""
             return -sin_phi * current[0] + cos_phi * current[1]
 
-        def grad_Gr_r_dot_current(current: Tuple[np.ndarray, ...]) -> Tuple[np.ndarray, ...]:
+        def grad_Gr_r_dot_current(current: tuple[np.ndarray, ...]) -> tuple[np.ndarray, ...]:
             """Gradient of the product of the gradient of the Green's function and the dot product
             between the r unit vector and the current."""
             temp = [
@@ -946,7 +946,7 @@ class FieldProjector(Tidy3dBaseModel):
             # convert to Cartesian coordinates
             return surface.monitor.sph_2_car_field(temp[0], temp[1], temp[2], theta_obs, phi_obs)
 
-        def potential_terms(current: Tuple[np.ndarray, ...], const: complex):
+        def potential_terms(current: tuple[np.ndarray, ...], const: complex):
             """Assemble vector potential and its derivatives."""
             r_x_c = r_x_current(current)
             pot = [const * item * G for item in current]

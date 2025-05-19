@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Callable, List, Tuple
+from typing import Any, Callable
 
 import jax
 import numpy as np
@@ -36,7 +36,7 @@ class JaxObject(Tidy3dBaseModel):
     """Shortcut to get names of fields with certain properties."""
 
     @classmethod
-    def _get_field_names(cls, field_key: str) -> List[str]:
+    def _get_field_names(cls, field_key: str) -> list[str]:
         """Get all fields where ``field_key`` defined in the ``pydantic.Field``."""
         fields = []
         for field_name, model_field in cls.__fields__.items():
@@ -46,17 +46,17 @@ class JaxObject(Tidy3dBaseModel):
         return fields
 
     @classmethod
-    def get_jax_field_names(cls) -> List[str]:
+    def get_jax_field_names(cls) -> list[str]:
         """Returns list of field names where ``jax_field=True``."""
         return cls._get_field_names("jax_field")
 
     @classmethod
-    def get_jax_leaf_names(cls) -> List[str]:
+    def get_jax_leaf_names(cls) -> list[str]:
         """Returns list of field names where ``stores_jax_for`` defined."""
         return cls._get_field_names("stores_jax_for")
 
     @classmethod
-    def get_jax_field_names_all(cls) -> List[str]:
+    def get_jax_field_names_all(cls) -> list[str]:
         """Returns list of field names where ``jax_field=True`` or ``stores_jax_for`` defined."""
         jax_field_names = cls.get_jax_field_names()
         jax_leaf_names = cls.get_jax_leaf_names()
@@ -76,7 +76,7 @@ class JaxObject(Tidy3dBaseModel):
 
     """Methods needed for jax to register arbitrary classes."""
 
-    def tree_flatten(self) -> Tuple[list, dict]:
+    def tree_flatten(self) -> tuple[list, dict]:
         """How to flatten a :class:`.JaxObject` instance into a ``pytree``."""
         children = []
         aux_data = self.dict()
@@ -218,7 +218,7 @@ class JaxObject(Tidy3dBaseModel):
 
     # TODO: replace with implementing these in DataArray
 
-    def to_hdf5(self, fname: str, custom_encoders: List[Callable] = None) -> None:
+    def to_hdf5(self, fname: str, custom_encoders: list[Callable] = None) -> None:
         """Exports :class:`JaxObject` instance to .hdf5 file.
 
         Parameters
@@ -249,7 +249,7 @@ class JaxObject(Tidy3dBaseModel):
 
     @classmethod
     def dict_from_hdf5(
-        cls, fname: str, group_path: str = "", custom_decoders: List[Callable] = None
+        cls, fname: str, group_path: str = "", custom_decoders: list[Callable] = None
     ) -> dict:
         """Loads a dictionary containing the model contents from a .hdf5 file.
 

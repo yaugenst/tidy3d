@@ -262,11 +262,9 @@ extend-select = [
 ]
 extend-ignore = [
   "E501",  # line too long
-  "UP035",
-  "UP006",
-  "UP007",
   "B905",  # `zip()` without an explicit `strict=` parameter
-  "NPY002", # TODO revisit RNG handling
+  "UP007",  # TODO: Remove once Python >= 3.10
+  "NPY002", # TODO: Revisit RNG handling
 ]
 
 [tool.ruff.lint.isort]

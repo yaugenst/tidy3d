@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Union
 
 import pydantic.v1 as pd
 
@@ -42,7 +42,7 @@ class EMEMonitor(AbstractMonitor, ABC):
         "will be omitted. A value of 'None' will record all sweep indices.",
     )
 
-    interval_space: Tuple[Literal[1], Literal[1], Literal[1]] = pd.Field(
+    interval_space: tuple[Literal[1], Literal[1], Literal[1]] = pd.Field(
         (1, 1, 1),
         title="Spatial Interval",
         description="Number of grid step intervals between monitor recordings. If equal to 1, "
@@ -124,7 +124,7 @@ class EMEModeSolverMonitor(EMEMonitor):
     ... )
     """
 
-    interval_space: Tuple[Literal[1], Literal[1], Literal[1]] = pd.Field(
+    interval_space: tuple[Literal[1], Literal[1], Literal[1]] = pd.Field(
         (1, 1, 1),
         title="Spatial Interval",
         description="Note: not yet supported. Number of grid step intervals between monitor recordings. If equal to 1, "
@@ -198,7 +198,7 @@ class EMEFieldMonitor(EMEMonitor, AbstractFieldMonitor):
     ... )
     """
 
-    interval_space: Tuple[Literal[1], Literal[1], Literal[1]] = pd.Field(
+    interval_space: tuple[Literal[1], Literal[1], Literal[1]] = pd.Field(
         (1, 1, 1),
         title="Spatial Interval",
         description="Note: not yet supported. Number of grid step intervals between monitor recordings. If equal to 1, "
@@ -262,7 +262,7 @@ class EMECoefficientMonitor(EMEMonitor):
     ... )
     """
 
-    interval_space: Tuple[Literal[1], Literal[1], Literal[1]] = pd.Field(
+    interval_space: tuple[Literal[1], Literal[1], Literal[1]] = pd.Field(
         (1, 1, 1),
         title="Spatial Interval",
         description="Number of grid step intervals between monitor recordings. If equal to 1, "
