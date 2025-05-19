@@ -9,6 +9,7 @@ import pydantic.v1 as pd
 from tidy3d.components.base import skip_if_fields_missing
 from tidy3d.components.data.data_array import (
     DataArray,
+    ScalarFieldTimeDataArray,
     SpatialDataArray,
 )
 from tidy3d.components.data.utils import TetrahedralGridDataset, TriangularGridDataset
@@ -21,7 +22,9 @@ from tidy3d.constants import KELVIN
 from tidy3d.log import log
 
 FieldDataset = Union[
-    SpatialDataArray, annotate_type(Union[TriangularGridDataset, TetrahedralGridDataset])
+    SpatialDataArray,
+    ScalarFieldTimeDataArray,
+    annotate_type(Union[TriangularGridDataset, TetrahedralGridDataset]),
 ]
 UnstructuredFieldType = Union[TriangularGridDataset, TetrahedralGridDataset]
 
