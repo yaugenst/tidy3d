@@ -117,9 +117,7 @@ class ParameterFloat(ParameterNumeric):
     def _sample_grid(self) -> List[float]:
         """Sample this design variable on a grid."""
         if self.num_points is None:
-            raise ValueError(
-                "'ParameterFloat' sampled on a grid must have '.num_points' defined." ""
-            )
+            raise ValueError("'ParameterFloat' sampled on a grid must have '.num_points' defined.")
         low, high = self.span
         return np.linspace(low, high, self.num_points).tolist()
 

@@ -102,8 +102,7 @@ class CustomInitializationSpec(AbstractInitializationSpec):
         """Ensure that params is real-valued."""
         if np.issubdtype(value.dtype, np.bool_):
             td.log.warning(
-                "Got a boolean array for 'params'. "
-                "This will be treated as a floating point array."
+                "Got a boolean array for 'params'. This will be treated as a floating point array."
             )
             value = value.astype(float)
         elif not np.issubdtype(value.dtype, np.floating):

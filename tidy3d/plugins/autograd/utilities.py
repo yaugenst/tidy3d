@@ -202,8 +202,7 @@ def scalar_objective(func: Callable = None, *, has_aux: bool = False) -> Callabl
         if has_aux:
             if not isinstance(result, tuple) or len(result) != 2:
                 raise Tidy3dError(
-                    "If 'has_aux' is True, the objective function must return "
-                    "a tuple of length 2."
+                    "If 'has_aux' is True, the objective function must return a tuple of length 2."
                 )
             result, aux_data = result
 

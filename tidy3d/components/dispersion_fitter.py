@@ -840,7 +840,7 @@ def fit(
         advanced_param=advanced_param or AdvancedFastFitterParam(),
         scale_factor=scale_factor,
     )
-    log.info(f"Fitting weights=({init_model.weights[0]:.3g}, " f"{init_model.weights[1]:.3g}).")
+    log.info(f"Fitting weights=({init_model.weights[0]:.3g}, {init_model.weights[1]:.3g}).")
 
     def make_configs():
         configs = [[p] for p in range(max(min_num_poles // 2, 1), max_num_poles + 1)]

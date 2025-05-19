@@ -818,7 +818,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
             comp.nonlinear_spec is not None for comp in [self.ss, self.tt]
         ):
             raise ValidationError(
-                "Nonlinearities are not currently supported for the components " "of a 2D medium."
+                "Nonlinearities are not currently supported for the components of a 2D medium."
             )
 
         if self.nonlinear_spec is None:
@@ -849,7 +849,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
             comp.modulation_spec is not None for comp in [self.ss, self.tt]
         ):
             raise ValidationError(
-                "Time modulation is not currently supported for the components " "of a 2D medium."
+                "Time modulation is not currently supported for the components of a 2D medium."
             )
 
     heat_spec: Optional[ThermalSpecType] = pd.Field(

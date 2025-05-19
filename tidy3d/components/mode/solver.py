@@ -595,10 +595,10 @@ class EigSolver(Tidy3dBaseModel):
             aac = mat * mat.conjugate().T
             diff = aca - aac
             print(
-                f"inf-norm: A*A: {spl.norm(aca, ord=np.inf)}, AA*: {spl.norm(aac, ord=np.inf)}, nonnormality: {spl.norm(diff, ord=np.inf)}, relative nonnormality: {spl.norm(diff, ord=np.inf)/spl.norm(aca, ord=np.inf)}"
+                f"inf-norm: A*A: {spl.norm(aca, ord=np.inf)}, AA*: {spl.norm(aac, ord=np.inf)}, nonnormality: {spl.norm(diff, ord=np.inf)}, relative nonnormality: {spl.norm(diff, ord=np.inf) / spl.norm(aca, ord=np.inf)}"
             )
             print(
-                f"fro-norm: A*A: {spl.norm(aca, ord='fro')}, AA*: {spl.norm(aac, ord='fro')}, nonnormality: {spl.norm(diff, ord='fro')}, relative nonnormality: {spl.norm(diff, ord='fro')/spl.norm(aca, ord='fro')}"
+                f"fro-norm: A*A: {spl.norm(aca, ord='fro')}, AA*: {spl.norm(aac, ord='fro')}, nonnormality: {spl.norm(diff, ord='fro')}, relative nonnormality: {spl.norm(diff, ord='fro') / spl.norm(aca, ord='fro')}"
             )
 
         # preprocess basis modes

@@ -249,7 +249,7 @@ class EMEExplicitGrid(EMEGridSpec):
     mode_specs: List[EMEModeSpec] = pd.Field(
         ...,
         title="Mode Specifications",
-        description="Mode specifications for each cell " "in the explicit EME grid.",
+        description="Mode specifications for each cell in the explicit EME grid.",
     )
 
     boundaries: ArrayFloat1D = pd.Field(
@@ -270,7 +270,7 @@ class EMEExplicitGrid(EMEGridSpec):
         boundaries = val
         if len(mode_specs) - 1 != len(boundaries):
             raise ValidationError(
-                "There must be exactly one fewer item in 'boundaries' than " "in 'mode_specs'."
+                "There must be exactly one fewer item in 'boundaries' than in 'mode_specs'."
             )
         if len(boundaries) > 0:
             rmin = boundaries[0]
@@ -419,8 +419,7 @@ class EMECompositeGrid(EMEGridSpec):
         subgrid_boundaries = val
         if len(subgrids) - 1 != len(subgrid_boundaries):
             raise ValidationError(
-                "There must be exactly one fewer item in 'subgrid_boundaries' than "
-                "in 'subgrids'."
+                "There must be exactly one fewer item in 'subgrid_boundaries' than in 'subgrids'."
             )
         rmin = subgrid_boundaries[0]
         for rmax in subgrid_boundaries[1:]:
@@ -598,7 +597,7 @@ class EMECompositeGrid(EMEGridSpec):
             raise ValidationError("The list 'structure_groups' cannot be empty.")
         if len(mode_specs) != len(structure_groups):
             raise ValidationError(
-                "The lists 'mode_specs' and 'structure_groups' must " "have the same length."
+                "The lists 'mode_specs' and 'structure_groups' must have the same length."
             )
 
         subgrids = []
@@ -612,7 +611,7 @@ class EMECompositeGrid(EMEGridSpec):
         if names is not None:
             if len(names) != len(structure_groups):
                 raise ValidationError(
-                    "The lists 'names' and 'structure_groups' must " "have the same length."
+                    "The lists 'names' and 'structure_groups' must have the same length."
                 )
             for i in range(len(subgrids)):
                 subgrids[i] = subgrids[i].updated_copy(name=names[i])
@@ -620,7 +619,7 @@ class EMECompositeGrid(EMEGridSpec):
         if num_reps is not None:
             if len(num_reps) != len(structure_groups):
                 raise ValidationError(
-                    "The lists 'num_reps' and 'structure_groups' must " "have the same length."
+                    "The lists 'num_reps' and 'structure_groups' must have the same length."
                 )
             for i in range(len(subgrids)):
                 subgrids[i] = subgrids[i].updated_copy(num_reps=num_reps[i])

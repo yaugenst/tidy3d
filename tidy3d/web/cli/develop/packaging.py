@@ -90,7 +90,7 @@ def benchmark_timing_operations(
     default=True,
     type=bool,
     is_flag=True,
-    help="Runs in poetry environment if " "True.",
+    help="Runs in poetry environment if True.",
 )
 @click.option(
     "-o",

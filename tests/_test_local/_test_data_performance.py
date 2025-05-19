@@ -70,7 +70,7 @@ SIM_DATA_1 = make_sim_data_1()
 
 @profile
 def test_memory_1_save():
-    print(f'sim_data_size = {SIM_DATA_1.monitor_data["test"].Ex.nbytes:.2e} Bytes')
+    print(f"sim_data_size = {SIM_DATA_1.monitor_data['test'].Ex.nbytes:.2e} Bytes")
     SIM_DATA_1.to_file(PATH)
     print(f"file_size = {os.path.getsize(PATH):.2e} Bytes")
 

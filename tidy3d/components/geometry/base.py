@@ -1986,8 +1986,7 @@ class Box(SimplePlaneIntersection, Centered):
         """Axis normal to the Box. Errors if box is not planar."""
         if self.size.count(0.0) != 1:
             raise ValidationError(
-                "Tried to get 'normal_axis' of 'Box' that is not planar. "
-                f"Given 'size={self.size}.'"
+                f"Tried to get 'normal_axis' of 'Box' that is not planar. Given 'size={self.size}.'"
             )
         return self.size.index(0.0)
 

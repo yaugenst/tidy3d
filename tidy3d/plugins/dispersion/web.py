@@ -102,8 +102,7 @@ class AdvancedFitterParam(Tidy3dBaseModel):
         """bound_f_lower cannot be larger than bound_f."""
         if values["bound_f"] is not None and val > values["bound_f"]:
             raise SetupError(
-                "The upper bound 'bound_f' cannot be smaller "
-                "than the lower bound 'bound_f_lower'."
+                "The upper bound 'bound_f' cannot be smaller than the lower bound 'bound_f_lower'."
             )
         return val
 

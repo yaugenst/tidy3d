@@ -352,8 +352,7 @@ Ag_Yang2015Drude = VariantItem(
         frequency_range=(154771532566312.25, 1595489401708072.2),
     ),
     reference=[material_refs["Yang2015"]],
-    data_url="https://refractiveindex.info/data_csv.php?datafile=database/data-nk/"
-    "main/Ag/Yang.yml",
+    data_url="https://refractiveindex.info/data_csv.php?datafile=database/data-nk/main/Ag/Yang.yml",
 )
 
 Al_Rakic1995 = VariantItem(

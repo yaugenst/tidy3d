@@ -692,8 +692,7 @@ class EMESimulation(AbstractYeeGridSimulation):
             scale_factors_shape = self.sweep_spec.scale_factors.shape
             if len(scale_factors_shape) > 2:
                 raise SetupError(
-                    "Simulation 'sweep_spec.scale_factors' must "
-                    "have either one or two dimensions."
+                    "Simulation 'sweep_spec.scale_factors' must have either one or two dimensions."
                 )
             if len(scale_factors_shape) == 2:
                 num_scale_factors = scale_factors_shape[1]

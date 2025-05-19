@@ -2533,7 +2533,7 @@ class GridSpec(Tidy3dBaseModel):
                 if len(new_snapping_lines) == 0:
                     log.info(
                         "Grid is no longer changing. "
-                        f"Stopping iterative gap meshing after {ind+1}/{num_iters} iterations."
+                        f"Stopping iterative gap meshing after {ind + 1}/{num_iters} iterations."
                     )
                     break
 
@@ -2556,7 +2556,7 @@ class GridSpec(Tidy3dBaseModel):
                 if same:
                     log.info(
                         "Grid is no longer changing. "
-                        f"Stopping iterative gap meshing after {ind+1}/{num_iters} iterations."
+                        f"Stopping iterative gap meshing after {ind + 1}/{num_iters} iterations."
                     )
                     break
 

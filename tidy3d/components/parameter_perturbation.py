@@ -1677,8 +1677,7 @@ class IndexPerturbation(Tidy3dBaseModel):
 
         if dn_complex or dk_complex:
             raise DataError(
-                "Perturbation models 'dn' and 'dk' in 'IndexPerturbation' cannot be "
-                "complex-valued."
+                "Perturbation models 'dn' and 'dk' in 'IndexPerturbation' cannot be complex-valued."
             )
 
         return values
