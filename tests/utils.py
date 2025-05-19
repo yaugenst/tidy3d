@@ -1028,7 +1028,7 @@ def run_emulated(simulation: td.Simulation, path=None, **kwargs) -> td.Simulatio
         coords = dict(orders_x=orders_x, orders_y=orders_y, f=f)
         values = DATA_GEN_FN((len(orders_x), len(orders_y), len(f)))
         data = td.DiffractionDataArray(values, coords=coords)
-        field_data = {field: data for field in ("Er", "Etheta", "Ephi", "Hr", "Htheta", "Hphi")}
+        field_data = dict.fromkeys(("Er", "Etheta", "Ephi", "Hr", "Htheta", "Hphi"), data)
         return td.DiffractionData(monitor=monitor, sim_size=(1, 1), bloch_vecs=(0, 0), **field_data)
 
     def make_mode_data(monitor: td.ModeMonitor) -> td.ModeData:
@@ -1255,7 +1255,7 @@ class BatchDataTest(Tidy3dBaseModel):
 def run_async_emulated(simulations: Dict[str, td.Simulation], **kwargs) -> BatchData:
     """Emulate an async run function."""
     task_ids = {task_name: f"task_id={i}" for i, task_name in enumerate(simulations.keys())}
-    task_paths = {task_name: "NONE" for task_name in simulations.keys()}
+    task_paths = dict.fromkeys(simulations.keys(), "NONE")
     sim_data = {task_name: run_emulated(sim) for task_name, sim in simulations.items()}
 
     return BatchDataTest(task_paths=task_paths, task_ids=task_ids, sim_data=sim_data)

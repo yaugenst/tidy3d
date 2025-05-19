@@ -863,7 +863,7 @@ def test_no_nans():
     eps_nan = eps_data.eps_xx.isel(f=[0])
     eps_nan[:] = np.nan
     eps_dataset_nan = td.PermittivityDataset(
-        **{key: eps_nan for key in ["eps_xx", "eps_yy", "eps_zz"]}
+        **dict.fromkeys(["eps_xx", "eps_yy", "eps_zz"], eps_nan)
     )
     with pytest.raises(pydantic.ValidationError):
         td.CustomMedium(eps_dataset=eps_dataset_nan)

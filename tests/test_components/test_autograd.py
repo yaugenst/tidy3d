@@ -235,7 +235,7 @@ def use_emulated_run(monkeypatch):
                 def load_sim_data(self, task_name):
                     return batch_data_orig[task_name]
 
-            task_paths = {task_name: "" for task_name in simulations.keys()}
+            task_paths = dict.fromkeys(simulations.keys(), "")
 
             batch_data = EmulatedBatchData(
                 task_paths=task_paths,

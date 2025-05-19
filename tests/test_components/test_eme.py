@@ -800,14 +800,14 @@ def test_eme_smatrix_data_array():
 def _get_eme_mode_solver_dataset(num_sweep=0):
     n_complex = _get_eme_mode_index_data_array(num_sweep=num_sweep)
     field = _get_eme_scalar_mode_field_data_array(num_sweep=num_sweep)
-    fields = {key: field for key in ["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"]}
+    fields = dict.fromkeys(["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"], field)
 
     return td.EMEModeSolverDataset(n_complex=n_complex, **fields)
 
 
 def _get_eme_field_dataset(num_sweep=0):
     field = _get_eme_scalar_field_data_array(num_sweep=num_sweep)
-    fields = {key: field for key in ["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"]}
+    fields = dict.fromkeys(["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"], field)
     return td.EMEFieldDataset(**fields)
 
 

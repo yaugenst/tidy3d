@@ -133,7 +133,7 @@ def test_speed_many_datasets():
             freqs=np.linspace(1e14, 2e14, Nf).tolist(),
             name=str(num_index),
         )
-        scalar_fields = {fld: scalar_field for fld in monitor.fields}
+        scalar_fields = dict.fromkeys(monitor.fields, scalar_field)
 
         return td.FieldData(monitor=monitor, **scalar_fields)
 

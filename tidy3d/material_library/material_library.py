@@ -213,7 +213,7 @@ class VariantItemUniaxial(AbstractVariantItem):
         """
 
         components = ["xx", "yy", "zz"]
-        mat_dict = {comp: self.ordinary for comp in components}
+        mat_dict = dict.fromkeys(components, self.ordinary)
         mat_dict.update({components[optical_axis]: self.extraordinary})
         return AnisotropicMedium.parse_obj(mat_dict)
 
