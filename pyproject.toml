@@ -262,7 +262,6 @@ extend-select = [
 ]
 extend-ignore = [
   "E501",
-  "B008",  # do not perform function calls in argument defaults
   "C901",  # too complex
   "UP035",
   "UP006",
