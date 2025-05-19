@@ -262,6 +262,13 @@ extend-select = [
   "RUF",
 ]
 extend-ignore = [
+  "RUF001",
+  "RUF002",
+  "RUF003",
+  "RUF012",
+  "RUF013",
+  "RUF015",
+  "RUF005",
   "E501",  # line too long
   "B905",  # `zip()` without an explicit `strict=` parameter
   "UP007",  # TODO: Remove once Python >= 3.10
