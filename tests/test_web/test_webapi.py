@@ -4,9 +4,10 @@
 import numpy as np
 import pytest
 import responses
-import tidy3d as td
 from _pytest import monkeypatch
 from responses import matchers
+
+import tidy3d as td
 from tidy3d import Simulation
 from tidy3d.__main__ import main
 from tidy3d.components.data.data_array import ScalarFieldDataArray

@@ -1,6 +1,7 @@
 import numpy as np
 import pydantic.v1 as pydantic
 import pytest
+
 import tidy3d as td
 from tidy3d.components.material.multi_physics import MultiPhysicsMedium
 from tidy3d.material_library.material_library import (

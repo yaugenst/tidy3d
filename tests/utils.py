@@ -4,11 +4,12 @@ from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
 import pydantic.v1 as pd
-import tidy3d as td
 import trimesh
 import xarray as xr
 from autograd.core import VJPNode
 from autograd.tracer import new_box
+
+import tidy3d as td
 from tidy3d import ModeIndexDataArray
 from tidy3d.components.base import Tidy3dBaseModel
 from tidy3d.log import _get_level_int

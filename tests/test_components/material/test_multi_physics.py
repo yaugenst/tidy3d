@@ -1,6 +1,7 @@
 import copy
 
 import pytest
+
 import tidy3d as td
 
 

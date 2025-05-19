@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from numpy.random import default_rng
+
 from tidy3d import FieldTimeData, FieldTimeMonitor, ScalarFieldTimeDataArray
 from tidy3d.plugins.resonance import ResonanceFinder
 

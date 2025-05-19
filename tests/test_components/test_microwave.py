@@ -5,6 +5,7 @@ from math import isclose
 import numpy as np
 import pytest
 import xarray as xr
+
 from tidy3d.components.data.monitor_data import FreqDataArray
 from tidy3d.components.microwave.data.monitor_data import AntennaMetricsData
 from tidy3d.components.microwave.formulas.circuit_parameters import (

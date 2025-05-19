@@ -4,6 +4,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pydantic.v1 as pd
 import pytest
+
 import tidy3d as td
 from tidy3d import Box, Medium, Simulation, Structure
 from tidy3d.components.viz import Polygon, set_default_labels_and_title

@@ -1,6 +1,7 @@
 from typing import Union
 
 import numpy as np
+
 import tidy3d as td
 import tidy3d.plugins.microwave as microwave
 from tidy3d.plugins.smatrix import (

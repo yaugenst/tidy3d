@@ -2,8 +2,9 @@ import tempfile
 
 import pytest
 import responses
-import tidy3d as td
 from responses import matchers
+
+import tidy3d as td
 from tidy3d.web.core import http_util
 from tidy3d.web.core.environment import Env, EnvironmentConfig
 from tidy3d.web.core.task_core import Folder, SimulationTask

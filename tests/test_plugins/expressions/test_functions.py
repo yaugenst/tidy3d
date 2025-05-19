@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from tidy3d.plugins.expressions.functions import Cos, Exp, Log, Log10, Sin, Sqrt, Tan
 from tidy3d.plugins.expressions.variables import Constant
 

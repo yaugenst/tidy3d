@@ -3,6 +3,7 @@
 import numpy as np
 import pydantic.v1 as pydantic
 import pytest
+
 from tidy3d.components.base import Tidy3dBaseModel
 from tidy3d.components.types import ArrayLike, Complex, Tuple, constrained_array
 

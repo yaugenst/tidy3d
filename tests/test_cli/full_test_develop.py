@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 import pytest
 from click.testing import CliRunner
+
 from tidy3d.web.cli import tidy3d_cli
 
 

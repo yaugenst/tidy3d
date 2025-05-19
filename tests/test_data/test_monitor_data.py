@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pydantic.v1 as pydantic
 import pytest
-import tidy3d as td
 import xarray as xr
+
+import tidy3d as td
 from tidy3d.components.data.data_array import (
     FreqDataArray,
     FreqModeDataArray,

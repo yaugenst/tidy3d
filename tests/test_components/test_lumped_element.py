@@ -3,6 +3,7 @@
 import numpy as np
 import pydantic.v1 as pydantic
 import pytest
+
 import tidy3d as td
 from tidy3d.components.lumped_element import NetworkConversions
 

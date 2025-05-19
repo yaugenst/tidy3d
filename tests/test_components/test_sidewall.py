@@ -3,8 +3,9 @@
 import numpy as np
 import pydantic.v1 as pydantic
 import pytest
-import tidy3d as td
 from shapely import Point, Polygon
+
+import tidy3d as td
 from tidy3d.constants import fp_eps
 
 np.random.seed(4)

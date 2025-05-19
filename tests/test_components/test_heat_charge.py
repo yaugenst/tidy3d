@@ -3,8 +3,9 @@
 import numpy as np
 import pydantic.v1 as pd
 import pytest
-import tidy3d as td
 from matplotlib import pyplot as plt
+
+import tidy3d as td
 from tidy3d.components.tcad.types import (
     AugerRecombination,
     CaugheyThomasMobility,

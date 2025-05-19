@@ -3,8 +3,9 @@
 import numpy as np
 import pydantic.v1 as pydantic
 import pytest
-import tidy3d as td
 from matplotlib import pyplot as plt
+
+import tidy3d as td
 from tidy3d.exceptions import SetupError, ValidationError
 
 from ..test_data.test_data_arrays import (

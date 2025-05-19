@@ -2,9 +2,10 @@
 
 import pytest
 import responses
-import tidy3d as td
 from botocore.exceptions import ClientError
 from responses import matchers
+
+import tidy3d as td
 from tidy3d import EMESimulation
 from tidy3d.exceptions import SetupError
 from tidy3d.web.api.asynchronous import run_async

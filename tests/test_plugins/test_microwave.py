@@ -6,10 +6,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pydantic.v1 as pd
 import pytest
-import tidy3d as td
-import tidy3d.plugins.microwave as mw
 from skrf import Frequency
 from skrf.media import MLine
+
+import tidy3d as td
+import tidy3d.plugins.microwave as mw
 from tidy3d import FieldData
 from tidy3d.constants import ETA_0
 from tidy3d.exceptions import DataError

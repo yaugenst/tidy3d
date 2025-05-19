@@ -2,6 +2,7 @@ import autograd.numpy as np
 import numpy.testing as npt
 import pytest
 from autograd.test_util import check_grads
+
 from tidy3d.plugins.autograd import interpolate_spline
 
 from ....utils import AssertLogLevel

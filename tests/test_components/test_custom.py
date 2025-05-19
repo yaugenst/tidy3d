@@ -6,8 +6,9 @@ import dill as pickle
 import numpy as np
 import pydantic.v1 as pydantic
 import pytest
-import tidy3d as td
 import xarray as xr
+
+import tidy3d as td
 from tidy3d.components.data.dataset import PermittivityDataset
 from tidy3d.components.data.utils import UnstructuredGridDataset, _get_numpy_array
 from tidy3d.components.medium import (

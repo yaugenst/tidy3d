@@ -2,9 +2,10 @@
 
 import pytest
 import responses
-import tidy3d as td
 from botocore.exceptions import ClientError
 from responses import matchers
+
+import tidy3d as td
 from tidy3d import HeatSimulation
 from tidy3d.web.api.asynchronous import run_async
 from tidy3d.web.api.container import Batch, Job

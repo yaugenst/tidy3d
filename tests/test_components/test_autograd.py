@@ -13,10 +13,11 @@ import matplotlib.pylab as plt
 import numpy as np
 import numpy.testing as npt
 import pytest
-import tidy3d as td
-import tidy3d.web as web
 import xarray as xr
 from autograd.test_util import check_grads
+
+import tidy3d as td
+import tidy3d.web as web
 from tidy3d.components.autograd.derivative_utils import DerivativeInfo
 from tidy3d.components.autograd.utils import is_tidy_box
 from tidy3d.components.data.data_array import DataArray

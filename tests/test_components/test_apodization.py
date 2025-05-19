@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 import pydantic.v1 as pydantic
 import pytest
+
 import tidy3d as td
 
 

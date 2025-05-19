@@ -2,6 +2,7 @@
 
 import numpy as np
 import pytest
+
 import tidy3d as td
 from tidy3d.components.base import Tidy3dBaseModel
 

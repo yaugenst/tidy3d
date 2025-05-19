@@ -1,6 +1,7 @@
 """Test running tidy3d as command line application."""
 
 import pytest
+
 import tidy3d as td
 from tidy3d.__main__ import main
 

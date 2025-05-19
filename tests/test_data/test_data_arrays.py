@@ -4,8 +4,9 @@ from typing import List, Tuple
 
 import numpy as np
 import pytest
-import tidy3d as td
 import xarray.testing as xrt
+
+import tidy3d as td
 from tidy3d.exceptions import DataError
 
 np.random.seed(4)

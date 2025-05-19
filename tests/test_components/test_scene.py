@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pydantic.v1 as pd
 import pytest
+
 import tidy3d as td
 from tidy3d.components.scene import MAX_GEOMETRY_COUNT, MAX_NUM_MEDIUMS
 

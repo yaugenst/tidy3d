@@ -7,9 +7,10 @@ import autograd as ag
 import matplotlib.pylab as plt
 import numpy as np
 import pytest
+from scipy.ndimage import gaussian_filter
+
 import tidy3d as td
 import tidy3d.web as web
-from scipy.ndimage import gaussian_filter
 
 PLOT_FD_ADJ_COMPARISON = False
 NUM_FINITE_DIFFERENCE = 10

@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from numpy.random import default_rng
+
 from tidy3d.material_library.parametric_materials import (
     GRAPHENE_FIT_ATOL,
     GRAPHENE_FIT_FREQ_MAX,

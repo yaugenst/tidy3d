@@ -5,6 +5,7 @@ import scipy.interpolate
 import scipy.ndimage
 from autograd.test_util import check_grads
 from scipy.signal import convolve as convolve_sp
+
 from tidy3d.plugins.autograd import (
     add_at,
     convolve,

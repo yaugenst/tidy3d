@@ -3,6 +3,7 @@
 import numpy as np
 import pydantic.v1 as pydantic
 import pytest
+
 import tidy3d as td
 import tidy3d.plugins.microwave as mw
 import tidy3d.plugins.smatrix as smatrix

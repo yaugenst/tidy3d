@@ -3,9 +3,10 @@
 import matplotlib.pyplot as plt
 import pytest
 import responses
-import tidy3d as td
 from botocore.exceptions import ClientError
 from responses import matchers
+
+import tidy3d as td
 from tidy3d.components.data.dataset import ModeIndexDataArray
 from tidy3d.plugins.mode import ModeSolver
 from tidy3d.web.api.asynchronous import run_async

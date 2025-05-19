@@ -4,9 +4,10 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
-import tidy3d as td
 from jax import grad
 from memory_profiler import profile
+
+import tidy3d as td
 from tidy3d.plugins.adjoint.components.data.data_array import JaxDataArray
 from tidy3d.plugins.adjoint.components.data.dataset import JaxPermittivityDataset
 from tidy3d.plugins.adjoint.components.geometry import JaxBox

@@ -2,8 +2,9 @@ import os
 import sys
 
 import numpy as np
-import tidy3d as td
 from memory_profiler import profile
+
+import tidy3d as td
 from tidy3d.components.data.data_array import ScalarFieldDataArray
 from tidy3d.components.data.monitor_data import FieldData
 from tidy3d.components.data.sim_data import SimulationData

@@ -8,6 +8,7 @@ import dill as pickle
 import h5py
 import numpy as np
 import pytest
+
 import tidy3d as td
 from tidy3d import __version__
 from tidy3d.components.base import DATA_ARRAY_MAP

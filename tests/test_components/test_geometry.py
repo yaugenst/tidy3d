@@ -10,8 +10,9 @@ import numpy as np
 import pydantic.v1 as pydantic
 import pytest
 import shapely
-import tidy3d as td
 import trimesh
+
+import tidy3d as td
 from tidy3d.components.geometry.mesh import AREA_SIZE_THRESHOLD
 from tidy3d.components.geometry.utils import (
     SnapBehavior,

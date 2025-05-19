@@ -5,6 +5,7 @@ from math import isclose
 import numpy as np
 import pydantic.v1 as pydantic
 import pytest
+
 import tidy3d as td
 
 from ..utils import cartesian_to_unstructured

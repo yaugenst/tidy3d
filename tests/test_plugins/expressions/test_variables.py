@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from tidy3d.plugins.expressions.variables import Constant, Variable
 
 
