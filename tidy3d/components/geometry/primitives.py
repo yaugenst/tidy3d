@@ -10,13 +10,14 @@ import numpy as np
 import pydantic.v1 as pydantic
 import shapely
 
-from ...constants import C_0, LARGE_NUMBER, MICROMETER
-from ...exceptions import SetupError, ValidationError
-from ...packaging import verify_packages_import
-from ..autograd import AutogradFieldMap, TracedSize1D
-from ..autograd.derivative_utils import DerivativeInfo
-from ..base import cached_property, skip_if_fields_missing
-from ..types import Axis, Bound, Coordinate, MatrixReal4x4, Shapely, Tuple
+from tidy3d.components.autograd import AutogradFieldMap, TracedSize1D
+from tidy3d.components.autograd.derivative_utils import DerivativeInfo
+from tidy3d.components.base import cached_property, skip_if_fields_missing
+from tidy3d.components.types import Axis, Bound, Coordinate, MatrixReal4x4, Shapely, Tuple
+from tidy3d.constants import C_0, LARGE_NUMBER, MICROMETER
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.packaging import verify_packages_import
+
 from . import base
 from .polyslab import PolySlab
 

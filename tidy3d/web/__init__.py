@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
-from ..log import get_logging_console, log
-from ..version import __version__
+from tidy3d.log import get_logging_console, log
+from tidy3d.version import __version__
+
 from .core import core_config
 
 # set logger to tidy3d.log before it's invoked in other imports

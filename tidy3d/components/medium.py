@@ -19,8 +19,7 @@ from numpy.typing import NDArray
 from scipy import signal
 
 from tidy3d.components.material.tcad.heat import ThermalSpecType
-
-from ..constants import (
+from tidy3d.constants import (
     C_0,
     CONDUCTIVITY,
     EPSILON_0,
@@ -37,8 +36,9 @@ from ..constants import (
     fp_eps,
     pec_val,
 )
-from ..exceptions import SetupError, ValidationError
-from ..log import log
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.log import log
+
 from .autograd.derivative_utils import DerivativeInfo, integrate_within_bounds
 from .autograd.types import AutogradFieldMap, TracedFloat, TracedPoleAndResidue, TracedPositiveFloat
 from .base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
@@ -1420,8 +1420,7 @@ class AbstractMedium(ABC, Tidy3dBaseModel):
         """If the medium has a name, use it as the representation. Otherwise, use the default representation."""
         if self.name:
             return self.name
-        else:
-            return super().__repr__()
+        return super().__repr__()
 
 
 class AbstractCustomMedium(AbstractMedium, ABC):
@@ -1650,7 +1649,7 @@ class AbstractCustomMedium(AbstractMedium, ABC):
         if isinstance(field, str) and field in DATA_ARRAY_MAP:
             return True
         # attempting to construct an UnstructuredGridDataset from a dict
-        elif isinstance(field, dict) and field.get("type") in (
+        if isinstance(field, dict) and field.get("type") in (
             "TriangularGridDataset",
             "TetrahedralGridDataset",
         ):
@@ -1659,7 +1658,7 @@ class AbstractCustomMedium(AbstractMedium, ABC):
                 for subfield in [field["points"], field["cells"], field["values"]]
             )
         # attempting to pass an UnstructuredGridDataset with zero points
-        elif isinstance(field, UnstructuredGridDataset):
+        if isinstance(field, UnstructuredGridDataset):
             return any(len(subfield) == 0 for subfield in [field.points, field.cells, field.values])
 
     def _derivative_field_cmp(
@@ -3636,9 +3635,8 @@ class PoleResidue(DispersiveMedium):
                     "Transfer function is invalid. Direct polynomial term must be real and positive for "
                     "conversion to an equivalent 'PoleResidue' medium."
                 )
-            else:
-                # A pure capacitance will translate to an increased permittivity at infinite frequency.
-                eps_inf = eps_inf + k[0]
+            # A pure capacitance will translate to an increased permittivity at infinite frequency.
+            eps_inf = eps_inf + k[0]
 
         pole_residue_from_transfer = PoleResidue(eps_inf=eps_inf, poles=poles_and_residues)
 
@@ -5843,7 +5841,7 @@ class AnisotropicMedium(AbstractMedium):
         if eps_component is None:
             # return the average of the diag
             return self.eps_model(frequency).real
-        elif eps_component in ["xx", "yy", "zz"]:
+        if eps_component in ["xx", "yy", "zz"]:
             # return the requested diagonal component
             comp2indx = {"x": 0, "y": 1, "z": 2}
             return self.eps_comp(
@@ -5851,10 +5849,9 @@ class AnisotropicMedium(AbstractMedium):
                 col=comp2indx[eps_component[1]],
                 frequency=frequency,
             ).real
-        else:
-            raise ValueError(
-                f"Plotting component '{eps_component}' of a diagonally-anisotropic permittivity tensor is not supported."
-            )
+        raise ValueError(
+            f"Plotting component '{eps_component}' of a diagonally-anisotropic permittivity tensor is not supported."
+        )
 
     @add_ax_if_none
     def plot(self, freqs: float, ax: Ax = None) -> Ax:
@@ -6409,13 +6406,12 @@ class CustomAnisotropicMedium(AbstractCustomMedium, AnisotropicMedium):
             eps_dataarray = self.eps_dataarray_freq(frequency)
             eps = self._get_real_vals(eps_dataarray[comps.index(eps_component)])
             return (np.min(eps), np.max(eps))
-        elif eps_component is None:
+        if eps_component is None:
             # Returns the bounds across all components
             return super()._eps_bounds(frequency=frequency)
-        else:
-            raise ValueError(
-                f"Plotting component '{eps_component}' of a diagonally-anisotropic permittivity tensor is not supported."
-            )
+        raise ValueError(
+            f"Plotting component '{eps_component}' of a diagonally-anisotropic permittivity tensor is not supported."
+        )
 
     def _sel_custom_data_inside(self, bounds: Bound):
         return self

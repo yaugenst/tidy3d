@@ -35,9 +35,7 @@ def activate_correct_poetry_python():
     """
     Activate the correct Python environment for Poetry based on the operating system.
     """
-    if platform.system() == "Windows":
-        echo_and_run_subprocess(["poetry", "env", "use", "python"])
-    elif platform.system() == "Darwin":
+    if platform.system() == "Windows" or platform.system() == "Darwin":
         echo_and_run_subprocess(["poetry", "env", "use", "python"])
     elif platform.system() == "Linux":
         try:
@@ -89,12 +87,10 @@ def verify_pandoc_is_installed_and_version_less_than_3():
             if major_version < 3:
                 print(f"Pandoc is installed with version {version}, which is less than 3.")
                 return True
-            else:
-                print(f"Pandoc version {version} is installed, but it is not less than 3.")
-                return False
-        else:
-            print("Pandoc version number could not be determined.")
+            print(f"Pandoc version {version} is installed, but it is not less than 3.")
             return False
+        print("Pandoc version number could not be determined.")
+        return False
 
     except subprocess.CalledProcessError:
         # This exception is raised if the command returned a non-zero exit status
@@ -227,9 +223,7 @@ def install_development_environment(args=None):
     try:
         verify_poetry_is_installed()
     except Exception as exc:
-        if platform.system() == "Windows":
-            echo_and_check_subprocess(["pipx", "install", "poetry"])
-        elif platform.system() == "Darwin":
+        if platform.system() == "Windows" or platform.system() == "Darwin":
             echo_and_check_subprocess(["pipx", "install", "poetry"])
         elif platform.system() == "Linux":
             echo_and_check_subprocess(["python3", "-m", "pipx", "install", "poetry"])
@@ -359,8 +353,7 @@ def uninstall_development_environment(args=None):
             "Please uninstall pandoc < 3 depending on your platform: https://pandoc.org/installing.html . Then run this "
             "command again. You can also follow our detailed instructions under the development guide."
         )
-    else:
-        print("pandoc is not found on the PATH. It is already uninstalled from PATH.")
+    print("pandoc is not found on the PATH. It is already uninstalled from PATH.")
 
     return 0
 

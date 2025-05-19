@@ -12,10 +12,9 @@ from numpy.typing import NDArray
 import tidy3d as td
 from tidy3d.components.base import Tidy3dBaseModel
 from tidy3d.components.types import TYPE_TAG_STR
-
-from ..functions import convolve
-from ..types import KernelType, PaddingType
-from ..utilities import get_kernel_size_px, make_kernel
+from tidy3d.plugins.autograd.functions import convolve
+from tidy3d.plugins.autograd.types import KernelType, PaddingType
+from tidy3d.plugins.autograd.utilities import get_kernel_size_px, make_kernel
 
 
 class AbstractFilter(Tidy3dBaseModel, abc.ABC):
@@ -157,11 +156,10 @@ def _get_kernel_size(
                 "Both 'size_px' and 'radius' and 'dl' are provided. 'size_px' will take precedence."
             )
         return (size_px,) if np.isscalar(size_px) else tuple(size_px)
-    elif radius is not None and dl is not None:
+    if radius is not None and dl is not None:
         kernel_size = get_kernel_size_px(radius=radius, dl=dl)
         return (kernel_size,) if np.isscalar(kernel_size) else tuple(kernel_size)
-    else:
-        raise ValueError("Either 'size_px' or both 'radius' and 'dl' must be provided.")
+    raise ValueError("Either 'size_px' or both 'radius' and 'dl' must be provided.")
 
 
 def make_filter(

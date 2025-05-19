@@ -9,9 +9,10 @@ import scipy
 from pydantic.v1 import Field, NonNegativeFloat, PositiveFloat, PositiveInt, validator
 from rich.progress import Progress
 
-from ..constants import fp_eps
-from ..exceptions import ValidationError
-from ..log import get_logging_console, log
+from tidy3d.constants import fp_eps
+from tidy3d.exceptions import ValidationError
+from tidy3d.log import get_logging_console, log
+
 from .base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
 from .types import ArrayComplex1D, ArrayComplex2D, ArrayFloat1D, ArrayFloat2D
 

@@ -9,12 +9,20 @@ from typing import Any, Optional, Union
 import numpy as np
 import pydantic as pydantic
 
-from ...constants import fp_eps
-from ...exceptions import SetupError, Tidy3dError
-from ..base import Tidy3dBaseModel
-from ..geometry.base import Box
-from ..grid.grid import Grid
-from ..types import ArrayFloat2D, Axis, Coordinate, MatrixReal4x4, PlanePosition, Shapely
+from tidy3d.components.base import Tidy3dBaseModel
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.grid.grid import Grid
+from tidy3d.components.types import (
+    ArrayFloat2D,
+    Axis,
+    Coordinate,
+    MatrixReal4x4,
+    PlanePosition,
+    Shapely,
+)
+from tidy3d.constants import fp_eps
+from tidy3d.exceptions import SetupError, Tidy3dError
+
 from . import base, mesh, polyslab, primitives
 
 GeometryType = Union[

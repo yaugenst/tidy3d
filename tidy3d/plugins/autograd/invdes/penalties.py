@@ -8,8 +8,8 @@ from numpy.typing import NDArray
 
 from tidy3d.components.base import Tidy3dBaseModel
 from tidy3d.components.types import ArrayFloat2D
+from tidy3d.plugins.autograd.types import PaddingType
 
-from ..types import PaddingType
 from .parametrizations import FilterAndProject
 
 

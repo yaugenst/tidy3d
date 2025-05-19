@@ -19,10 +19,11 @@ except ImportError:
 import pydantic.v1 as pydantic
 import xarray as xr
 
-from ..constants import C_0, SECOND, fp_eps, inf
-from ..exceptions import SetupError, Tidy3dError, Tidy3dImportError, ValidationError
-from ..log import log
-from ..updater import Updater
+from tidy3d.constants import C_0, SECOND, fp_eps, inf
+from tidy3d.exceptions import SetupError, Tidy3dError, Tidy3dImportError, ValidationError
+from tidy3d.log import log
+from tidy3d.updater import Updater
+
 from .base import cached_property, skip_if_fields_missing
 from .base_sim.simulation import AbstractSimulation
 from .boundary import (
@@ -3251,9 +3252,9 @@ class Simulation(AbstractYeeGridSimulation):
                     center = np.array(monitor.center) - np.array(monitor.local_origin)
                     pts = [np.array(i) for i in [x, y, z]]
                     normal_displacement = pts[normal_ind] - center[normal_ind]
-                    if np.any(normal_displacement < 0) and normal_dir == "+":
-                        projecting_backwards = True
-                    elif np.any(normal_displacement > 0) and normal_dir == "-":
+                    if (np.any(normal_displacement < 0) and normal_dir == "+") or (
+                        np.any(normal_displacement > 0) and normal_dir == "-"
+                    ):
                         projecting_backwards = True
 
                     if projecting_backwards:
@@ -5171,7 +5172,7 @@ class Simulation(AbstractYeeGridSimulation):
                         "Please select one before calling this function. This can be "
                         "done with, e.g., 'electron_data.sel(voltage=1)'"
                     )
-                elif len(data.values.dims) > 1:
+                if len(data.values.dims) > 1:
                     new_values = IndexedDataArray(
                         np.array(data.values.data).flatten(),
                         coords={"index": data.values.index.data},

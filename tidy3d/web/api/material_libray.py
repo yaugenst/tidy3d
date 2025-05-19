@@ -8,9 +8,9 @@ from typing import Optional
 
 from pydantic.v1 import Field, parse_obj_as, validator
 
-from ...components.medium import MediumType
-from ..core.http_util import http
-from ..core.types import Queryable
+from tidy3d.components.medium import MediumType
+from tidy3d.web.core.http_util import http
+from tidy3d.web.core.types import Queryable
 
 
 class MaterialLibray(Queryable, smart_union=True):

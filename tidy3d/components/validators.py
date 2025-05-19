@@ -6,8 +6,9 @@ import numpy as np
 import pydantic.v1 as pydantic
 from autograd.tracer import isbox
 
-from ..exceptions import SetupError, ValidationError
-from ..log import log
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.log import log
+
 from .autograd.utils import get_static
 from .base import DATA_ARRAY_MAP, skip_if_fields_missing
 from .data.dataset import Dataset, FieldDataset

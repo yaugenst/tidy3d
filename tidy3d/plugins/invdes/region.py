@@ -220,7 +220,7 @@ class TopologyDesignRegion(DesignRegion):
                 "This indicates that the optimization will not function correctly. "
                 "Please double-check the definitions of both the penalties and transformations."
             )
-        elif penalty_independent:
+        if penalty_independent:
             td.log.warning(
                 "Penalty gradient seems independent of input, meaning that it "
                 "will not contribute to the objective gradient during optimization. "

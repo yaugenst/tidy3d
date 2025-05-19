@@ -13,13 +13,13 @@ import pytz
 from requests import HTTPError
 from rich.progress import Progress
 
-from ...components.medium import AbstractCustomMedium
-from ...components.mode.mode_solver import ModeSolver
-from ...components.mode.simulation import ModeSimulation
-from ...exceptions import WebError
-from ...log import get_logging_console, log
-from ..core.account import Account
-from ..core.constants import (
+from tidy3d.components.medium import AbstractCustomMedium
+from tidy3d.components.mode.mode_solver import ModeSolver
+from tidy3d.components.mode.simulation import ModeSimulation
+from tidy3d.exceptions import WebError
+from tidy3d.log import get_logging_console, log
+from tidy3d.web.core.account import Account
+from tidy3d.web.core.constants import (
     MODE_DATA_HDF5_GZ,
     MODE_FILE_HDF5_GZ,
     SIM_FILE_HDF5,
@@ -27,10 +27,11 @@ from ..core.constants import (
     SIMULATION_DATA_HDF5_GZ,
     TaskId,
 )
-from ..core.environment import Env
-from ..core.task_core import Folder, SimulationTask
-from ..core.task_info import ChargeType, TaskInfo
-from ..core.types import PayType
+from tidy3d.web.core.environment import Env
+from tidy3d.web.core.task_core import Folder, SimulationTask
+from tidy3d.web.core.task_info import ChargeType, TaskInfo
+from tidy3d.web.core.types import PayType
+
 from .connect_util import (
     REFRESH_TIME,
     get_grid_points_str,
@@ -897,14 +898,13 @@ def abort(task_id: TaskId):
     task = SimulationTask.get(task_id)
     if not task:
         raise ValueError("Task not found.")
-    else:
-        task.abort()
-        console = get_logging_console()
-        url = _get_url(task.task_id)
-        console.log(
-            f"Task is aborting. View task using web UI at [link={url}]'{url}'[/link] to check the result."
-        )
-        return TaskInfo(**{"taskId": task.task_id, **task.dict()})
+    task.abort()
+    console = get_logging_console()
+    url = _get_url(task.task_id)
+    console.log(
+        f"Task is aborting. View task using web UI at [link={url}]'{url}'[/link] to check the result."
+    )
+    return TaskInfo(**{"taskId": task.task_id, **task.dict()})
 
 
 @wait_for_connection

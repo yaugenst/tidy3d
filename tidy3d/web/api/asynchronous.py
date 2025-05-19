@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from typing import Literal, Optional, Union
 
-from ...log import log
-from ..core.types import PayType
+from tidy3d.log import log
+from tidy3d.web.core.types import PayType
+
 from .container import DEFAULT_DATA_DIR, Batch, BatchData
 from .tidy3d_stub import SimulationType
 

@@ -15,12 +15,12 @@ from shapely.errors import ShapelyDeprecationWarning
 from shapely.geometry import box as shapely_box
 from shapely.strtree import STRtree
 
-from ...constants import C_0, fp_eps
-from ...exceptions import SetupError, ValidationError
-from ...log import log
-from ..base import Tidy3dBaseModel
-from ..structure import MeshOverrideStructure, Structure, StructureType
-from ..types import ArrayFloat1D, Axis, Bound, CoordinateOptional
+from tidy3d.components.base import Tidy3dBaseModel
+from tidy3d.components.structure import MeshOverrideStructure, Structure, StructureType
+from tidy3d.components.types import ArrayFloat1D, Axis, Bound, CoordinateOptional
+from tidy3d.constants import C_0, fp_eps
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.log import log
 
 _ROOTS_TOL = 1e-10
 
@@ -160,7 +160,7 @@ class GradedMesher(Mesher):
                 continue
             # or, if the snapping point is near the first interval boundary,
             # give priority to the snapping_point and replace
-            elif d_1 < min_step:
+            if d_1 < min_step:
                 # Don't replace if the boundary is the simulation boundary
                 if ind == 0:
                     continue
@@ -168,7 +168,7 @@ class GradedMesher(Mesher):
                 continue
             # or, if the snapping point is near the second interval boundary,
             # give priority to the snapping_point and replace
-            elif d_2 < min_step:
+            if d_2 < min_step:
                 # Don't replace if the boundary is the simulation boundary
                 if ind == len(interval_coords) - 1:
                     continue

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from ...components.geometry.polyslab import ComplexPolySlabBase
-from ...components.medium import MediumType
-from ...components.structure import Structure
+from tidy3d.components.geometry.polyslab import ComplexPolySlabBase
+from tidy3d.components.medium import MediumType
+from tidy3d.components.structure import Structure
 
 
 class ComplexPolySlab(ComplexPolySlabBase):

@@ -1638,7 +1638,7 @@ class HeatChargeSimulation(AbstractSimulation):
 
         if heat_source_present and not heat_BCs_present:
             raise SetupError("Heat sources defined but no heat BCs present.")
-        elif heat_BCs_present or heat_source_present:
+        if heat_BCs_present or heat_source_present:
             simulation_types.append(TCADAnalysisTypes.HEAT)
 
         # check for conduction simulation
@@ -1657,7 +1657,7 @@ class HeatChargeSimulation(AbstractSimulation):
                 "'.medium.charge=None' are treated as insulators, thus, "
                 "the solution domain is empty."
             )
-        elif electric_BCs_present and electric_spec_present:
+        if electric_BCs_present and electric_spec_present:
             simulation_types.append(TCADAnalysisTypes.CONDUCTION)
 
         return simulation_types

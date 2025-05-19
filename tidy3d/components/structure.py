@@ -10,9 +10,10 @@ import autograd.numpy as anp
 import numpy as np
 import pydantic.v1 as pydantic
 
-from ..constants import MICROMETER
-from ..exceptions import SetupError, Tidy3dError, Tidy3dImportError
-from ..log import log
+from tidy3d.constants import MICROMETER
+from tidy3d.exceptions import SetupError, Tidy3dError, Tidy3dImportError
+from tidy3d.log import log
+
 from .autograd.derivative_utils import DerivativeInfo
 from .autograd.types import AutogradFieldMap
 from .autograd.types import Box as AutogradBox

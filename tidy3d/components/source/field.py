@@ -8,26 +8,21 @@ from typing import Optional, Union
 import numpy as np
 import pydantic.v1 as pydantic
 
-from ...constants import GLANCING_CUTOFF, MICROMETER, RADIAN, inf
-from ...exceptions import SetupError
-from ...log import log
-from ..base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
-from ..data.dataset import FieldDataset
-from ..data.validators import validate_can_interpolate, validate_no_nans
-from ..mode_spec import ModeSpec
-from ..types import (
-    TYPE_TAG_STR,
-    Ax,
-    Axis,
-    Coordinate,
-    Direction,
-)
-from ..validators import (
+from tidy3d.components.base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
+from tidy3d.components.data.dataset import FieldDataset
+from tidy3d.components.data.validators import validate_can_interpolate, validate_no_nans
+from tidy3d.components.mode_spec import ModeSpec
+from tidy3d.components.types import TYPE_TAG_STR, Ax, Axis, Coordinate, Direction
+from tidy3d.components.validators import (
     assert_plane,
     assert_single_freq_in_range,
     assert_volumetric,
     warn_if_dataset_none,
 )
+from tidy3d.constants import GLANCING_CUTOFF, MICROMETER, RADIAN, inf
+from tidy3d.exceptions import SetupError
+from tidy3d.log import log
+
 from .base import Source
 
 # width of Chebyshev grid used for broadband sources (in units of pulse width)

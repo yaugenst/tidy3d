@@ -12,10 +12,11 @@ import click
 import requests
 import toml
 
-from ..cli.constants import CONFIG_FILE, CREDENTIAL_FILE, TIDY3D_DIR
-from ..cli.migrate import migrate
-from ..core.constants import HEADER_APIKEY, KEY_APIKEY
-from ..core.environment import Env
+from tidy3d.web.cli.constants import CONFIG_FILE, CREDENTIAL_FILE, TIDY3D_DIR
+from tidy3d.web.cli.migrate import migrate
+from tidy3d.web.core.constants import HEADER_APIKEY, KEY_APIKEY
+from tidy3d.web.core.environment import Env
+
 from .develop.index import develop
 
 # Prevent race condition on threads

@@ -8,12 +8,13 @@ from typing import Optional
 import pydantic.v1 as pydantic
 from typing_extensions import Literal
 
-from ...constants import MICROMETER
-from ..base import cached_property
-from ..data.dataset import FieldDataset
-from ..data.validators import validate_can_interpolate, validate_no_nans
-from ..types import Polarization
-from ..validators import assert_single_freq_in_range, warn_if_dataset_none
+from tidy3d.components.base import cached_property
+from tidy3d.components.data.dataset import FieldDataset
+from tidy3d.components.data.validators import validate_can_interpolate, validate_no_nans
+from tidy3d.components.types import Polarization
+from tidy3d.components.validators import assert_single_freq_in_range, warn_if_dataset_none
+from tidy3d.constants import MICROMETER
+
 from .base import Source
 
 

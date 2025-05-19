@@ -7,13 +7,13 @@ from typing import Any, Literal, Optional
 import numpy as np
 import pydantic.v1 as pd
 
-from ...constants import inf
-from ..base import Tidy3dBaseModel, cached_property
-from ..geometry.base import Box, ClipOperation
-from ..geometry.utils import merging_geometries_on_plane
-from ..medium import PEC, LossyMetalMedium
-from ..structure import Structure
-from ..types import ArrayFloat1D, ArrayFloat2D, Axis, Shapely
+from tidy3d.components.base import Tidy3dBaseModel, cached_property
+from tidy3d.components.geometry.base import Box, ClipOperation
+from tidy3d.components.geometry.utils import merging_geometries_on_plane
+from tidy3d.components.medium import PEC, LossyMetalMedium
+from tidy3d.components.structure import Structure
+from tidy3d.components.types import ArrayFloat1D, ArrayFloat2D, Axis, Shapely
+from tidy3d.constants import inf
 
 CORNER_ANGLE_THRESOLD = 0.1 * np.pi
 

@@ -7,18 +7,19 @@ from typing import Optional
 
 import pydantic.v1 as pydantic
 
-from ..base import cached_property
-from ..base_sim.source import AbstractSource
-from ..geometry.base import Box
-from ..types import TYPE_TAG_STR, Ax
-from ..validators import _assert_min_freq, _warn_unsupported_traced_argument
-from ..viz import (
+from tidy3d.components.base import cached_property
+from tidy3d.components.base_sim.source import AbstractSource
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.types import TYPE_TAG_STR, Ax
+from tidy3d.components.validators import _assert_min_freq, _warn_unsupported_traced_argument
+from tidy3d.components.viz import (
     ARROW_ALPHA,
     ARROW_COLOR_POLARIZATION,
     ARROW_COLOR_SOURCE,
     PlotParams,
     plot_params_source,
 )
+
 from .time import SourceTimeType
 
 
@@ -46,7 +47,7 @@ class Source(Box, AbstractSource, ABC):
     @cached_property
     def _injection_axis(self):
         """Injection axis of the source."""
-        return None
+        return
 
     @cached_property
     def _dir_vector(self) -> tuple[float, float, float]:

@@ -14,12 +14,13 @@ import numpy as np
 import pydantic.v1 as pd
 import xarray as xr
 
-from ..components.data.validators import validate_no_nans
-from ..components.types import TYPE_TAG_STR, ArrayLike, Ax, Complex, FieldVal, InterpMethod
-from ..components.viz import add_ax_if_none
-from ..constants import C_0, CMCUBE, EPSILON_0, HERTZ, KELVIN, PERCMCUBE, inf
-from ..exceptions import DataError
-from ..log import log
+from tidy3d.components.data.validators import validate_no_nans
+from tidy3d.components.types import TYPE_TAG_STR, ArrayLike, Ax, Complex, FieldVal, InterpMethod
+from tidy3d.components.viz import add_ax_if_none
+from tidy3d.constants import C_0, CMCUBE, EPSILON_0, HERTZ, KELVIN, PERCMCUBE, inf
+from tidy3d.exceptions import DataError
+from tidy3d.log import log
+
 from .base import Tidy3dBaseModel, cached_property
 from .data.data_array import (
     ChargeDataArray,

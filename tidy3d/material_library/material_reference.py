@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pydantic.v1 as pd
 
-from ..components.base import Tidy3dBaseModel
+from tidy3d.components.base import Tidy3dBaseModel
 
 
 class ReferenceData(Tidy3dBaseModel):

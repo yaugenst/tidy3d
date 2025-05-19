@@ -8,21 +8,15 @@ from typing import Optional, Union
 import numpy as np
 import pydantic.v1 as pydantic
 
-from ...constants import HERTZ
-from ...exceptions import ValidationError
-from ..data.data_array import TimeDataArray
-from ..data.dataset import TimeDataset
-from ..data.validators import validate_no_nans
-from ..time import AbstractTimeDependence
-from ..types import (
-    ArrayComplex1D,
-    ArrayFloat1D,
-    Ax,
-    FreqBound,
-    PlotVal,
-)
-from ..validators import warn_if_dataset_none
-from ..viz import add_ax_if_none
+from tidy3d.components.data.data_array import TimeDataArray
+from tidy3d.components.data.dataset import TimeDataset
+from tidy3d.components.data.validators import validate_no_nans
+from tidy3d.components.time import AbstractTimeDependence
+from tidy3d.components.types import ArrayComplex1D, ArrayFloat1D, Ax, FreqBound, PlotVal
+from tidy3d.components.validators import warn_if_dataset_none
+from tidy3d.components.viz import add_ax_if_none
+from tidy3d.constants import HERTZ
+from tidy3d.exceptions import ValidationError
 
 # how many units of ``twidth`` from the ``offset`` until a gaussian pulse is considered "off"
 END_TIME_FACTOR_GAUSSIAN = 10

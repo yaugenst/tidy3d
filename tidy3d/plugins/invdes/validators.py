@@ -24,7 +24,7 @@ def ignore_inherited_field(field_name: str) -> typing.Callable:
                 "set this field internally using the design region specifications. "
                 "The supplied value will be ignored. "
             )
-        return None
+        return
 
     return _ignore_field
 

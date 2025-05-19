@@ -7,8 +7,7 @@ from __future__ import annotations
 import pydantic.v1 as pd
 
 from tidy3d.components.base import Tidy3dBaseModel
-
-from ....constants import KELVIN
+from tidy3d.constants import KELVIN
 
 
 class ChargeToleranceSpec(Tidy3dBaseModel):

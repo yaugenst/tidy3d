@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ...material_library.material_reference import ReferenceData
+from tidy3d.material_library.material_reference import ReferenceData
 
 rf_material_refs = {
     "Rogers3003": ReferenceData(

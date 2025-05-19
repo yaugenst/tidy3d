@@ -15,15 +15,15 @@ from autograd.extend import defvjp, primitive
 import tidy3d as td
 from tidy3d.components.autograd import AutogradFieldMap, get_static
 from tidy3d.components.autograd.derivative_utils import DerivativeInfo
+from tidy3d.exceptions import AdjointError
+from tidy3d.web.api.asynchronous import DEFAULT_DATA_DIR
+from tidy3d.web.api.asynchronous import run_async as run_async_webapi
+from tidy3d.web.api.container import DEFAULT_DATA_PATH, Batch, BatchData, Job
+from tidy3d.web.api.tidy3d_stub import SimulationDataType, SimulationType
+from tidy3d.web.api.webapi import run as run_webapi
+from tidy3d.web.core.s3utils import download_file, upload_file
+from tidy3d.web.core.types import PayType
 
-from ....exceptions import AdjointError
-from ...core.s3utils import download_file, upload_file
-from ...core.types import PayType
-from ..asynchronous import DEFAULT_DATA_DIR
-from ..asynchronous import run_async as run_async_webapi
-from ..container import DEFAULT_DATA_PATH, Batch, BatchData, Job
-from ..tidy3d_stub import SimulationDataType, SimulationType
-from ..webapi import run as run_webapi
 from .utils import E_to_D, FieldMap, TracerKeys, get_derivative_maps
 
 # keys for data into auxiliary dictionary
@@ -704,7 +704,7 @@ def _run_bwd(
 
             # Build a per-task parent_tasks mapping
             parent_tasks = {}
-            for tname_adj in sims_adj_dict.keys():
+            for tname_adj in sims_adj_dict:
                 parent_tasks[tname_adj] = [task_id_fwd]
             run_kwargs["parent_tasks"] = parent_tasks
 

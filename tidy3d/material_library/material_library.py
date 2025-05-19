@@ -7,8 +7,10 @@ from typing import Union
 
 import pydantic.v1 as pd
 
+from tidy3d.components.base import Tidy3dBaseModel
 from tidy3d.components.material.multi_physics import MultiPhysicsMedium
 from tidy3d.components.material.tcad.charge import SemiconductorMedium
+from tidy3d.components.medium import AnisotropicMedium, Medium2D, PoleResidue, Sellmeier
 from tidy3d.components.tcad.types import (
     AugerRecombination,
     CaugheyThomasMobility,
@@ -16,12 +18,10 @@ from tidy3d.components.tcad.types import (
     ShockleyReedHallRecombination,
     SlotboomBandGapNarrowing,
 )
+from tidy3d.components.types import Axis
+from tidy3d.exceptions import SetupError
+from tidy3d.log import log
 
-from ..components.base import Tidy3dBaseModel
-from ..components.medium import AnisotropicMedium, Medium2D, PoleResidue, Sellmeier
-from ..components.types import Axis
-from ..exceptions import SetupError
-from ..log import log
 from .material_reference import ReferenceData, material_refs
 from .parametric_materials import Graphene
 from .util import (

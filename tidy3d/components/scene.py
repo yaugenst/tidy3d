@@ -22,10 +22,10 @@ from tidy3d.components.material.tcad.heat import SolidMedium, SolidSpec
 from tidy3d.components.material.types import MultiPhysicsMediumType3D, StructureMediumType
 from tidy3d.components.tcad.doping import ConstantDoping, GaussianDoping
 from tidy3d.components.tcad.viz import HEAT_SOURCE_CMAP
+from tidy3d.constants import CONDUCTIVITY, THERMAL_CONDUCTIVITY, inf
+from tidy3d.exceptions import SetupError, Tidy3dError
+from tidy3d.log import log
 
-from ..constants import CONDUCTIVITY, THERMAL_CONDUCTIVITY, inf
-from ..exceptions import SetupError, Tidy3dError
-from ..log import log
 from .base import Tidy3dBaseModel, cached_property
 from .data.utils import (
     CustomSpatialDataType,

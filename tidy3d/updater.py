@@ -194,7 +194,7 @@ def iterate_update_dict(update_dict: dict, update_types: dict[str, Callable]):
 
     if isinstance(update_dict, dict):
         # Update if we need to, and iterate recursively all items
-        if update_dict.get("type") in update_types.keys():
+        if update_dict.get("type") in update_types:
             update_types[update_dict["type"]](update_dict)
         for item in update_dict.values():
             iterate_update_dict(item, update_types)

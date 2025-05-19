@@ -13,16 +13,17 @@ from typing import Literal, Optional
 import pydantic.v1 as pd
 from rich.progress import BarColumn, Progress, TaskProgressColumn, TextColumn, TimeElapsedColumn
 
-from ...components.base import Tidy3dBaseModel, cached_property
-from ...components.mode.mode_solver import ModeSolver
-from ...components.types import annotate_type
-from ...exceptions import DataError
-from ...log import get_logging_console, log
-from ..api import webapi as web
-from ..core.constants import TaskId, TaskName
-from ..core.task_core import Folder
-from ..core.task_info import RunInfo, TaskInfo
-from ..core.types import PayType
+from tidy3d.components.base import Tidy3dBaseModel, cached_property
+from tidy3d.components.mode.mode_solver import ModeSolver
+from tidy3d.components.types import annotate_type
+from tidy3d.exceptions import DataError
+from tidy3d.log import get_logging_console, log
+from tidy3d.web.api import webapi as web
+from tidy3d.web.core.constants import TaskId, TaskName
+from tidy3d.web.core.task_core import Folder
+from tidy3d.web.core.task_info import RunInfo, TaskInfo
+from tidy3d.web.core.types import PayType
+
 from .tidy3d_stub import SimulationDataType, SimulationType
 
 # Max # of workers for parallel upload / download: above 10, performance is same but with warnings

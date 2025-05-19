@@ -8,7 +8,7 @@ import numpy as np
 import pandas
 import pydantic.v1 as pd
 
-from ...components.base import Tidy3dBaseModel, cached_property
+from tidy3d.components.base import Tidy3dBaseModel, cached_property
 
 # NOTE: Coords are args_dict from method and design. This may be changed in future to unify naming
 
@@ -99,7 +99,7 @@ class Result(Tidy3dBaseModel):
         dims = values.get("dims")
 
         if val is None or dims is None:
-            return
+            return None
 
         num_dims = len(dims)
         for i, _val in enumerate(val):
@@ -118,7 +118,7 @@ class Result(Tidy3dBaseModel):
         _values = values.get("values")
 
         if val is None or _values is None:
-            return
+            return None
 
         num_values = len(_values)
         num_coords = len(val)

@@ -9,11 +9,10 @@ import numpy as np
 import pydantic.v1 as pd
 
 from tidy3d.components.base import Tidy3dBaseModel, skip_if_fields_missing
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.types import Coordinate, annotate_type
 from tidy3d.constants import MICROMETER
 from tidy3d.exceptions import ValidationError
-
-from ..geometry.base import Box
-from ..types import Coordinate, annotate_type
 
 
 class UnstructuredGrid(Tidy3dBaseModel, ABC):

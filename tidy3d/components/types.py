@@ -19,7 +19,7 @@ from typing import Annotated
 
 from shapely.geometry.base import BaseGeometry
 
-from ..exceptions import ValidationError
+from tidy3d.exceptions import ValidationError
 
 # type tag default name
 TYPE_TAG_STR = "type"

@@ -14,33 +14,30 @@ import xarray as xr
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
 
-from ...constants import C_0
-from ...exceptions import SetupError, ValidationError
-from ...log import log
-from ..base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
-from ..boundary import PML, Absorber, Boundary, BoundarySpec, PECBoundary, StablePML
-from ..data.data_array import (
+from tidy3d.components.base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
+from tidy3d.components.boundary import PML, Absorber, Boundary, BoundarySpec, PECBoundary, StablePML
+from tidy3d.components.data.data_array import (
     FreqModeDataArray,
     ModeIndexDataArray,
     ScalarModeFieldCylindricalDataArray,
     ScalarModeFieldDataArray,
 )
-from ..data.monitor_data import ModeSolverData
-from ..data.sim_data import SimulationData
-from ..eme.data.sim_data import EMESimulationData
-from ..eme.simulation import EMESimulation
-from ..geometry.base import Box
-from ..grid.grid import Coords, Grid
-from ..medium import FullyAnisotropicMedium, LossyMetalMedium
-from ..mode_spec import ModeSpec
-from ..monitor import ModeMonitor, ModeSolverMonitor
-from ..scene import Scene
-from ..simulation import Simulation
-from ..source.field import ModeSource
-from ..source.time import SourceTime
-from ..structure import Structure
-from ..subpixel_spec import SurfaceImpedance
-from ..types import (
+from tidy3d.components.data.monitor_data import ModeSolverData
+from tidy3d.components.data.sim_data import SimulationData
+from tidy3d.components.eme.data.sim_data import EMESimulationData
+from tidy3d.components.eme.simulation import EMESimulation
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.grid.grid import Coords, Grid
+from tidy3d.components.medium import FullyAnisotropicMedium, LossyMetalMedium
+from tidy3d.components.mode_spec import ModeSpec
+from tidy3d.components.monitor import ModeMonitor, ModeSolverMonitor
+from tidy3d.components.scene import Scene
+from tidy3d.components.simulation import Simulation
+from tidy3d.components.source.field import ModeSource
+from tidy3d.components.source.time import SourceTime
+from tidy3d.components.structure import Structure
+from tidy3d.components.subpixel_spec import SurfaceImpedance
+from tidy3d.components.types import (
     TYPE_TAG_STR,
     ArrayComplex3D,
     ArrayComplex4D,
@@ -56,12 +53,15 @@ from ..types import (
     PlotScale,
     Symmetry,
 )
-from ..validators import (
+from tidy3d.components.validators import (
     validate_freqs_min,
     validate_freqs_not_empty,
     validate_mode_plane_radius,
 )
-from ..viz import make_ax, plot_params_pml
+from tidy3d.components.viz import make_ax, plot_params_pml
+from tidy3d.constants import C_0
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.log import log
 
 # Importing the local solver may not work if e.g. scipy is not installed
 IMPORT_ERROR_MSG = """Could not import local solver, 'ModeSolver' objects can still be constructed
@@ -1282,15 +1282,14 @@ class ModeSolver(Tidy3dBaseModel):
         new_simulation = self.simulation.copy(update={"monitors": new_monitors})
         if isinstance(new_simulation, Simulation):
             return SimulationData(simulation=new_simulation, data=(monitor_data,))
-        elif isinstance(new_simulation, EMESimulation):
+        if isinstance(new_simulation, EMESimulation):
             return EMESimulationData(
                 simulation=new_simulation, data=(monitor_data,), smatrix=None, port_modes=None
             )
-        else:
-            raise SetupError(
-                "The 'simulation' provided does not correspond to any known "
-                "'AbstractSimulationData' type."
-            )
+        raise SetupError(
+            "The 'simulation' provided does not correspond to any known "
+            "'AbstractSimulationData' type."
+        )
 
     def _get_epsilon(self, freq: float) -> ArrayComplex4D:
         """Compute the epsilon tensor in the plane. Order of components is xx, xy, xz, yx, etc."""
@@ -1549,18 +1548,17 @@ class ModeSolver(Tidy3dBaseModel):
         while i > 0 and j > 0:
             if (e[:i, :j] > 0).all():
                 return False
-            elif (e[:i, :j] < 0).all():
+            if (e[:i, :j] < 0).all():
                 return True
-            else:
-                threshold = abs_e[:i, :j].max() * 0.5
-                i, j = ModeSolver._weighted_coord_max(e_2[:i, :j], dx[:i], dy[:j])
-                if abs(e[i, j]) >= threshold:
-                    return e[i, j] < 0
-                # Do not close the window for 1D mode solvers
-                if e.shape[0] == 1:
-                    i = 1
-                elif e.shape[1] == 1:
-                    j = 1
+            threshold = abs_e[:i, :j].max() * 0.5
+            i, j = ModeSolver._weighted_coord_max(e_2[:i, :j], dx[:i], dy[:j])
+            if abs(e[i, j]) >= threshold:
+                return e[i, j] < 0
+            # Do not close the window for 1D mode solvers
+            if e.shape[0] == 1:
+                i = 1
+            elif e.shape[1] == 1:
+                j = 1
         return False
 
     @staticmethod

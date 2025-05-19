@@ -11,9 +11,10 @@ import pydantic.v1 as pydantic
 import xarray as xr
 from rich.progress import track
 
-from ..constants import C_0, EPSILON_0, ETA_0, MICROMETER, MU_0
-from ..exceptions import SetupError
-from ..log import get_logging_console
+from tidy3d.constants import C_0, EPSILON_0, ETA_0, MICROMETER, MU_0
+from tidy3d.exceptions import SetupError
+from tidy3d.log import get_logging_console
+
 from .autograd.functions import add_at, trapz
 from .base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
 from .data.data_array import (

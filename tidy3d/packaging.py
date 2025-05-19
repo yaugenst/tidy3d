@@ -91,7 +91,7 @@ def verify_packages_import(modules: list, required: Literal["any", "all"] = "all
                             f"Please install the '{module}' dependencies using, for example, "
                             f"'pip install tidy3d[<see_options_in_pyproject.toml>]"
                         )
-                    elif required == "any":
+                    if required == "any":
                         # Means we need to verify that at least one of the modules is available
                         if (
                             not any(available_modules_status)

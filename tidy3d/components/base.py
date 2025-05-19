@@ -23,8 +23,9 @@ from autograd.builtins import dict as dict_ag
 from autograd.tracer import isbox
 from pydantic.v1.fields import ModelField
 
-from ..exceptions import FileError
-from ..log import log
+from tidy3d.exceptions import FileError
+from tidy3d.log import log
+
 from .autograd.types import AutogradFieldMap, Box
 from .autograd.utils import get_static
 from .data.data_array import DATA_ARRAY_MAP, DataArray
@@ -110,8 +111,7 @@ def skip_if_fields_missing(fields: list[str], root=False):
                     )
                     if root:
                         return values
-                    else:
-                        return kwargs.get("val") if "val" in kwargs.keys() else args[0]
+                    return kwargs.get("val") if "val" in kwargs else args[0]
 
             return validator(cls, *args, **kwargs)
 
@@ -875,7 +875,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
                 return False
 
             # loop through elements in each dict
-            for key in dict1.keys():
+            for key in dict1:
                 val1 = dict1[key]
                 val2 = dict2[key]
 

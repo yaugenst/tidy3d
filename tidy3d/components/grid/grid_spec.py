@@ -8,15 +8,12 @@ from typing import Any, Literal, Optional, Union
 import numpy as np
 import pydantic.v1 as pd
 
-from ...constants import C_0, MICROMETER, dp_eps, inf
-from ...exceptions import SetupError
-from ...log import log
-from ..base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
-from ..geometry.base import Box, ClipOperation
-from ..lumped_element import LumpedElementType
-from ..source.utils import SourceType
-from ..structure import MeshOverrideStructure, Structure, StructureType
-from ..types import (
+from tidy3d.components.base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
+from tidy3d.components.geometry.base import Box, ClipOperation
+from tidy3d.components.lumped_element import LumpedElementType
+from tidy3d.components.source.utils import SourceType
+from tidy3d.components.structure import MeshOverrideStructure, Structure, StructureType
+from tidy3d.components.types import (
     TYPE_TAG_STR,
     ArrayFloat2D,
     Axis,
@@ -25,6 +22,10 @@ from ..types import (
     Symmetry,
     annotate_type,
 )
+from tidy3d.constants import C_0, MICROMETER, dp_eps, inf
+from tidy3d.exceptions import SetupError
+from tidy3d.log import log
+
 from .corner_finder import CornerFinderSpec
 from .grid import Coords, Coords1D, Grid
 from .mesher import GradedMesher, MesherType
@@ -209,27 +210,26 @@ class GridSpec1d(Tidy3dBaseModel, ABC):
 
             return bound_coords[ind - 1 : ind + 1]
 
-        else:
-            bound_coords = bound_coords[bound_coords <= bound_max]
-            bound_coords = bound_coords[bound_coords >= bound_min]
+        bound_coords = bound_coords[bound_coords <= bound_max]
+        bound_coords = bound_coords[bound_coords >= bound_min]
 
-            # if not extending to simulation bounds, repeat beginning and end
-            dl_min = bound_coords[1] - bound_coords[0]
-            dl_max = bound_coords[-1] - bound_coords[-2]
-            while bound_coords[0] - dl_min >= bound_min:
+        # if not extending to simulation bounds, repeat beginning and end
+        dl_min = bound_coords[1] - bound_coords[0]
+        dl_max = bound_coords[-1] - bound_coords[-2]
+        while bound_coords[0] - dl_min >= bound_min:
+            bound_coords = np.insert(bound_coords, 0, bound_coords[0] - dl_min)
+        while bound_coords[-1] + dl_max <= bound_max:
+            bound_coords = np.append(bound_coords, bound_coords[-1] + dl_max)
+
+        # in case operations are applied to coords, it's possible the bounds were numerically within
+        # the simulation bounds but were still chopped off, which is fixed here
+        if machine_error_relaxation:
+            if np.isclose(bound_coords[0] - dl_min, bound_min):
                 bound_coords = np.insert(bound_coords, 0, bound_coords[0] - dl_min)
-            while bound_coords[-1] + dl_max <= bound_max:
+            if np.isclose(bound_coords[-1] + dl_max, bound_max):
                 bound_coords = np.append(bound_coords, bound_coords[-1] + dl_max)
 
-            # in case operations are applied to coords, it's possible the bounds were numerically within
-            # the simulation bounds but were still chopped off, which is fixed here
-            if machine_error_relaxation:
-                if np.isclose(bound_coords[0] - dl_min, bound_min):
-                    bound_coords = np.insert(bound_coords, 0, bound_coords[0] - dl_min)
-                if np.isclose(bound_coords[-1] + dl_max, bound_max):
-                    bound_coords = np.append(bound_coords, bound_coords[-1] + dl_max)
-
-            return bound_coords
+        return bound_coords
 
     @abstractmethod
     def estimated_min_dl(
@@ -1927,28 +1927,27 @@ class LayerRefinementSpec(Box):
         for coord, cmin, cmax, bdry in zip([x, y], rmin, rmax, boundaries_tan):
             if cmax <= coord[0] or cmin >= coord[-1]:
                 return [], inf
+            if cmin < coord[0]:
+                ind_min = 0
             else:
-                if cmin < coord[0]:
-                    ind_min = 0
-                else:
-                    ind_min = max(0, np.argmax(coord >= cmin) - 1)
+                ind_min = max(0, np.argmax(coord >= cmin) - 1)
 
-                if cmax > coord[-1]:
-                    ind_max = len(coord) - 1
-                else:
-                    ind_max = np.argmax(coord >= cmax)
+            if cmax > coord[-1]:
+                ind_max = len(coord) - 1
+            else:
+                ind_max = np.argmax(coord >= cmax)
 
-                if ind_min >= ind_max - 1:
-                    return [], inf
+            if ind_min >= ind_max - 1:
+                return [], inf
 
-                new_coords.append(coord[ind_min : (ind_max + 1)])
-                # ignore boundary conditions if we are not touching them
-                new_boundaries.append(
-                    [
-                        None if ind_min > 0 else bdry[0],
-                        None if ind_max < len(coord) - 1 else bdry[1],
-                    ]
-                )
+            new_coords.append(coord[ind_min : (ind_max + 1)])
+            # ignore boundary conditions if we are not touching them
+            new_boundaries.append(
+                [
+                    None if ind_min > 0 else bdry[0],
+                    None if ind_max < len(coord) - 1 else bdry[1],
+                ]
+            )
 
         x, y = new_coords
 

@@ -9,9 +9,10 @@ from typing import Any, Optional
 import pydantic.v1 as pd
 from numpy import array, concatenate, inf, ones
 
-from ..constants import UnitScaling
-from ..exceptions import SetupError, Tidy3dKeyError
-from ..log import log
+from tidy3d.constants import UnitScaling
+from tidy3d.exceptions import SetupError, Tidy3dKeyError
+from tidy3d.log import log
+
 from .base import Tidy3dBaseModel
 from .types import Ax, Axis, LengthUnit
 
@@ -28,6 +29,7 @@ try:
 except ImportError:
     arrow_style = None
     MATPLOTLIB_IMPORTED = False
+
 
 """ Constants """
 

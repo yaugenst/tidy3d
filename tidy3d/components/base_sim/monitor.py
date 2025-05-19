@@ -7,11 +7,11 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pydantic.v1 as pd
 
-from ..base import cached_property
-from ..geometry.base import Box
-from ..types import ArrayFloat1D, Axis, Numpy
-from ..validators import _warn_unsupported_traced_argument
-from ..viz import PlotParams, plot_params_monitor
+from tidy3d.components.base import cached_property
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.types import ArrayFloat1D, Axis, Numpy
+from tidy3d.components.validators import _warn_unsupported_traced_argument
+from tidy3d.components.viz import PlotParams, plot_params_monitor
 
 
 class AbstractMonitor(Box, ABC):

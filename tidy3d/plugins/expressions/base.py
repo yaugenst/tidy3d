@@ -108,12 +108,11 @@ class Expression(Tidy3dBaseModel, ABC):
     def _to_expression(other: NumberOrExpression | dict[str, Any]) -> ExpressionType:
         if isinstance(other, Expression):
             return other
-        elif isinstance(other, dict):
+        if isinstance(other, dict):
             return Expression.parse_obj(other)
-        else:
-            from .variables import Constant
+        from .variables import Constant
 
-            return Constant(other)
+        return Constant(other)
 
     def __neg__(self) -> Negate:
         from .operators import Negate

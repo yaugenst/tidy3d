@@ -9,7 +9,8 @@ from typing import Literal, Optional, Union
 import autograd.numpy as np
 import pydantic.v1 as pd
 
-from ..constants import C_0, ETA_0, HERTZ, MICROMETER, RADIAN
+from tidy3d.constants import C_0, ETA_0, HERTZ, MICROMETER, RADIAN
+
 from .base import cached_property
 from .data.data_array import ScalarFieldDataArray
 from .data.monitor_data import FieldData
@@ -324,7 +325,7 @@ class PlaneWaveBeamProfile(BeamProfile):
         if self.as_fixed_angle_source:
             # For fixed-angle, we do not rotate the points
             return points
-        elif isinstance(self.angular_spec, FixedInPlaneKSpec):
+        if isinstance(self.angular_spec, FixedInPlaneKSpec):
             # For fixed in-plane k, the rotation is angle-dependent
             points = self.rotate_points(points, [0, 0, 1], -self.angle_phi)
             angle_theta_actual = self._angle_theta_actual(background_n=background_n)

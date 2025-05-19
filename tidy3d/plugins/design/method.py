@@ -9,8 +9,9 @@ import numpy as np
 import pydantic.v1 as pd
 import scipy.stats.qmc as qmc
 
-from ...components.base import Tidy3dBaseModel
-from ...constants import inf
+from tidy3d.components.base import Tidy3dBaseModel
+from tidy3d.constants import inf
+
 from .parameter import ParameterAny, ParameterFloat, ParameterInt, ParameterType
 
 DEFAULT_MONTE_CARLO_SAMPLER_TYPE = qmc.LatinHypercube
@@ -75,15 +76,13 @@ class Method(Tidy3dBaseModel, ABC):
                 # Float with aux_out
                 return (float_out, aux_out)
 
-            else:
-                raise ValueError(
-                    "Unrecognized output from supplied post function. The first element in the iterable object should be a 'float'."
-                )
-
-        else:
             raise ValueError(
-                "Unrecognized output from supplied post function. Output should be a 'float' or an iterable object."
+                "Unrecognized output from supplied post function. The first element in the iterable object should be a 'float'."
             )
+
+        raise ValueError(
+            "Unrecognized output from supplied post function. Output should be a 'float' or an iterable object."
+        )
 
     @staticmethod
     def _flatten_and_append(list_of_lists: list[list], append_target: list) -> None:

@@ -7,26 +7,25 @@ from typing import Optional, Union
 import numpy as np
 import pydantic.v1 as pd
 
-from ...constants import C_0
-from ...exceptions import SetupError, ValidationError
-from ...log import log
-from ..base import cached_property
-from ..boundary import Boundary, BoundarySpec
-from ..geometry.base import Box
-from ..grid.grid import Grid
-from ..grid.grid_spec import GridSpec
-from ..mode_spec import ModeSpec
-from ..monitor import ModeMonitor, ModeSolverMonitor, PermittivityMonitor
-from ..simulation import AbstractYeeGridSimulation, Simulation, validate_boundaries_for_zero_dims
-from ..source.field import ModeSource
-from ..types import (
-    TYPE_TAG_STR,
-    Ax,
-    Direction,
-    EMField,
-    FreqArray,
+from tidy3d.components.base import cached_property
+from tidy3d.components.boundary import Boundary, BoundarySpec
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.grid.grid import Grid
+from tidy3d.components.grid.grid_spec import GridSpec
+from tidy3d.components.mode_spec import ModeSpec
+from tidy3d.components.monitor import ModeMonitor, ModeSolverMonitor, PermittivityMonitor
+from tidy3d.components.simulation import (
+    AbstractYeeGridSimulation,
+    Simulation,
+    validate_boundaries_for_zero_dims,
 )
-from ..validators import validate_mode_plane_radius
+from tidy3d.components.source.field import ModeSource
+from tidy3d.components.types import TYPE_TAG_STR, Ax, Direction, EMField, FreqArray
+from tidy3d.components.validators import validate_mode_plane_radius
+from tidy3d.constants import C_0
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.log import log
+
 from .mode_solver import ModeSolver
 
 ModeSimulationMonitorType = PermittivityMonitor

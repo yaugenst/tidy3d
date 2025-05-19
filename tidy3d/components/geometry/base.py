@@ -17,21 +17,11 @@ try:
 except ImportError:
     pass
 
-from ...constants import LARGE_NUMBER, MICROMETER, RADIAN, fp_eps, inf
-from ...exceptions import (
-    SetupError,
-    Tidy3dError,
-    Tidy3dImportError,
-    Tidy3dKeyError,
-    ValidationError,
-)
-from ...log import log
-from ...packaging import check_import, verify_packages_import
-from ..autograd import AutogradFieldMap, TracedCoordinate, TracedSize, get_static
-from ..autograd.derivative_utils import DerivativeInfo, integrate_within_bounds
-from ..base import Tidy3dBaseModel, cached_property
-from ..transformation import ReflectionFromPlane, RotationAroundAxis
-from ..types import (
+from tidy3d.components.autograd import AutogradFieldMap, TracedCoordinate, TracedSize, get_static
+from tidy3d.components.autograd.derivative_utils import DerivativeInfo, integrate_within_bounds
+from tidy3d.components.base import Tidy3dBaseModel, cached_property
+from tidy3d.components.transformation import ReflectionFromPlane, RotationAroundAxis
+from tidy3d.components.types import (
     ArrayFloat2D,
     ArrayFloat3D,
     Ax,
@@ -47,7 +37,7 @@ from ..types import (
     Size,
     annotate_type,
 )
-from ..viz import (
+from tidy3d.components.viz import (
     ARROW_LENGTH,
     PLOT_BUFFER,
     PlotParams,
@@ -59,6 +49,17 @@ from ..viz import (
     polygon_patch,
     set_default_labels_and_title,
 )
+from tidy3d.constants import LARGE_NUMBER, MICROMETER, RADIAN, fp_eps, inf
+from tidy3d.exceptions import (
+    SetupError,
+    Tidy3dError,
+    Tidy3dImportError,
+    Tidy3dKeyError,
+    ValidationError,
+)
+from tidy3d.log import log
+from tidy3d.packaging import check_import, verify_packages_import
+
 from .bound_ops import bounds_intersection, bounds_union
 
 POLY_GRID_SIZE = 1e-12
@@ -1718,8 +1719,8 @@ class SimplePlaneIntersection(Geometry, ABC):
 
             transformed_section = shapely.transform(section, transformation=transform)
             return transformed_section
-        else:  # Otherwise compute the arbitrary intersection
-            return self._do_intersections_tilted_plane(normal=normal, origin=origin, to_2D=to_2D)
+        # Otherwise compute the arbitrary intersection
+        return self._do_intersections_tilted_plane(normal=normal, origin=origin, to_2D=to_2D)
 
     @abstractmethod
     def _do_intersections_tilted_plane(

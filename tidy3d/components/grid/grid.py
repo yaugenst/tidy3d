@@ -7,12 +7,12 @@ from typing import Literal, Union
 import numpy as np
 import pydantic.v1 as pd
 
-from ...exceptions import SetupError
-from ..base import Tidy3dBaseModel, cached_property
-from ..data.data_array import DataArray, ScalarFieldDataArray, SpatialDataArray
-from ..data.utils import UnstructuredGridDataset, UnstructuredGridDatasetType
-from ..geometry.base import Box
-from ..types import ArrayFloat1D, Axis, Coordinate, InterpMethod
+from tidy3d.components.base import Tidy3dBaseModel, cached_property
+from tidy3d.components.data.data_array import DataArray, ScalarFieldDataArray, SpatialDataArray
+from tidy3d.components.data.utils import UnstructuredGridDataset, UnstructuredGridDatasetType
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.types import ArrayFloat1D, Axis, Coordinate, InterpMethod
+from tidy3d.exceptions import SetupError
 
 # data type of one dimensional coordinate array.
 Coords1D = ArrayFloat1D
@@ -262,10 +262,9 @@ class Coords(Tidy3dBaseModel):
             return self._interp_from_unstructured(
                 array=array, interp_method=interp_method, fill_value=fill_value
             )
-        else:
-            return self._interp_from_xarray(
-                array=array, interp_method=interp_method, fill_value=fill_value
-            )
+        return self._interp_from_xarray(
+            array=array, interp_method=interp_method, fill_value=fill_value
+        )
 
 
 class FieldGrid(Tidy3dBaseModel):

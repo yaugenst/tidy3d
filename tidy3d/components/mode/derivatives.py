@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import scipy.sparse as sp
 
-from ...constants import EPSILON_0, ETA_0
+from tidy3d.constants import EPSILON_0, ETA_0
 
 
 def make_dxf(dls, shape, pmc):

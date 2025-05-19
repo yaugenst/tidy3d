@@ -25,8 +25,7 @@ def generate_material_library_doc():
     def num2str(num):
         if np.isinf(num):
             return " "
-        else:
-            return str(round(num, 2))
+        return str(round(num, 2))
 
     with open(fname, "w") as f:
         # Write file header
@@ -239,8 +238,7 @@ def generate_rf_material_library_doc():
     def num2str(num):
         if np.isinf(num):
             return " "
-        else:
-            return str(round(num, 2))
+        return str(round(num, 2))
 
     with open(fname, "w") as f:
         # Write file header

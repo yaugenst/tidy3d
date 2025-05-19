@@ -8,7 +8,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
 
-from ..components.viz import FLEXCOMPUTE_COLORS
+from tidy3d.components.viz import FLEXCOMPUTE_COLORS
 
 MAX_POLES_TO_DISPLAY = 3
 

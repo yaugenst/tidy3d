@@ -8,16 +8,17 @@ from typing import Optional, Union
 import numpy as np
 import pydantic.v1 as pydantic
 
-from ...constants import inf
-from ...exceptions import DataError, ValidationError
-from ...log import log
-from ...packaging import verify_packages_import
-from ..base import cached_property
-from ..data.data_array import DATA_ARRAY_MAP, TriangleMeshDataArray
-from ..data.dataset import TriangleMeshDataset
-from ..data.validators import validate_no_nans
-from ..types import Ax, Bound, Coordinate, MatrixReal4x4, Shapely
-from ..viz import add_ax_if_none, equal_aspect
+from tidy3d.components.base import cached_property
+from tidy3d.components.data.data_array import DATA_ARRAY_MAP, TriangleMeshDataArray
+from tidy3d.components.data.dataset import TriangleMeshDataset
+from tidy3d.components.data.validators import validate_no_nans
+from tidy3d.components.types import Ax, Bound, Coordinate, MatrixReal4x4, Shapely
+from tidy3d.components.viz import add_ax_if_none, equal_aspect
+from tidy3d.constants import inf
+from tidy3d.exceptions import DataError, ValidationError
+from tidy3d.log import log
+from tidy3d.packaging import verify_packages_import
+
 from . import base
 
 AREA_SIZE_THRESHOLD = 1e-36
@@ -181,7 +182,7 @@ class TriangleMesh(base.Geometry, ABC):
         """
         import trimesh
 
-        from ..types_extra import TrimeshType
+        from tidy3d.components.types_extra import TrimeshType
 
         def process_single(mesh: TrimeshType) -> TriangleMesh:
             """Process a single 'trimesh.Trimesh' using scale and origin."""

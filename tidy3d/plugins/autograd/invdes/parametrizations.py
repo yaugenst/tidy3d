@@ -6,9 +6,9 @@ import pydantic.v1 as pd
 from numpy.typing import NDArray
 
 from tidy3d.components.base import Tidy3dBaseModel
+from tidy3d.plugins.autograd.constants import BETA_DEFAULT, ETA_DEFAULT
+from tidy3d.plugins.autograd.types import KernelType, PaddingType
 
-from ..constants import BETA_DEFAULT, ETA_DEFAULT
-from ..types import KernelType, PaddingType
 from .filters import make_filter
 from .projections import tanh_projection
 

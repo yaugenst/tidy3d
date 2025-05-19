@@ -7,11 +7,12 @@ from typing import Any, Callable, Optional, Union
 
 import pydantic.v1 as pd
 
-from ...components.base import TYPE_TAG_STR, Tidy3dBaseModel, cached_property
-from ...components.data.sim_data import SimulationData
-from ...components.simulation import Simulation
-from ...log import Console, get_logging_console, log
-from ...web.api.container import Batch, BatchData, Job
+from tidy3d.components.base import TYPE_TAG_STR, Tidy3dBaseModel, cached_property
+from tidy3d.components.data.sim_data import SimulationData
+from tidy3d.components.simulation import Simulation
+from tidy3d.log import Console, get_logging_console, log
+from tidy3d.web.api.container import Batch, BatchData, Job
+
 from .method import (
     MethodBayOpt,
     MethodGenAlg,
@@ -560,8 +561,7 @@ class DesignSpace(Tidy3dBaseModel):
         # For if tidy3d server cannot determine the estimate
         if per_run_estimate is None:
             return None
-        else:
-            return round(per_run_estimate * run_count, 3)
+        return round(per_run_estimate * run_count, 3)
 
     def summarize(self, fn_pre: Optional[Callable] = None, verbose: bool = True) -> dict[str, Any]:
         """Summarize the setup of the DesignSpace

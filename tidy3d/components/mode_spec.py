@@ -8,9 +8,10 @@ from typing import Literal, Union
 import numpy as np
 import pydantic.v1 as pd
 
-from ..constants import GLANCING_CUTOFF, MICROMETER, RADIAN, fp_eps
-from ..exceptions import SetupError, ValidationError
-from ..log import log
+from tidy3d.constants import GLANCING_CUTOFF, MICROMETER, RADIAN, fp_eps
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.log import log
+
 from .base import Tidy3dBaseModel, skip_if_fields_missing
 from .types import Axis2D, TrackFreq
 

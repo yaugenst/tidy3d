@@ -8,9 +8,10 @@ from typing import Union
 import numpy as np
 import pydantic.v1 as pd
 
-from ..constants import EPSILON_0, MU_0, PML_SIGMA
-from ..exceptions import DataError, SetupError
-from ..log import log
+from tidy3d.constants import EPSILON_0, MU_0, PML_SIGMA
+from tidy3d.exceptions import DataError, SetupError
+from tidy3d.log import log
+
 from .base import Tidy3dBaseModel, cached_property
 from .medium import Medium
 from .source.field import TFSF, GaussianBeam, ModeSource, PlaneWave

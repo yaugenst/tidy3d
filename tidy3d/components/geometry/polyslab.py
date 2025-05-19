@@ -11,16 +11,12 @@ import pydantic.v1 as pydantic
 import shapely
 from autograd.tracer import getval, isbox
 
-from ...constants import LARGE_NUMBER, MICROMETER, fp_eps
-from ...exceptions import SetupError, ValidationError
-from ...log import log
-from ...packaging import verify_packages_import
-from ..autograd import AutogradFieldMap, TracedVertices, get_static
-from ..autograd.derivative_utils import DerivativeInfo, DerivativeSurfaceMesh
-from ..autograd.types import TracedFloat
-from ..base import cached_property, skip_if_fields_missing
-from ..transformation import ReflectionFromPlane, RotationAroundAxis
-from ..types import (
+from tidy3d.components.autograd import AutogradFieldMap, TracedVertices, get_static
+from tidy3d.components.autograd.derivative_utils import DerivativeInfo, DerivativeSurfaceMesh
+from tidy3d.components.autograd.types import TracedFloat
+from tidy3d.components.base import cached_property, skip_if_fields_missing
+from tidy3d.components.transformation import ReflectionFromPlane, RotationAroundAxis
+from tidy3d.components.types import (
     ArrayFloat1D,
     ArrayFloat2D,
     ArrayLike,
@@ -31,6 +27,11 @@ from ..types import (
     PlanePosition,
     Shapely,
 )
+from tidy3d.constants import LARGE_NUMBER, MICROMETER, fp_eps
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.log import log
+from tidy3d.packaging import verify_packages_import
+
 from . import base, triangulation
 
 # sampling polygon along dilation for validating polygon to be
@@ -1354,7 +1355,7 @@ class PolySlab(base.Planar):
         shapely_poly = PolySlab.make_shapely_polygon(vertices)
         if shapely_poly.is_valid:
             return vertices
-        elif isbox(vertices):
+        if isbox(vertices):
             raise NotImplementedError(
                 "The dilation caused damage to the polygon. "
                 "Automatically healing this is currently not supported when "

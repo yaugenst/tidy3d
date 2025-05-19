@@ -8,9 +8,10 @@ from typing import Optional, Union
 import numpy as np
 import pydantic.v1 as pydantic
 
-from ..constants import HERTZ, MICROMETER, RADIAN, SECOND, inf
-from ..exceptions import SetupError, ValidationError
-from ..log import log
+from tidy3d.constants import HERTZ, MICROMETER, RADIAN, SECOND, inf
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.log import log
+
 from .apodization import ApodizationSpec
 from .base import Tidy3dBaseModel, cached_property, skip_if_fields_missing
 from .base_sim.monitor import AbstractMonitor

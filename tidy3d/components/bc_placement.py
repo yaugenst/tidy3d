@@ -7,7 +7,8 @@ from typing import Union
 
 import pydantic.v1 as pd
 
-from ..exceptions import SetupError
+from tidy3d.exceptions import SetupError
+
 from .base import Tidy3dBaseModel
 from .types import BoxSurface
 

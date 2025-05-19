@@ -11,25 +11,26 @@ except ImportError:
 import numpy as np
 import pydantic.v1 as pd
 
-from ...constants import C_0
-from ...exceptions import SetupError, ValidationError
-from ...log import log
-from ..base import cached_property
-from ..boundary import BoundarySpec, PECBoundary
-from ..geometry.base import Box
-from ..grid.grid import Grid
-from ..grid.grid_spec import GridSpec
-from ..medium import FullyAnisotropicMedium
-from ..monitor import AbstractModeMonitor, ModeSolverMonitor, Monitor, MonitorType
-from ..scene import Scene
-from ..simulation import AbstractYeeGridSimulation, Simulation, validate_boundaries_for_zero_dims
-from ..types import Ax, Axis, FreqArray, Symmetry, annotate_type
-from ..validators import (
-    MIN_FREQUENCY,
-    validate_freqs_min,
-    validate_freqs_not_empty,
+from tidy3d.components.base import cached_property
+from tidy3d.components.boundary import BoundarySpec, PECBoundary
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.grid.grid import Grid
+from tidy3d.components.grid.grid_spec import GridSpec
+from tidy3d.components.medium import FullyAnisotropicMedium
+from tidy3d.components.monitor import AbstractModeMonitor, ModeSolverMonitor, Monitor, MonitorType
+from tidy3d.components.scene import Scene
+from tidy3d.components.simulation import (
+    AbstractYeeGridSimulation,
+    Simulation,
+    validate_boundaries_for_zero_dims,
 )
-from ..viz import add_ax_if_none, equal_aspect
+from tidy3d.components.types import Ax, Axis, FreqArray, Symmetry, annotate_type
+from tidy3d.components.validators import MIN_FREQUENCY, validate_freqs_min, validate_freqs_not_empty
+from tidy3d.components.viz import add_ax_if_none, equal_aspect
+from tidy3d.constants import C_0
+from tidy3d.exceptions import SetupError, ValidationError
+from tidy3d.log import log
+
 from .grid import EMECompositeGrid, EMEExplicitGrid, EMEGrid, EMEGridSpec, EMEGridSpecType
 from .monitor import (
     EMECoefficientMonitor,
@@ -719,7 +720,7 @@ class EMESimulation(AbstractYeeGridSimulation):
                         f"Monitor at 'monitors[{i}]' is an 'EMEFieldMonitor', "
                         "which is not compatible with 'EMEPeriodicitySweep'."
                     )
-                elif isinstance(monitor, EMECoefficientMonitor):
+                if isinstance(monitor, EMECoefficientMonitor):
                     raise SetupError(
                         f"Monitor at 'monitors[{i}]' is an 'EMECoefficientMonitor', "
                         "which is not compatible with 'EMEPeriodicitySweep'."

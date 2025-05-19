@@ -8,14 +8,14 @@ from typing import Literal, Optional, Union
 import numpy as np
 import pydantic.v1 as pd
 
-from ...constants import RADIAN, fp_eps, inf
-from ...exceptions import SetupError, ValidationError
-from ..base import Tidy3dBaseModel, skip_if_fields_missing
-from ..geometry.base import Box
-from ..grid.grid import Coords1D
-from ..mode_spec import ModeSpec
-from ..structure import Structure
-from ..types import ArrayFloat1D, Axis, Coordinate, Size, TrackFreq
+from tidy3d.components.base import Tidy3dBaseModel, skip_if_fields_missing
+from tidy3d.components.geometry.base import Box
+from tidy3d.components.grid.grid import Coords1D
+from tidy3d.components.mode_spec import ModeSpec
+from tidy3d.components.structure import Structure
+from tidy3d.components.types import ArrayFloat1D, Axis, Coordinate, Size, TrackFreq
+from tidy3d.constants import RADIAN, fp_eps, inf
+from tidy3d.exceptions import SetupError, ValidationError
 
 # grid limits
 MAX_NUM_MODES = 100

@@ -14,20 +14,20 @@ from botocore.exceptions import ClientError
 from joblib import Parallel, delayed
 from rich.progress import Progress
 
-from ...components.data.monitor_data import ModeSolverData
-from ...components.eme.simulation import EMESimulation
-from ...components.medium import AbstractCustomMedium
-from ...components.simulation import Simulation
-from ...exceptions import SetupError, WebError
-from ...log import get_logging_console, log
-from ...plugins.mode.mode_solver import MODE_MONITOR_NAME, ModeSolver
-from ...version import __version__
-from ..core.core_config import get_logger_console
-from ..core.environment import Env
-from ..core.http_util import http
-from ..core.s3utils import download_file, download_gz_file, upload_file
-from ..core.task_core import Folder
-from ..core.types import PayType, ResourceLifecycle, Submittable
+from tidy3d.components.data.monitor_data import ModeSolverData
+from tidy3d.components.eme.simulation import EMESimulation
+from tidy3d.components.medium import AbstractCustomMedium
+from tidy3d.components.simulation import Simulation
+from tidy3d.exceptions import SetupError, WebError
+from tidy3d.log import get_logging_console, log
+from tidy3d.plugins.mode.mode_solver import MODE_MONITOR_NAME, ModeSolver
+from tidy3d.version import __version__
+from tidy3d.web.core.core_config import get_logger_console
+from tidy3d.web.core.environment import Env
+from tidy3d.web.core.http_util import http
+from tidy3d.web.core.s3utils import download_file, download_gz_file, upload_file
+from tidy3d.web.core.task_core import Folder
+from tidy3d.web.core.types import PayType, ResourceLifecycle, Submittable
 
 SIMULATION_JSON = "simulation.json"
 SIM_FILE_HDF5_GZ = "simulation.hdf5.gz"

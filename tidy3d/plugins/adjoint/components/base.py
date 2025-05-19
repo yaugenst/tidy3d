@@ -11,7 +11,8 @@ import pydantic.v1 as pd
 from jax.tree_util import tree_flatten as jax_tree_flatten
 from jax.tree_util import tree_unflatten as jax_tree_unflatten
 
-from ....components.base import Tidy3dBaseModel
+from tidy3d.components.base import Tidy3dBaseModel
+
 from .data.data_array import JAX_DATA_ARRAY_TAG, JaxDataArray
 
 # end of the error message when a ``_validate_web_adjoint`` exception is raised
@@ -94,8 +95,7 @@ class JaxObject(Tidy3dBaseModel):
                 return value.tolist()
             if isinstance(value, dict):
                 return {key: fix_numpy(val) for key, val in value.items()}
-            else:
-                return value
+            return value
 
         aux_data = fix_numpy(aux_data)
 
@@ -207,7 +207,7 @@ class JaxObject(Tidy3dBaseModel):
                     return JAX_DATA_ARRAY_TAG
                 return {k: strip_data_array(v) for k, v in val.items()}
 
-            elif isinstance(val, (tuple, list)):
+            if isinstance(val, (tuple, list)):
                 return [strip_data_array(v) for v in val]
 
             return val

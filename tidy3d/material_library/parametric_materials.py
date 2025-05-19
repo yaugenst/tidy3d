@@ -8,10 +8,10 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pydantic.v1 as pd
 
-from ..components.base import Tidy3dBaseModel
-from ..components.medium import Drude, Medium2D, PoleResidue
-from ..constants import ELECTRON_VOLT, EPSILON_0, HBAR, K_B, KELVIN, Q_e
-from ..log import log
+from tidy3d.components.base import Tidy3dBaseModel
+from tidy3d.components.medium import Drude, Medium2D, PoleResidue
+from tidy3d.constants import ELECTRON_VOLT, EPSILON_0, HBAR, K_B, KELVIN, Q_e
+from tidy3d.log import log
 
 try:
     from scipy import integrate
