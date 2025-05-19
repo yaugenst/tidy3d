@@ -14,5 +14,6 @@ class TemperatureMonitor(HeatChargeMonitor):
         description="Sampling rate of the monitor: number of time steps between each measurement. "
         "Set ``interval`` to 1 for the highest possible resolution in time. "
         "Higher integer values down-sample the data by measuring every ``interval`` time steps. "
-        "This can be useful for reducing data storage as needed by the application.",
+        "This can be useful for reducing data storage as needed by the application."
+        "NOTE: this is only relevant for unsteady (transient) Heat simulations. ",
     )

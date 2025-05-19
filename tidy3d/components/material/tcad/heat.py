@@ -72,7 +72,7 @@ class SolidMedium(AbstractHeatMedium):
     capacity: pd.PositiveFloat = pd.Field(
         None,
         title="Heat capacity",
-        description=f"Volumetric heat capacity in unit of {SPECIFIC_HEAT_CAPACITY}.",
+        description=f"Specific heat capacity in unit of {SPECIFIC_HEAT_CAPACITY}.",
         units=SPECIFIC_HEAT_CAPACITY,
     )
 
