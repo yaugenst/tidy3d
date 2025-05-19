@@ -249,7 +249,7 @@ class MethodBayOpt(MethodOptimize, ABC):
             raise ImportError(
                 "Cannot run Bayesian optimization as 'bayes_opt' module not found. "
                 "Please check installation or run 'pip install bayesian-optimization==1.5.1'."
-            )
+            ) from None
 
         # Identify non-numeric params and define boundaries for Bay-opt
         param_converter = {}
@@ -449,7 +449,7 @@ class MethodGenAlg(MethodOptimize, ABC):
         except ImportError:
             raise ImportError(
                 "Cannot run genetic algorithm optimization as 'pygad' module not found. Please check installation or run 'pip install pygad'."
-            )
+            ) from None
 
         # Make param names available to the fitness function
         param_keys = [param.name for param in parameters]
@@ -697,7 +697,7 @@ class MethodParticleSwarm(MethodOptimize, ABC):
         except ImportError:
             raise ImportError(
                 "Cannot run particle swarm optimization as 'pyswarms' module not found. Please check installation or run 'pip install pyswarms'."
-            )
+            ) from None
 
         # Pyswarms doesn't have a seed set outside of numpy std method
         if self.seed is not None:

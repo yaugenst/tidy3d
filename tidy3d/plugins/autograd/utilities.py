@@ -225,7 +225,7 @@ def scalar_objective(func: Callable = None, *, has_aux: bool = False) -> Callabl
                 raise Tidy3dError(
                     "An objective function's return value must be a scalar, "
                     "a Python float/int, or an array containing a single element."
-                )
+                ) from None
         except ValueError as e:
             # Result contains more than one element
             raise Tidy3dError(

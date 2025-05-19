@@ -251,7 +251,7 @@ class EigSolver(Tidy3dBaseModel):
                     "Shape mismatch between 'basis_fields' and requested mode data. "
                     "Make sure the mode solvers are set up the same, and that the "
                     "basis mode solver data has 'colocate=False'."
-                )
+                ) from None
             if split_curl_scaling is not None:
                 basis_E = cls.split_curl_field_postprocess_inverse(split_curl_scaling, basis_E)
             jac_e_inv = np.moveaxis(

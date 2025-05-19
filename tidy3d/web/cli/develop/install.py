@@ -150,9 +150,9 @@ def verify_poetry_is_installed():
         if result.returncode == 0:
             print("Poetry is installed: " + result.stdout)
             return True
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as exc:
         # This exception is raised if the command returned a non-zero exit status
-        raise OSError("Poetry is not installed or not found in the system PATH.")
+        raise OSError("Poetry is not installed or not found in the system PATH.") from exc
 
 
 def verify_sphinx_is_installed():
@@ -172,9 +172,9 @@ def verify_sphinx_is_installed():
         )
         # If the command was successful, we'll get the version info
         print("sphinx is installed: " + result.stdout)
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as exc:
         # This exception is raised if the command returned a non-zero exit status
-        raise OSError("sphinx is not installed or not found in the poetry environment.")
+        raise OSError("sphinx is not installed or not found in the poetry environment.") from exc
 
 
 @develop.command(name="get-install-directory", help="Gets the TIDY3D base directory.")
@@ -207,7 +207,7 @@ def install_development_environment(args=None):
     # Verify and install pipx if required
     try:
         verify_pipx_is_installed()
-    except:  # NOQA: E722
+    except Exception as exc:
         if platform.system() == "Windows":
             echo_and_check_subprocess(["scoop", "install", "pipx"])
             echo_and_check_subprocess(["pipx", "ensurepath"])
@@ -221,12 +221,12 @@ def install_development_environment(args=None):
             raise OSError(
                 "Unsupported operating system installation flow. Verify the subprocess commands in "
                 "tidy3d develop are compatible with your operating system."
-            )
+            ) from exc
 
     # Verify and install poetry if required
     try:
         verify_poetry_is_installed()
-    except:  # NOQA: E722
+    except Exception as exc:
         if platform.system() == "Windows":
             echo_and_check_subprocess(["pipx", "install", "poetry"])
         elif platform.system() == "Darwin":
@@ -237,16 +237,16 @@ def install_development_environment(args=None):
             raise OSError(
                 "Unsupported operating system installation flow. Verify the subprocess commands in "
                 "tidy3d develop are compatible with your operating system."
-            )
+            ) from exc
 
     # Verify pandoc is installed
     try:
         verify_pandoc_is_installed_and_version_less_than_3()
-    except:  # NOQA: E722
+    except Exception as exc:
         raise OSError(
             "Please install pandoc < 3 depending on your platform: https://pandoc.org/installing.html . Then run this "
             "command again. You can also follow our detailed instructions under the development guide."
-        )
+        ) from exc
 
     # Makes sure that poetry uses the python environment active on the terminal.
 

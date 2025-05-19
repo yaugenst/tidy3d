@@ -62,7 +62,7 @@ def benchmark_timing_operations(
             "The output file path "
             + str(output_file_path)
             + " does not exist and cannot be created."
-        )
+        ) from None
 
     if in_poetry_environment:
         timing_command_list += ["poetry", "run"]
@@ -74,7 +74,7 @@ def benchmark_timing_operations(
         raise KeyError(
             f"Make sure the selected timing command {timing_command}"
             + "corresponds to an existing command."
-        )
+        ) from None
 
     echo_and_check_subprocess(
         command=timing_command_list, stdout=output_file_write, stderr=subprocess.STDOUT

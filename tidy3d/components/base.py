@@ -270,7 +270,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
                     f"Could not grab integer index from path '{path}'. "
                     f"Please correct the sub path containing '{integer_index_path}' to be an "
                     f"integer index into '{field_name}' (containing {len(sub_component)} elements)."
-                )
+                ) from None
 
             sub_component_list = list(sub_component)
             sub_component = sub_component_list[index]

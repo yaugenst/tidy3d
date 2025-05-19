@@ -335,7 +335,7 @@ class HeatChargeSimulation(AbstractSimulation):
                 "'size', 'center',  'medium', and 'structures'. Thus, it should only be used in "
                 "validators with @skip_if_fields_missing(['medium', 'center', 'size', 'structures']) "
                 "or root validators with option 'skip_on_failure=True'."
-            )
+            ) from None
 
         # list of structures including background as a Box()
         structure_bg = Structure(

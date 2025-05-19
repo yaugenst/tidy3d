@@ -142,12 +142,12 @@ def requires_vtk(fn):
                 if vtk["mod"].vtkIdTypeArray().GetDataTypeSize() == 4:
                     vtk["id_type"] = np.int32
 
-            except ImportError:
+            except ImportError as exc:
                 raise Tidy3dImportError(
                     "The package 'vtk' is required for this operation, but it was not found. "
                     "Please install the 'vtk' dependencies using, for example, "
                     "'pip install .[vtk]'."
-                )
+                ) from exc
 
         return fn(*args, **kwargs)
 

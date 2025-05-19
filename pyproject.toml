@@ -261,14 +261,11 @@ extend-select = [
   "NPY",
 ]
 extend-ignore = [
-  "E501",
-  "C901",  # too complex
+  "E501",  # line too long
   "UP035",
   "UP006",
   "UP007",
   "B905",  # `zip()` without an explicit `strict=` parameter
-  "B904",
-  "B028",  # stacklevel
   "NPY002", # TODO revisit RNG handling
 ]
 
