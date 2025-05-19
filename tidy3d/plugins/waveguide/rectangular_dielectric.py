@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated, Any, Literal, Union
+from typing import Annotated, Any, Literal, Optional, Union
 
 import numpy
 import pydantic.v1 as pydantic
@@ -816,12 +816,12 @@ class RectangularDielectric(Tidy3dBaseModel):
 
     def plot(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        source_alpha: float = None,
-        monitor_alpha: float = None,
+        source_alpha: Optional[float] = None,
+        monitor_alpha: Optional[float] = None,
         **patch_kwargs,
     ) -> Ax:
         """Plot each of simulation's components on a plane defined by one nonzero x,y,z coordinate.
@@ -858,13 +858,13 @@ class RectangularDielectric(Tidy3dBaseModel):
 
     def plot_eps(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        freq: float = None,
-        alpha: float = None,
-        source_alpha: float = None,
-        monitor_alpha: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        freq: Optional[float] = None,
+        alpha: Optional[float] = None,
+        source_alpha: Optional[float] = None,
+        monitor_alpha: Optional[float] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot each of simulation's components on a plane defined by one nonzero x,y,z coordinate.
@@ -908,7 +908,11 @@ class RectangularDielectric(Tidy3dBaseModel):
         )
 
     def plot_structures(
-        self, x: float = None, y: float = None, z: float = None, ax: Ax = None
+        self,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        ax: Ax = None,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
 
@@ -937,11 +941,11 @@ class RectangularDielectric(Tidy3dBaseModel):
 
     def plot_structures_eps(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        freq: float = None,
-        alpha: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        freq: Optional[float] = None,
+        alpha: Optional[float] = None,
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,
@@ -989,9 +993,9 @@ class RectangularDielectric(Tidy3dBaseModel):
 
     def plot_grid(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
         **kwargs,
     ) -> Ax:
@@ -1091,10 +1095,10 @@ class RectangularDielectric(Tidy3dBaseModel):
         val: Literal["real", "imag", "abs"] = "real",
         eps_alpha: float = 0.2,
         robust: bool = True,
-        vmin: float = None,
-        vmax: float = None,
+        vmin: Optional[float] = None,
+        vmax: Optional[float] = None,
         ax: Ax = None,
-        geometry_edges: str = None,
+        geometry_edges: Optional[str] = None,
         **sel_kwargs,
     ) -> Ax:
         """Plot the field for a :class:`.ModeSolverData` with :class:`.Simulation` plot overlaid.

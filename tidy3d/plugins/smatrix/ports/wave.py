@@ -100,7 +100,9 @@ class WavePort(AbstractTerminalPort, Box):
         """Return the name of the :class:`.ModeMonitor` associated with this port."""
         return f"{self.name}_mode"
 
-    def to_source(self, source_time: GaussianPulse, snap_center: float = None) -> ModeSource:
+    def to_source(
+        self, source_time: GaussianPulse, snap_center: Optional[float] = None
+    ) -> ModeSource:
         """Create a mode source from the wave port."""
         center = list(self.center)
         if snap_center:
@@ -116,7 +118,7 @@ class WavePort(AbstractTerminalPort, Box):
         )
 
     def to_monitors(
-        self, freqs: FreqArray, snap_center: float = None, grid: Grid = None
+        self, freqs: FreqArray, snap_center: Optional[float] = None, grid: Grid = None
     ) -> list[ModeMonitor]:
         """The wave port uses a :class:`.ModeMonitor` to compute the characteristic impedance
         and the port voltages and currents."""

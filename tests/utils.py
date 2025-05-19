@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -57,7 +57,7 @@ def cartesian_to_unstructured(
     array: td.SpatialDataArray,
     pert: float = 0.1,
     method: str = "linear",
-    seed: int = None,
+    seed: Optional[int] = None,
     same_bounds: bool = True,
 ) -> Union[td.TriangularGridDataset, td.TetrahedralGridDataset]:
     """Convert a SpatialDataArray into TriangularGridDataset/TetrahedralGridDataset with
@@ -1265,7 +1265,7 @@ def run_async_emulated(simulations: dict[str, td.Simulation], **kwargs) -> Batch
 
 
 def assert_log_level(
-    records: list[tuple[int, str]], log_level_expected: str, contains_str: str = None
+    records: list[tuple[int, str]], log_level_expected: str, contains_str: Optional[str] = None
 ) -> None:
     """Testing tool: Raises error if a log was not recorded as expected.
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import builtins
 import time
 from pathlib import Path
+from typing import Optional
 
 import gdstk
 import h5py
@@ -159,8 +160,8 @@ def run_emulated_bwd(
     folder_name: str,
     callback_url: str,
     verbose: bool,
-    num_proc: int = None,
-    path_dir: str = None,
+    num_proc: Optional[int] = None,
+    path_dir: Optional[str] = None,
 ) -> JaxSimulation:
     """Runs adjoint simulation on our servers, grabs the gradient data from fwd for processing."""
 

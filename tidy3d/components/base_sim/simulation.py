@@ -227,14 +227,14 @@ class AbstractSimulation(Box, ABC):
     @add_ax_if_none
     def plot(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        source_alpha: float = None,
-        monitor_alpha: float = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        source_alpha: Optional[float] = None,
+        monitor_alpha: Optional[float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         fill_structures: bool = True,
         **patch_kwargs,
     ) -> Ax:
@@ -292,12 +292,12 @@ class AbstractSimulation(Box, ABC):
     @add_ax_if_none
     def plot_sources(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
-        alpha: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
+        alpha: Optional[float] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot each of simulation's sources on a plane defined by one nonzero x,y,z coordinate.
@@ -340,12 +340,12 @@ class AbstractSimulation(Box, ABC):
     @add_ax_if_none
     def plot_monitors(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
-        alpha: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
+        alpha: Optional[float] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot each of simulation's monitors on a plane defined by one nonzero x,y,z coordinate.
@@ -388,11 +388,11 @@ class AbstractSimulation(Box, ABC):
     @add_ax_if_none
     def plot_symmetries(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot each of simulation's symmetries on a plane defined by one nonzero x,y,z coordinate.
@@ -463,9 +463,9 @@ class AbstractSimulation(Box, ABC):
     @add_ax_if_none
     def plot_boundaries(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
         **kwargs,
     ) -> Ax:
@@ -497,12 +497,12 @@ class AbstractSimulation(Box, ABC):
     @add_ax_if_none
     def plot_structures(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         fill: bool = True,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
@@ -541,16 +541,16 @@ class AbstractSimulation(Box, ABC):
     @add_ax_if_none
     def plot_structures_eps(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        freq: float = None,
-        alpha: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        freq: Optional[float] = None,
+        alpha: Optional[float] = None,
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
         The permittivity is plotted in grayscale based on its value at the specified frequency.
@@ -608,15 +608,15 @@ class AbstractSimulation(Box, ABC):
     @add_ax_if_none
     def plot_structures_heat_conductivity(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        alpha: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        alpha: Optional[float] = None,
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
         The permittivity is plotted in grayscale based on its value at the specified frequency.

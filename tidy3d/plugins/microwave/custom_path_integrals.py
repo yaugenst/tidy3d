@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, Optional
 
 import numpy as np
 import pydantic.v1 as pd
@@ -263,9 +263,9 @@ class CustomVoltageIntegral2D(CustomPathIntegral2D):
     @add_ax_if_none
     def plot(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
         **path_kwargs,
     ) -> Ax:
@@ -336,9 +336,9 @@ class CustomCurrentIntegral2D(CustomPathIntegral2D):
     @add_ax_if_none
     def plot(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
         **path_kwargs,
     ) -> Ax:

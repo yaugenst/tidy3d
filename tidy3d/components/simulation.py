@@ -447,15 +447,15 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
     @add_ax_if_none
     def plot(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        source_alpha: float = None,
-        monitor_alpha: float = None,
-        lumped_element_alpha: float = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        source_alpha: Optional[float] = None,
+        monitor_alpha: Optional[float] = None,
+        lumped_element_alpha: Optional[float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         fill_structures: bool = True,
         **patch_kwargs,
     ) -> Ax:
@@ -528,16 +528,16 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
     @add_ax_if_none
     def plot_eps(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        freq: float = None,
-        alpha: float = None,
-        source_alpha: float = None,
-        monitor_alpha: float = None,
-        lumped_element_alpha: float = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        freq: Optional[float] = None,
+        alpha: Optional[float] = None,
+        source_alpha: Optional[float] = None,
+        monitor_alpha: Optional[float] = None,
+        lumped_element_alpha: Optional[float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         ax: Ax = None,
         eps_component: Optional[PermittivityComponent] = None,
         eps_lim: Tuple[Union[float, None], Union[float, None]] = (None, None),
@@ -635,16 +635,16 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
     @add_ax_if_none
     def plot_structures_eps(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        freq: float = None,
-        alpha: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        freq: Optional[float] = None,
+        alpha: Optional[float] = None,
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         eps_component: Optional[PermittivityComponent] = None,
         eps_lim: Tuple[Union[float, None], Union[float, None]] = (None, None),
     ) -> Ax:
@@ -726,11 +726,11 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
     @add_ax_if_none
     def plot_pml(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot each of simulation's absorbing boundaries
@@ -822,7 +822,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         return pml_box
 
     # candidate for removal in 3.0
-    def eps_bounds(self, freq: float = None) -> tuple[float, float]:
+    def eps_bounds(self, freq: Optional[float] = None) -> tuple[float, float]:
         """Compute range of (real) permittivity present in the simulation at frequency "freq"."""
 
         log.warning(
@@ -883,12 +883,12 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
     @add_ax_if_none
     def plot_lumped_elements(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
-        alpha: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
+        alpha: Optional[float] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot each of simulation's lumped elements on a plane defined by one
@@ -928,12 +928,12 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
     @add_ax_if_none
     def plot_grid(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         override_structures_alpha: float = 1,
         snapping_points_alpha: float = 1,
         **kwargs,
@@ -1070,9 +1070,9 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
     @add_ax_if_none
     def plot_boundaries(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
         **kwargs,
     ) -> Ax:
@@ -1362,7 +1362,9 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         span_inds = grid.discretize_inds(box=box, extend=extend)
         return self._subgrid(span_inds=span_inds, grid=grid)
 
-    def _discretize_inds_monitor(self, monitor: Union[Monitor, Box], colocate: bool = None):
+    def _discretize_inds_monitor(
+        self, monitor: Union[Monitor, Box], colocate: Optional[bool] = None
+    ):
         """Start and stopping indexes for the cells where data needs to be recorded to fully cover
         a ``monitor``. This is used during the solver run. The final grid on which a monitor data
         lives is computed in ``discretize_monitor``, with the difference being that 0-sized
@@ -1421,7 +1423,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         self,
         box: Box,
         coord_key: str = "centers",
-        freq: float = None,
+        freq: Optional[float] = None,
     ) -> xr.DataArray:
         """Get array of permittivity at volume specified by box and freq.
 
@@ -1462,7 +1464,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         self,
         grid: Grid,
         coord_key: str = "centers",
-        freq: float = None,
+        freq: Optional[float] = None,
     ) -> xr.DataArray:
         """Get array of permittivity at a given freq on a given grid.
 
@@ -1686,9 +1688,9 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         region: Box,
         boundary_spec: BoundarySpec = None,
         grid_spec: Union[GridSpec, Literal["identical"]] = None,
-        symmetry: tuple[Symmetry, Symmetry, Symmetry] = None,
-        sources: tuple[SourceType, ...] = None,
-        monitors: tuple[MonitorType, ...] = None,
+        symmetry: Optional[tuple[Symmetry, Symmetry, Symmetry]] = None,
+        sources: Optional[tuple[SourceType, ...]] = None,
+        monitors: Optional[tuple[MonitorType, ...]] = None,
         remove_outside_structures: bool = True,
         remove_outside_custom_mediums: bool = False,
         include_pml_cells: bool = False,
@@ -4496,13 +4498,13 @@ class Simulation(AbstractYeeGridSimulation):
 
     def to_gdstk(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         permittivity_threshold: pydantic.NonNegativeFloat = 1,
         frequency: pydantic.PositiveFloat = 0,
-        gds_layer_dtype_map: dict[
-            AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
+        gds_layer_dtype_map: Optional[
+            dict[AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]]
         ] = None,
     ) -> list:
         """Convert a simulation's planar slice to a .gds type polygon list.
@@ -4566,11 +4568,11 @@ class Simulation(AbstractYeeGridSimulation):
 
     def to_gdspy(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        gds_layer_dtype_map: dict[
-            AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        gds_layer_dtype_map: Optional[
+            dict[AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]]
         ] = None,
     ) -> list:
         """Convert a simulation's planar slice to a .gds type polygon list.
@@ -4626,13 +4628,13 @@ class Simulation(AbstractYeeGridSimulation):
     def to_gds(
         self,
         cell,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         permittivity_threshold: pydantic.NonNegativeFloat = 1,
         frequency: pydantic.PositiveFloat = 0,
-        gds_layer_dtype_map: dict[
-            AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
+        gds_layer_dtype_map: Optional[
+            dict[AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]]
         ] = None,
     ) -> None:
         """Append the simulation structures to a .gds cell.
@@ -4691,13 +4693,13 @@ class Simulation(AbstractYeeGridSimulation):
     def to_gds_file(
         self,
         fname: str,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         permittivity_threshold: pydantic.NonNegativeFloat = 1,
         frequency: pydantic.PositiveFloat = 0,
-        gds_layer_dtype_map: dict[
-            AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]
+        gds_layer_dtype_map: Optional[
+            dict[AbstractMedium, tuple[pydantic.NonNegativeInt, pydantic.NonNegativeInt]]
         ] = None,
         gds_cell_name: str = "MAIN",
     ) -> None:

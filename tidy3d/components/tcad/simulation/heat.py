@@ -3,6 +3,8 @@ NOTE: Keeping this class for backward compatibility only"""
 
 from __future__ import annotations
 
+from typing import Optional
+
 import pydantic.v1 as pd
 
 from tidy3d.components.tcad.simulation.heat_charge import HeatChargeSimulation
@@ -58,16 +60,16 @@ class HeatSimulation(HeatChargeSimulation):
     @add_ax_if_none
     def plot_heat_conductivity(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        alpha: float = None,
-        source_alpha: float = None,
-        monitor_alpha: float = None,
+        alpha: Optional[float] = None,
+        source_alpha: Optional[float] = None,
+        monitor_alpha: Optional[float] = None,
         colorbar: str = "conductivity",
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
     ) -> Ax:
         """Plot each of simulation's components on a plane defined by one nonzero x,y,z coordinate.
 

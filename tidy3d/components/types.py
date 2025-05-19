@@ -108,7 +108,9 @@ class ArrayLike:
 
 
 def constrained_array(
-    dtype: type = None, ndim: int = None, shape: tuple[pydantic.NonNegativeInt, ...] = None
+    dtype: Optional[type] = None,
+    ndim: Optional[int] = None,
+    shape: Optional[tuple[pydantic.NonNegativeInt, ...]] = None,
 ) -> type:
     """Generate an ArrayLike sub-type with constraints built in."""
 

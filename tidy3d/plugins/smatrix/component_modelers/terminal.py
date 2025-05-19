@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -64,7 +64,12 @@ class TerminalComponentModeler(AbstractComponentModeler):
     @equal_aspect
     @add_ax_if_none
     def plot_sim(
-        self, x: float = None, y: float = None, z: float = None, ax: Ax = None, **kwargs
+        self,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        ax: Ax = None,
+        **kwargs,
     ) -> Ax:
         """Plot a :class:`.Simulation` with all sources added for each port, for troubleshooting."""
 
@@ -78,7 +83,12 @@ class TerminalComponentModeler(AbstractComponentModeler):
     @equal_aspect
     @add_ax_if_none
     def plot_sim_eps(
-        self, x: float = None, y: float = None, z: float = None, ax: Ax = None, **kwargs
+        self,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        ax: Ax = None,
+        **kwargs,
     ) -> Ax:
         """Plot permittivity of the :class:`.Simulation` with all sources added for each port."""
 
@@ -532,7 +542,9 @@ class TerminalComponentModeler(AbstractComponentModeler):
         return monitor_data.scale_fields_by_freq_array(scale_array, method="nearest")
 
     def get_antenna_metrics_data(
-        self, port_amplitudes: dict[str, complex] = None, monitor_name: str = None
+        self,
+        port_amplitudes: Optional[dict[str, complex]] = None,
+        monitor_name: Optional[str] = None,
     ) -> AntennaMetricsData:
         """Calculate antenna parameters using superposition of fields from multiple port excitations.
 

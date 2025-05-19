@@ -755,7 +755,7 @@ def fit(
     resp_data: ArrayComplex1D,
     min_num_poles: PositiveInt = 1,
     max_num_poles: PositiveInt = DEFAULT_MAX_POLES,
-    resp_inf: float = None,
+    resp_inf: Optional[float] = None,
     tolerance_rms: NonNegativeFloat = DEFAULT_TOLERANCE_RMS,
     advanced_param: AdvancedFastFitterParam = None,
     scale_factor: PositiveFloat = 1,

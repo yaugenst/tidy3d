@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -254,9 +254,9 @@ class VoltageIntegralAxisAligned(AxisAlignedPathIntegral):
     def from_terminal_positions(
         plus_terminal: float,
         minus_terminal: float,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         extrapolate_to_endpoints: bool = True,
         snap_path_to_grid: bool = True,
     ) -> VoltageIntegralAxisAligned:
@@ -310,9 +310,9 @@ class VoltageIntegralAxisAligned(AxisAlignedPathIntegral):
     @add_ax_if_none
     def plot(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
         **path_kwargs,
     ) -> Ax:
@@ -509,9 +509,9 @@ class CurrentIntegralAxisAligned(AbstractAxesRH, Box):
     @add_ax_if_none
     def plot(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
         **path_kwargs,
     ) -> Ax:

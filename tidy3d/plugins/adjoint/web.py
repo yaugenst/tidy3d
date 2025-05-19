@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import tempfile
 from functools import partial
+from typing import Optional
 
 import pydantic.v1 as pd
 from jax import custom_vjp
@@ -84,7 +85,7 @@ def _run(
     task_name: str,
     folder_name: str = "default",
     path: str = "simulation_data.hdf5",
-    callback_url: str = None,
+    callback_url: Optional[str] = None,
     verbose: bool = True,
 ) -> JaxSimulationData:
     """Split the provided ``JaxSimulation`` into a regular ``Simulation`` and a ``JaxInfo`` part,
@@ -110,7 +111,7 @@ def run(
     task_name: str,
     folder_name: str = "default",
     path: str = "simulation_data.hdf5",
-    callback_url: str = None,
+    callback_url: Optional[str] = None,
     verbose: bool = True,
 ) -> JaxSimulationData:
     """Submits a :class:`.JaxSimulation` to server, starts running, monitors progress, downloads,
@@ -394,9 +395,9 @@ def run_async(
     simulations: tuple[JaxSimulation, ...],
     folder_name: str = "default",
     path_dir: str = DEFAULT_DATA_DIR,
-    callback_url: str = None,
+    callback_url: Optional[str] = None,
     verbose: bool = True,
-    num_workers: int = None,
+    num_workers: Optional[int] = None,
 ) -> tuple[JaxSimulationData, ...]:
     """Submits a set of :class:`.JaxSimulation` objects to server, starts running,
     monitors progress, downloads, and loads results
@@ -633,7 +634,7 @@ def run_local(
     task_name: str,
     folder_name: str = "default",
     path: str = "simulation_data.hdf5",
-    callback_url: str = None,
+    callback_url: Optional[str] = None,
     verbose: bool = True,
     num_proc: int = NUM_PROC_LOCAL,
 ) -> JaxSimulationData:
@@ -765,7 +766,7 @@ run_local.defvjp(run_local_fwd, run_local_bwd)
 """ Running a batch of simulations using web.run_async. """
 
 
-def _task_name_orig_local(index: int, task_name_suffix: str = None):
+def _task_name_orig_local(index: int, task_name_suffix: Optional[str] = None):
     """Task name as function of index into simulations. Note: for original must be int."""
     if task_name_suffix is not None:
         return f"{index}{task_name_suffix}"
@@ -777,10 +778,10 @@ def run_async_local(
     simulations: tuple[JaxSimulation, ...],
     folder_name: str = "default",
     path_dir: str = DEFAULT_DATA_DIR,
-    callback_url: str = None,
+    callback_url: Optional[str] = None,
     verbose: bool = True,
-    num_workers: int = None,
-    task_name_suffix: str = None,
+    num_workers: Optional[int] = None,
+    task_name_suffix: Optional[str] = None,
 ) -> tuple[JaxSimulationData, ...]:
     """Submits a set of :class:`.JaxSimulation` objects to server, starts running,
     monitors progress, downloads, and loads results

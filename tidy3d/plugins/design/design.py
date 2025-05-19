@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import inspect
-from typing import Any, Callable, Union
+from typing import Any, Callable, Optional, Union
 
 import pydantic.v1 as pd
 
@@ -110,9 +110,9 @@ class DesignSpace(Tidy3dBaseModel):
         fn_args: list[dict[str, Any]],
         fn_values: list[Any],
         fn_source: str,
-        task_names: tuple[str] = None,
-        task_paths: list = None,
-        aux_values: list[Any] = None,
+        task_names: Optional[tuple[str]] = None,
+        task_paths: Optional[list] = None,
+        aux_values: Optional[list[Any]] = None,
         opt_output: Any = None,
     ) -> Result:
         """How to package results from ``method.run`` and ``method.run_batch``"""
@@ -142,7 +142,7 @@ class DesignSpace(Tidy3dBaseModel):
         except (TypeError, OSError):
             return None
 
-    def run(self, fn: Callable, fn_post: Callable = None, verbose: bool = True) -> Result:
+    def run(self, fn: Callable, fn_post: Optional[Callable] = None, verbose: bool = True) -> Result:
         """Explore a parameter space with a supplied method using the user supplied function.
         Supplied functions are used to evaluate the design space and are called within the method.
         For optimization methods these functions act as the fitness function. A single function can be
@@ -563,7 +563,7 @@ class DesignSpace(Tidy3dBaseModel):
         else:
             return round(per_run_estimate * run_count, 3)
 
-    def summarize(self, fn_pre: Callable = None, verbose: bool = True) -> dict[str, Any]:
+    def summarize(self, fn_pre: Optional[Callable] = None, verbose: bool = True) -> dict[str, Any]:
         """Summarize the setup of the DesignSpace
 
         Prints a summary of the DesignSpace including the method and associated args, the parameters,

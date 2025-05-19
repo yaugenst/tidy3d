@@ -537,8 +537,8 @@ class EMECompositeGrid(EMEGridSpec):
         structure_groups: list[list[Structure]],
         axis: Axis,
         mode_specs: list[EMEModeSpec],
-        names: list[str] = None,
-        num_reps: list[pd.PositiveInt] = None,
+        names: Optional[list[str]] = None,
+        num_reps: Optional[list[pd.PositiveInt]] = None,
     ) -> EMECompositeGrid:
         """Create a composite EME grid with boundaries aligned with
         structure bounding boxes.

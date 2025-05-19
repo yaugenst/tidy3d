@@ -11,7 +11,7 @@ import pathlib
 import tempfile
 from functools import wraps
 from math import ceil
-from typing import Any, Callable, Union
+from typing import Any, Callable, Optional, Union
 
 import h5py
 import numpy as np
@@ -229,7 +229,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         return new_copy
 
     def updated_copy(
-        self, path: str = None, deep: bool = True, validate: bool = True, **kwargs
+        self, path: Optional[str] = None, deep: bool = True, validate: bool = True, **kwargs
     ) -> Tidy3dBaseModel:
         """Make copy of a component instance with ``**kwargs`` indicating updated field values.
 
@@ -307,7 +307,9 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         rich.inspect(self, methods=methods)
 
     @classmethod
-    def from_file(cls, fname: str, group_path: str = None, **parse_obj_kwargs) -> Tidy3dBaseModel:
+    def from_file(
+        cls, fname: str, group_path: Optional[str] = None, **parse_obj_kwargs
+    ) -> Tidy3dBaseModel:
         """Loads a :class:`Tidy3dBaseModel` from .yaml, .json, .hdf5, or .hdf5.gz file.
 
         Parameters
@@ -333,7 +335,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         return cls.parse_obj(model_dict, **parse_obj_kwargs)
 
     @classmethod
-    def dict_from_file(cls, fname: str, group_path: str = None) -> dict:
+    def dict_from_file(cls, fname: str, group_path: Optional[str] = None) -> dict:
         """Loads a dictionary containing the model from a .yaml, .json, .hdf5, or .hdf5.gz file.
 
         Parameters
@@ -590,7 +592,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
 
     @classmethod
     def dict_from_hdf5(
-        cls, fname: str, group_path: str = "", custom_decoders: list[Callable] = None
+        cls, fname: str, group_path: str = "", custom_decoders: Optional[list[Callable]] = None
     ) -> dict:
         """Loads a dictionary containing the model contents from a .hdf5 file.
 
@@ -668,7 +670,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         cls,
         fname: str,
         group_path: str = "",
-        custom_decoders: list[Callable] = None,
+        custom_decoders: Optional[list[Callable]] = None,
         **parse_obj_kwargs,
     ) -> Tidy3dBaseModel:
         """Loads :class:`Tidy3dBaseModel` instance to .hdf5 file.
@@ -698,7 +700,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         )
         return cls.parse_obj(model_dict, **parse_obj_kwargs)
 
-    def to_hdf5(self, fname: str, custom_encoders: list[Callable] = None) -> None:
+    def to_hdf5(self, fname: str, custom_encoders: Optional[list[Callable]] = None) -> None:
         """Exports :class:`Tidy3dBaseModel` instance to .hdf5 file.
 
         Parameters
@@ -749,7 +751,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
 
     @classmethod
     def dict_from_hdf5_gz(
-        cls, fname: str, group_path: str = "", custom_decoders: list[Callable] = None
+        cls, fname: str, group_path: str = "", custom_decoders: Optional[list[Callable]] = None
     ) -> dict:
         """Loads a dictionary containing the model contents from a .hdf5.gz file.
 
@@ -790,7 +792,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         cls,
         fname: str,
         group_path: str = "",
-        custom_decoders: list[Callable] = None,
+        custom_decoders: Optional[list[Callable]] = None,
         **parse_obj_kwargs,
     ) -> Tidy3dBaseModel:
         """Loads :class:`Tidy3dBaseModel` instance to .hdf5.gz file.
@@ -820,7 +822,7 @@ class Tidy3dBaseModel(pydantic.BaseModel):
         )
         return cls.parse_obj(model_dict, **parse_obj_kwargs)
 
-    def to_hdf5_gz(self, fname: str, custom_encoders: list[Callable] = None) -> None:
+    def to_hdf5_gz(self, fname: str, custom_encoders: Optional[list[Callable]] = None) -> None:
         """Exports :class:`Tidy3dBaseModel` instance to .hdf5.gz file.
 
         Parameters

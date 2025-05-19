@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import inspect
 from datetime import datetime
-from typing import Callable, Union
+from typing import Callable, Optional, Union
 
 from rich.console import Console
 from rich.text import Text
@@ -244,7 +244,7 @@ class Logger:
         message: str,
         *args,
         log_once: bool = False,
-        custom_loc: list = None,
+        custom_loc: Optional[list] = None,
         capture: bool = True,
     ) -> None:
         """Distribute log messages to all handlers"""
@@ -313,7 +313,7 @@ class Logger:
         message: str,
         *args,
         log_once: bool = False,
-        custom_loc: list = None,
+        custom_loc: Optional[list] = None,
         capture: bool = True,
     ) -> None:
         """Log (message) % (args) at warning level"""

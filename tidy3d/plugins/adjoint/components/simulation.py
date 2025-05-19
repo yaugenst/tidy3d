@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -445,13 +445,13 @@ class JaxSimulation(Simulation, JaxObject):
     def to_gds(
         self,
         cell,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         permittivity_threshold: pd.NonNegativeFloat = 1,
         frequency: pd.PositiveFloat = 0,
-        gds_layer_dtype_map: dict[
-            AbstractMedium, tuple[pd.NonNegativeInt, pd.NonNegativeInt]
+        gds_layer_dtype_map: Optional[
+            dict[AbstractMedium, tuple[pd.NonNegativeInt, pd.NonNegativeInt]]
         ] = None,
     ) -> None:
         """Append the simulation structures to a .gds cell.
@@ -486,13 +486,13 @@ class JaxSimulation(Simulation, JaxObject):
 
     def to_gdstk(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         permittivity_threshold: pd.NonNegativeFloat = 1,
         frequency: pd.PositiveFloat = 0,
-        gds_layer_dtype_map: dict[
-            AbstractMedium, tuple[pd.NonNegativeInt, pd.NonNegativeInt]
+        gds_layer_dtype_map: Optional[
+            dict[AbstractMedium, tuple[pd.NonNegativeInt, pd.NonNegativeInt]]
         ] = None,
     ) -> list:
         """Convert a simulation's planar slice to a .gds type polygon list.
@@ -528,11 +528,11 @@ class JaxSimulation(Simulation, JaxObject):
 
     def to_gdspy(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        gds_layer_dtype_map: dict[
-            AbstractMedium, tuple[pd.NonNegativeInt, pd.NonNegativeInt]
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        gds_layer_dtype_map: Optional[
+            dict[AbstractMedium, tuple[pd.NonNegativeInt, pd.NonNegativeInt]]
         ] = None,
     ) -> list:
         """Convert a simulation's planar slice to a .gds type polygon list.
@@ -556,14 +556,14 @@ class JaxSimulation(Simulation, JaxObject):
 
     def plot(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        source_alpha: float = None,
-        monitor_alpha: float = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        source_alpha: Optional[float] = None,
+        monitor_alpha: Optional[float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         **patch_kwargs,
     ) -> Ax:
         """Wrapper around regular :class:`.Simulation` structure plotting."""
@@ -582,15 +582,15 @@ class JaxSimulation(Simulation, JaxObject):
 
     def plot_eps(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        freq: float = None,
-        alpha: float = None,
-        source_alpha: float = None,
-        monitor_alpha: float = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        freq: Optional[float] = None,
+        alpha: Optional[float] = None,
+        source_alpha: Optional[float] = None,
+        monitor_alpha: Optional[float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         ax: Ax = None,
     ) -> Ax:
         """Wrapper around regular :class:`.Simulation` permittivity plotting."""
@@ -608,12 +608,12 @@ class JaxSimulation(Simulation, JaxObject):
 
     def plot_structures(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
 
@@ -649,16 +649,16 @@ class JaxSimulation(Simulation, JaxObject):
 
     def plot_structures_eps(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        freq: float = None,
-        alpha: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        freq: Optional[float] = None,
+        alpha: Optional[float] = None,
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
         The permittivity is plotted in grayscale based on its value at the specified frequency.
@@ -712,7 +712,7 @@ class JaxSimulation(Simulation, JaxObject):
         self,
         box: Box,
         coord_key: str = "centers",
-        freq: float = None,
+        freq: Optional[float] = None,
     ) -> xr.DataArray:
         """Get array of permittivity at volume specified by box and freq.
 

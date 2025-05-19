@@ -1584,7 +1584,9 @@ class AbstractCustomMedium(AbstractMedium, ABC):
         return _get_numpy_array(np.real(x)).ravel()
 
     def _eps_bounds(
-        self, frequency: float = None, eps_component: Optional[PermittivityComponent] = None
+        self,
+        frequency: Optional[float] = None,
+        eps_component: Optional[PermittivityComponent] = None,
     ) -> tuple[float, float]:
         """Returns permittivity bounds for setting the color bounds when plotting.
 
@@ -2578,7 +2580,7 @@ class CustomMedium(AbstractCustomMedium):
     def from_eps_raw(
         cls,
         eps: Union[ScalarFieldDataArray, CustomSpatialDataType],
-        freq: float = None,
+        freq: Optional[float] = None,
         interp_method: InterpMethod = "nearest",
         **kwargs,
     ) -> CustomMedium:
@@ -2648,7 +2650,7 @@ class CustomMedium(AbstractCustomMedium):
         cls,
         n: Union[ScalarFieldDataArray, CustomSpatialDataType],
         k: Optional[Union[ScalarFieldDataArray, CustomSpatialDataType]] = None,
-        freq: float = None,
+        freq: Optional[float] = None,
         interp_method: InterpMethod = "nearest",
         **kwargs,
     ) -> CustomMedium:
@@ -6382,7 +6384,9 @@ class CustomAnisotropicMedium(AbstractCustomMedium, AnisotropicMedium):
         )
 
     def _eps_bounds(
-        self, frequency: float = None, eps_component: Optional[PermittivityComponent] = None
+        self,
+        frequency: Optional[float] = None,
+        eps_component: Optional[PermittivityComponent] = None,
     ) -> tuple[float, float]:
         """Returns permittivity bounds for setting the color bounds when plotting.
 

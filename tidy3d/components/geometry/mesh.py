@@ -151,7 +151,7 @@ class TriangleMesh(base.Geometry, ABC):
         filename: str,
         scale: float = 1.0,
         origin: tuple[float, float, float] = (0, 0, 0),
-        solid_index: int = None,
+        solid_index: Optional[int] = None,
         **kwargs,
     ) -> Union[TriangleMesh, base.GeometryGroup]:
         """Load a :class:`.TriangleMesh` directly from an STL file.
@@ -374,7 +374,7 @@ class TriangleMesh(base.Geometry, ABC):
         return path.polygons_full
 
     def intersections_plane(
-        self, x: float = None, y: float = None, z: float = None
+        self, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None
     ) -> list[Shapely]:
         """Returns list of shapely geometries at plane specified by one non-None value of x,y,z.
 
@@ -475,7 +475,12 @@ class TriangleMesh(base.Geometry, ABC):
     @equal_aspect
     @add_ax_if_none
     def plot(
-        self, x: float = None, y: float = None, z: float = None, ax: Ax = None, **patch_kwargs
+        self,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        ax: Ax = None,
+        **patch_kwargs,
     ) -> Ax:
         """Plot geometry cross section at single (x,y,z) coordinate.
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Literal, Union
+from typing import Any, Callable, Literal, Optional, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -26,7 +26,7 @@ class Method(Tidy3dBaseModel, ABC):
         """Defines the search algorithm."""
 
     @abstractmethod
-    def _get_run_count(self, parameters: list = None) -> int:
+    def _get_run_count(self, parameters: Optional[list] = None) -> int:
         """Return the maximum number of runs for the method based on current method arguments."""
 
     def _force_int(self, next_point: dict, parameters: list) -> None:
@@ -232,7 +232,7 @@ class MethodBayOpt(MethodOptimize, ABC):
         description="The Xi coefficient used by the ``ei`` and ``poi`` acquisition functions. More detail available in the `package docs <https://bayesian-optimization.github.io/BayesianOptimization/exploitation_vs_exploration.html>`_.",
     )
 
-    def _get_run_count(self, parameters: list = None) -> int:
+    def _get_run_count(self, parameters: Optional[list] = None) -> int:
         """Return the maximum number of runs for the method based on current method arguments."""
         return self.initial_iter + self.n_iter
 
@@ -431,7 +431,7 @@ class MethodGenAlg(MethodOptimize, ABC):
 
     # TODO: See if anyone is interested in having the full suite of PyGAD options - there's a lot!
 
-    def _get_run_count(self, parameters: list = None) -> int:
+    def _get_run_count(self, parameters: Optional[list] = None) -> int:
         """Return the maximum number of runs for the method based on current method arguments."""
         # +1 to generations as pygad creates an initial population which is effectively "Generation 0"
         run_count = self.solutions_per_pop * (self.n_generations + 1)
@@ -682,7 +682,7 @@ class MethodParticleSwarm(MethodOptimize, ABC):
         description="Set the initial positions of the swarm using a numpy array of appropriate size.",
     )
 
-    def _get_run_count(self, parameters: list = None) -> int:
+    def _get_run_count(self, parameters: Optional[list] = None) -> int:
         """Return the maximum number of runs for the method based on current method arguments."""
         return self.n_particles * self.n_iter
 
@@ -790,7 +790,7 @@ class AbstractMethodRandom(MethodSample, ABC):
     def _get_sampler(self, parameters: tuple[ParameterType, ...]) -> qmc.QMCEngine:
         """Sampler for this ``Method`` class. If ``None``, sets a default."""
 
-    def _get_run_count(self, parameters: list = None) -> int:
+    def _get_run_count(self, parameters: Optional[list] = None) -> int:
         """Return the maximum number of runs for the method based on current method arguments."""
         return self.num_points
 

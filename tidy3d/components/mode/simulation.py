@@ -403,8 +403,8 @@ class ModeSimulation(AbstractYeeGridSimulation):
 
     def plot_eps_mode_plane(
         self,
-        freq: float = None,
-        alpha: float = None,
+        freq: Optional[float] = None,
+        alpha: Optional[float] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot the mode plane simulation's components.
@@ -436,8 +436,8 @@ class ModeSimulation(AbstractYeeGridSimulation):
 
     def plot_structures_eps_mode_plane(
         self,
-        freq: float = None,
-        alpha: float = None,
+        freq: Optional[float] = None,
+        alpha: Optional[float] = None,
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,

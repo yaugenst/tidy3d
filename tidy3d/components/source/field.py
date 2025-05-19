@@ -705,9 +705,9 @@ class TFSF(AngledFieldSource, VolumeSource, BroadbandSource):
 
     def plot(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
         **patch_kwargs,
     ) -> Ax:

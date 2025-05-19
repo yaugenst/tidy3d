@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Optional
+
 import numpy as np
 import pytest
 import xarray.testing as xrt
@@ -139,7 +141,7 @@ def get_xyz(
     return x, y, z
 
 
-def make_scalar_field_data_array(grid_key: str, symmetry=True, colocate: bool = None):
+def make_scalar_field_data_array(grid_key: str, symmetry=True, colocate: Optional[bool] = None):
     monitor = FIELD_MONITOR
     if colocate is not None:
         monitor = monitor.updated_copy(colocate=colocate)
@@ -154,7 +156,9 @@ def make_scalar_field_time_data_array(grid_key: str, symmetry=True):
     return td.ScalarFieldTimeDataArray(values, coords={"x": XS, "y": YS, "z": ZS, "t": TS})
 
 
-def make_scalar_mode_field_data_array(grid_key: str, symmetry=True, colocate: bool = None):
+def make_scalar_mode_field_data_array(
+    grid_key: str, symmetry=True, colocate: Optional[bool] = None
+):
     monitor = MODE_MONITOR_WITH_FIELDS
     if colocate is not None:
         monitor = monitor.updated_copy(colocate=colocate)

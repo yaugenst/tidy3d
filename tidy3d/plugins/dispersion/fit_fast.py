@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Optional
+
 import numpy as np
 from pydantic.v1 import NonNegativeFloat, PositiveInt
 
@@ -39,7 +41,7 @@ class FastDispersionFitter(DispersionFitter):
         self,
         min_num_poles: PositiveInt = 1,
         max_num_poles: PositiveInt = DEFAULT_MAX_POLES,
-        eps_inf: float = None,
+        eps_inf: Optional[float] = None,
         tolerance_rms: NonNegativeFloat = DEFAULT_TOLERANCE_RMS,
         advanced_param: AdvancedFastFitterParam = None,
     ) -> tuple[PoleResidue, float]:

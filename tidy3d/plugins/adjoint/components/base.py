@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 import jax
 import numpy as np
@@ -218,7 +218,7 @@ class JaxObject(Tidy3dBaseModel):
 
     # TODO: replace with implementing these in DataArray
 
-    def to_hdf5(self, fname: str, custom_encoders: list[Callable] = None) -> None:
+    def to_hdf5(self, fname: str, custom_encoders: Optional[list[Callable]] = None) -> None:
         """Exports :class:`JaxObject` instance to .hdf5 file.
 
         Parameters
@@ -249,7 +249,7 @@ class JaxObject(Tidy3dBaseModel):
 
     @classmethod
     def dict_from_hdf5(
-        cls, fname: str, group_path: str = "", custom_decoders: list[Callable] = None
+        cls, fname: str, group_path: str = "", custom_decoders: Optional[list[Callable]] = None
     ) -> dict:
         """Loads a dictionary containing the model contents from a .hdf5 file.
 

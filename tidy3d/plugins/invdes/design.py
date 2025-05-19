@@ -62,7 +62,7 @@ class AbstractInverseDesign(InvdesBaseModel, abc.ABC):
 
         direction_multiplier = 1 if maximize else -1
 
-        def objective_fn(params: anp.ndarray, aux_data: dict = None) -> float:
+        def objective_fn(params: anp.ndarray, aux_data: typing.Optional[dict] = None) -> float:
             """Full objective function."""
             data = self.to_simulation_data(params=params)
 

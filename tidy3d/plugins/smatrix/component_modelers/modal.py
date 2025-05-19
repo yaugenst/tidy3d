@@ -210,7 +210,13 @@ class ComponentModeler(AbstractComponentModeler):
 
     @equal_aspect
     @add_ax_if_none
-    def plot_sim(self, x: float = None, y: float = None, z: float = None, ax: Ax = None) -> Ax:
+    def plot_sim(
+        self,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        ax: Ax = None,
+    ) -> Ax:
         """Plot a :class:`.Simulation` with all sources added for each port, for troubleshooting."""
 
         plot_sources = []
@@ -223,7 +229,12 @@ class ComponentModeler(AbstractComponentModeler):
     @equal_aspect
     @add_ax_if_none
     def plot_sim_eps(
-        self, x: float = None, y: float = None, z: float = None, ax: Ax = None, **kwargs
+        self,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        ax: Ax = None,
+        **kwargs,
     ) -> Ax:
         """Plot permittivity of the :class:`.Simulation` with all sources added for each port."""
 

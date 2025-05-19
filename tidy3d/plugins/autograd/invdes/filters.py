@@ -3,7 +3,7 @@ from __future__ import annotations
 import abc
 from collections.abc import Iterable
 from functools import lru_cache, partial
-from typing import Annotated, Callable, Union
+from typing import Annotated, Callable, Optional, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -165,10 +165,10 @@ def _get_kernel_size(
 
 
 def make_filter(
-    radius: Union[float, tuple[float, ...]] = None,
-    dl: Union[float, tuple[float, ...]] = None,
+    radius: Optional[Union[float, tuple[float, ...]]] = None,
+    dl: Optional[Union[float, tuple[float, ...]]] = None,
     *,
-    size_px: Union[int, tuple[int, ...]] = None,
+    size_px: Optional[Union[int, tuple[int, ...]]] = None,
     normalize: bool = True,
     padding: PaddingType = "reflect",
     filter_type: KernelType,

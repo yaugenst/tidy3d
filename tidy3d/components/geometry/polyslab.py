@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from copy import copy
-from typing import Union
+from typing import Optional, Union
 
 import autograd.numpy as np
 import pydantic.v1 as pydantic
@@ -254,7 +254,7 @@ class PolySlab(base.Planar):
         axis: Axis,
         slab_bounds: tuple[float, float],
         gds_layer: int,
-        gds_dtype: int = None,
+        gds_dtype: Optional[int] = None,
         gds_scale: pydantic.PositiveFloat = 1.0,
         dilation: float = 0.0,
         sidewall_angle: float = 0,
@@ -316,7 +316,7 @@ class PolySlab(base.Planar):
     def _load_gds_vertices(
         gds_cell,
         gds_layer: int,
-        gds_dtype: int = None,
+        gds_dtype: Optional[int] = None,
         gds_scale: pydantic.PositiveFloat = 1.0,
     ) -> list[ArrayFloat2D]:
         """Import :class:`PolySlab` from a ``gdstk.Cell`` or a ``gdspy.Cell``.
@@ -1781,7 +1781,7 @@ class ComplexPolySlabBase(PolySlab):
         axis: Axis,
         slab_bounds: tuple[float, float],
         gds_layer: int,
-        gds_dtype: int = None,
+        gds_dtype: Optional[int] = None,
         gds_scale: pydantic.PositiveFloat = 1.0,
         dilation: float = 0.0,
         sidewall_angle: float = 0,

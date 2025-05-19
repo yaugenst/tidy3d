@@ -299,12 +299,12 @@ class EMESimulation(AbstractYeeGridSimulation):
     @add_ax_if_none
     def plot_eme_ports(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         **kwargs,
     ) -> Ax:
         """Plot the EME ports."""
@@ -343,12 +343,12 @@ class EMESimulation(AbstractYeeGridSimulation):
     def plot_eme_subgrid_boundaries(
         self,
         eme_grid_spec: EMEGridSpec,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         **kwargs,
     ) -> Ax:
         """Plot the EME subgrid boundaries.
@@ -395,12 +395,12 @@ class EMESimulation(AbstractYeeGridSimulation):
     @add_ax_if_none
     def plot_eme_grid(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         **kwargs,
     ) -> Ax:
         """Plot the EME grid."""
@@ -436,14 +436,14 @@ class EMESimulation(AbstractYeeGridSimulation):
     @add_ax_if_none
     def plot(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        source_alpha: float = None,
-        monitor_alpha: float = None,
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        source_alpha: Optional[float] = None,
+        monitor_alpha: Optional[float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         **patch_kwargs,
     ) -> Ax:
         """Plot each of simulation's components on a plane defined by one nonzero x,y,z coordinate.
@@ -1093,8 +1093,8 @@ class EMESimulation(AbstractYeeGridSimulation):
         region: Box,
         grid_spec: Union[GridSpec, Literal["identical"]] = None,
         eme_grid_spec: Union[EMEGridSpec, Literal["identical"]] = None,
-        symmetry: tuple[Symmetry, Symmetry, Symmetry] = None,
-        monitors: tuple[MonitorType, ...] = None,
+        symmetry: Optional[tuple[Symmetry, Symmetry, Symmetry]] = None,
+        monitors: Optional[tuple[MonitorType, ...]] = None,
         remove_outside_structures: bool = True,
         remove_outside_custom_mediums: bool = False,
         **kwargs,

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Union
+from typing import Callable, Optional, Union
 
 import pydantic.v1 as pd
 from numpy.typing import NDArray
@@ -38,7 +38,9 @@ class FilterAndProject(Tidy3dBaseModel):
         "reflect", title="Padding", description="The padding mode to use."
     )
 
-    def __call__(self, array: NDArray, beta: float = None, eta: float = None) -> NDArray:
+    def __call__(
+        self, array: NDArray, beta: Optional[float] = None, eta: Optional[float] = None
+    ) -> NDArray:
         """Apply the filter and projection to an input array.
 
         Parameters
@@ -70,10 +72,10 @@ class FilterAndProject(Tidy3dBaseModel):
 
 
 def make_filter_and_project(
-    radius: Union[float, tuple[float, ...]] = None,
-    dl: Union[float, tuple[float, ...]] = None,
+    radius: Optional[Union[float, tuple[float, ...]]] = None,
+    dl: Optional[Union[float, tuple[float, ...]]] = None,
     *,
-    size_px: Union[int, tuple[int, ...]] = None,
+    size_px: Optional[Union[int, tuple[int, ...]]] = None,
     beta: float = BETA_DEFAULT,
     eta: float = ETA_DEFAULT,
     filter_type: KernelType = "conic",

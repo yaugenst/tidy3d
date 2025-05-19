@@ -7,7 +7,7 @@ import os
 import tempfile
 import time
 from datetime import datetime, timedelta
-from typing import Callable, Literal, Union
+from typing import Callable, Literal, Optional, Union
 
 import pytz
 from requests import HTTPError
@@ -78,14 +78,14 @@ def run(
     task_name: str,
     folder_name: str = "default",
     path: str = "simulation_data.hdf5",
-    callback_url: str = None,
+    callback_url: Optional[str] = None,
     verbose: bool = True,
-    progress_callback_upload: Callable[[float], None] = None,
-    progress_callback_download: Callable[[float], None] = None,
-    solver_version: str = None,
-    worker_group: str = None,
+    progress_callback_upload: Optional[Callable[[float], None]] = None,
+    progress_callback_download: Optional[Callable[[float], None]] = None,
+    solver_version: Optional[str] = None,
+    worker_group: Optional[str] = None,
     simulation_type: str = "tidy3d",
-    parent_tasks: list[str] = None,
+    parent_tasks: Optional[list[str]] = None,
     reduce_simulation: Literal["auto", True, False] = "auto",
     pay_type: Union[PayType, str] = PayType.AUTO,
 ) -> SimulationDataType:
@@ -199,13 +199,13 @@ def upload(
     simulation: SimulationType,
     task_name: str,
     folder_name: str = "default",
-    callback_url: str = None,
+    callback_url: Optional[str] = None,
     verbose: bool = True,
-    progress_callback: Callable[[float], None] = None,
+    progress_callback: Optional[Callable[[float], None]] = None,
     simulation_type: str = "tidy3d",
-    parent_tasks: list[str] = None,
+    parent_tasks: Optional[list[str]] = None,
     source_required: bool = True,
-    solver_version: str = None,
+    solver_version: Optional[str] = None,
     reduce_simulation: Literal["auto", True, False] = "auto",
 ) -> TaskId:
     """
@@ -375,8 +375,8 @@ def get_info(task_id: TaskId, verbose: bool = True) -> TaskInfo:
 @wait_for_connection
 def start(
     task_id: TaskId,
-    solver_version: str = None,
-    worker_group: str = None,
+    solver_version: Optional[str] = None,
+    worker_group: Optional[str] = None,
     pay_type: Union[PayType, str] = PayType.AUTO,
 ) -> None:
     """Start running the simulation associated with task.
@@ -631,7 +631,7 @@ def download(
     task_id: TaskId,
     path: str = "simulation_data.hdf5",
     verbose: bool = True,
-    progress_callback: Callable[[float], None] = None,
+    progress_callback: Optional[Callable[[float], None]] = None,
 ) -> None:
     """Download results of task to file.
 
@@ -688,7 +688,7 @@ def download_hdf5(
     task_id: TaskId,
     path: str = SIM_FILE_HDF5,
     verbose: bool = True,
-    progress_callback: Callable[[float], None] = None,
+    progress_callback: Optional[Callable[[float], None]] = None,
 ) -> None:
     """Download the ``.hdf5`` file associated with the :class:`.Simulation` of a given task.
 
@@ -748,7 +748,7 @@ def download_log(
     task_id: TaskId,
     path: str = "tidy3d.log",
     verbose: bool = True,
-    progress_callback: Callable[[float], None] = None,
+    progress_callback: Optional[Callable[[float], None]] = None,
 ) -> None:
     """Download the tidy3d log file associated with a task.
 
@@ -777,7 +777,7 @@ def load(
     path: str = "simulation_data.hdf5",
     replace_existing: bool = True,
     verbose: bool = True,
-    progress_callback: Callable[[float], None] = None,
+    progress_callback: Optional[Callable[[float], None]] = None,
 ) -> SimulationDataType:
     """
     Download and Load simulation results into :class:`.SimulationData` object.
@@ -909,7 +909,7 @@ def abort(task_id: TaskId):
 
 @wait_for_connection
 def get_tasks(
-    num_tasks: int = None, order: Literal["new", "old"] = "new", folder: str = "default"
+    num_tasks: Optional[int] = None, order: Literal["new", "old"] = "new", folder: str = "default"
 ) -> list[dict]:
     """Get a list with the metadata of the last ``num_tasks`` tasks.
 
@@ -941,7 +941,9 @@ def get_tasks(
 
 
 @wait_for_connection
-def estimate_cost(task_id: str, verbose: bool = True, solver_version: str = None) -> float:
+def estimate_cost(
+    task_id: str, verbose: bool = True, solver_version: Optional[str] = None
+) -> float:
     """Compute the maximum FlexCredit charge for a given task.
 
     Parameters

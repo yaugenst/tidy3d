@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import pydantic.v1 as pd
@@ -838,16 +838,16 @@ class HeatChargeSimulation(AbstractSimulation):
     @add_ax_if_none
     def plot_property(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        alpha: float = None,
-        source_alpha: float = None,
-        monitor_alpha: float = None,
+        alpha: Optional[float] = None,
+        source_alpha: Optional[float] = None,
+        monitor_alpha: Optional[float] = None,
         property: str = "heat_conductivity",
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
     ) -> Ax:
         """Plot each of simulation's components on a plane defined by one nonzero x,y,z coordinate.
 
@@ -937,16 +937,16 @@ class HeatChargeSimulation(AbstractSimulation):
     @add_ax_if_none
     def plot_heat_conductivity(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
-        alpha: float = None,
-        source_alpha: float = None,
-        monitor_alpha: float = None,
+        alpha: Optional[float] = None,
+        source_alpha: Optional[float] = None,
+        monitor_alpha: Optional[float] = None,
         colorbar: str = "conductivity",
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
         **kwargs,
     ) -> Ax:
         """
@@ -1012,9 +1012,9 @@ class HeatChargeSimulation(AbstractSimulation):
     @add_ax_if_none
     def plot_boundaries(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         property: str = "heat_conductivity",
         ax: Ax = None,
     ) -> Ax:
@@ -1395,13 +1395,13 @@ class HeatChargeSimulation(AbstractSimulation):
     @add_ax_if_none
     def plot_sources(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         property: str = "heat_conductivity",
-        hlim: tuple[float, float] = None,
-        vlim: tuple[float, float] = None,
-        alpha: float = None,
+        hlim: Optional[tuple[float, float]] = None,
+        vlim: Optional[tuple[float, float]] = None,
+        alpha: Optional[float] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot each of simulation's sources on a plane defined by one nonzero x,y,z coordinate.
@@ -1532,7 +1532,7 @@ class HeatChargeSimulation(AbstractSimulation):
         source: HeatChargeSourceType,
         source_min: float,
         source_max: float,
-        alpha: float = None,
+        alpha: Optional[float] = None,
     ) -> PlotParams:
         """Constructs the plot parameters for a given medium in simulation.plot_eps()."""
 
@@ -1559,7 +1559,7 @@ class HeatChargeSimulation(AbstractSimulation):
         source_min: float,
         source_max: float,
         ax: Ax,
-        alpha: float = None,
+        alpha: Optional[float] = None,
     ) -> Ax:
         """Plot a structure's cross section shape for a given medium, grayscale for permittivity."""
         plot_params = self._get_structure_source_plot_params(

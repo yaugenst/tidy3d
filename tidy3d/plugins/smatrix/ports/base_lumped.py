@@ -66,19 +66,23 @@ class AbstractLumpedPort(AbstractTerminalPort):
 
     @cached_property
     @abstractmethod
-    def to_load(self, snap_center: float = None) -> LumpedElementType:
+    def to_load(self, snap_center: Optional[float] = None) -> LumpedElementType:
         """Create a load from the lumped port."""
 
     @abstractmethod
-    def to_voltage_monitor(self, freqs: FreqArray, snap_center: float = None) -> FieldMonitor:
+    def to_voltage_monitor(
+        self, freqs: FreqArray, snap_center: Optional[float] = None
+    ) -> FieldMonitor:
         """Field monitor to compute port voltage."""
 
     @abstractmethod
-    def to_current_monitor(self, freqs: FreqArray, snap_center: float = None) -> FieldMonitor:
+    def to_current_monitor(
+        self, freqs: FreqArray, snap_center: Optional[float] = None
+    ) -> FieldMonitor:
         """Field monitor to compute port current."""
 
     def to_monitors(
-        self, freqs: FreqArray, snap_center: float = None, grid: Grid = None
+        self, freqs: FreqArray, snap_center: Optional[float] = None, grid: Grid = None
     ) -> list[FieldMonitor]:
         """Field monitors to compute port voltage and current."""
         return [

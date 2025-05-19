@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Union
+from typing import Callable, Optional, Union
 
 import autograd.numpy as np
 import pydantic.v1 as pd
@@ -93,7 +93,7 @@ def make_erosion_dilation_penalty(
     radius: Union[float, tuple[float, ...]],
     dl: Union[float, tuple[float, ...]],
     *,
-    size_px: Union[int, tuple[int, ...]] = None,
+    size_px: Optional[Union[int, tuple[int, ...]]] = None,
     beta: float = 20.0,
     eta: float = 0.5,
     delta_eta: float = 0.01,

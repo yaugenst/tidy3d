@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from abc import ABC, abstractmethod
-from typing import Union, get_args
+from typing import Optional, Union, get_args
 
 import numpy as np
 import pydantic.v1 as pd
@@ -132,7 +132,7 @@ class AbstractComponentModeler(ABC, Tidy3dBaseModel):
         return val
 
     @staticmethod
-    def _task_name(port: Port, mode_index: int = None) -> str:
+    def _task_name(port: Port, mode_index: Optional[int] = None) -> str:
         """The name of a task, determined by the port of the source and mode index, if given."""
         if mode_index is not None:
             return f"smatrix_{port.name}_{mode_index}"

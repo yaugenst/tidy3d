@@ -5,7 +5,7 @@ from __future__ import annotations
 import functools
 import pathlib
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Union
+from typing import Any, Callable, Optional, Union
 
 import autograd.numpy as np
 import pydantic.v1 as pydantic
@@ -235,7 +235,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         """
 
     def intersections_plane(
-        self, x: float = None, y: float = None, z: float = None
+        self, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None
     ) -> list[Shapely]:
         """Returns list of shapely geometries at plane specified by one non-None value of x,y,z.
 
@@ -357,7 +357,9 @@ class Geometry(Tidy3dBaseModel, ABC):
 
         return True
 
-    def intersects_plane(self, x: float = None, y: float = None, z: float = None) -> bool:
+    def intersects_plane(
+        self, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None
+    ) -> bool:
         """Whether self intersects plane specified by one non-None value of x,y,z.
 
         Parameters
@@ -487,9 +489,9 @@ class Geometry(Tidy3dBaseModel, ABC):
     @add_ax_if_none
     def plot(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         ax: Ax = None,
         plot_length_units: LengthUnit = None,
         viz_spec: VisualizationSpec = None,
@@ -652,9 +654,9 @@ class Geometry(Tidy3dBaseModel, ABC):
     @staticmethod
     def add_ax_labels_and_title(
         ax: Ax,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         plot_length_units: LengthUnit = None,
     ) -> Ax:
         """Sets the axis labels, tick labels, and title based on ``axis``
@@ -1140,7 +1142,10 @@ class Geometry(Tidy3dBaseModel, ABC):
     @staticmethod
     @verify_packages_import(["gdstk", "gdspy"], required="any")
     def load_gds_vertices_gdstk(
-        gds_cell, gds_layer: int, gds_dtype: int = None, gds_scale: pydantic.PositiveFloat = 1.0
+        gds_cell,
+        gds_layer: int,
+        gds_dtype: Optional[int] = None,
+        gds_scale: pydantic.PositiveFloat = 1.0,
     ) -> list[ArrayFloat2D]:
         """Load polygon vertices from a ``gdstk.Cell``.
 
@@ -1189,7 +1194,10 @@ class Geometry(Tidy3dBaseModel, ABC):
     @staticmethod
     @verify_packages_import(["gdstk", "gdspy"], required="any")
     def load_gds_vertices_gdspy(
-        gds_cell, gds_layer: int, gds_dtype: int = None, gds_scale: pydantic.PositiveFloat = 1.0
+        gds_cell,
+        gds_layer: int,
+        gds_dtype: Optional[int] = None,
+        gds_scale: pydantic.PositiveFloat = 1.0,
     ) -> list[ArrayFloat2D]:
         """Load polygon vertices from a ``gdspy.Cell``.
 
@@ -1236,7 +1244,7 @@ class Geometry(Tidy3dBaseModel, ABC):
         axis: Axis,
         slab_bounds: tuple[float, float],
         gds_layer: int,
-        gds_dtype: int = None,
+        gds_dtype: Optional[int] = None,
         gds_scale: pydantic.PositiveFloat = 1.0,
         dilation: float = 0.0,
         sidewall_angle: float = 0,
@@ -1361,9 +1369,9 @@ class Geometry(Tidy3dBaseModel, ABC):
     @verify_packages_import(["gdstk"])
     def to_gdstk(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         gds_layer: pydantic.NonNegativeInt = 0,
         gds_dtype: pydantic.NonNegativeInt = 0,
     ) -> list:
@@ -1410,9 +1418,9 @@ class Geometry(Tidy3dBaseModel, ABC):
     @verify_packages_import(["gdspy"])
     def to_gdspy(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         gds_layer: pydantic.NonNegativeInt = 0,
         gds_dtype: pydantic.NonNegativeInt = 0,
     ) -> list:
@@ -1460,9 +1468,9 @@ class Geometry(Tidy3dBaseModel, ABC):
     def to_gds(
         self,
         cell,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         gds_layer: pydantic.NonNegativeInt = 0,
         gds_dtype: pydantic.NonNegativeInt = 0,
     ) -> None:
@@ -1519,9 +1527,9 @@ class Geometry(Tidy3dBaseModel, ABC):
     def to_gds_file(
         self,
         fname: str,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         gds_layer: pydantic.NonNegativeInt = 0,
         gds_dtype: pydantic.NonNegativeInt = 0,
         gds_cell_name: str = "MAIN",
@@ -1794,7 +1802,9 @@ class Planar(SimplePlaneIntersection, Geometry, ABC):
         """
         return min(self.length_axis, LARGE_NUMBER)
 
-    def intersections_plane(self, x: float = None, y: float = None, z: float = None):
+    def intersections_plane(
+        self, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None
+    ):
         """Returns shapely geometry at plane specified by one non None value of x,y,z.
 
         Parameters
@@ -2159,7 +2169,9 @@ class Box(SimplePlaneIntersection, Centered):
         path, _ = section.to_planar(to_2D=to_2D)
         return path.polygons_full
 
-    def intersections_plane(self, x: float = None, y: float = None, z: float = None):
+    def intersections_plane(
+        self, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None
+    ):
         """Returns shapely geometry at plane specified by one non None value of x,y,z.
 
         Parameters
@@ -2315,12 +2327,12 @@ class Box(SimplePlaneIntersection, Centered):
     def _plot_arrow(
         self,
         direction: tuple[float, float, float],
-        x: float = None,
-        y: float = None,
-        z: float = None,
-        color: str = None,
-        alpha: float = None,
-        bend_radius: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        color: Optional[str] = None,
+        alpha: Optional[float] = None,
+        bend_radius: Optional[float] = None,
         bend_axis: Axis = None,
         both_dirs: bool = False,
         ax: Ax = None,
@@ -3057,7 +3069,7 @@ class ClipOperation(Geometry):
         return ClipOperation.to_polygon_list(self._shapely_operation(geom_a, geom_b))
 
     def intersections_plane(
-        self, x: float = None, y: float = None, z: float = None
+        self, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None
     ) -> list[Shapely]:
         """Returns list of shapely geometries at plane specified by one non-None value of x,y,z.
 
@@ -3265,7 +3277,7 @@ class GeometryGroup(Geometry):
         ]
 
     def intersections_plane(
-        self, x: float = None, y: float = None, z: float = None
+        self, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None
     ) -> list[Shapely]:
         """Returns list of shapely geometries at plane specified by one non-None value of x,y,z.
 

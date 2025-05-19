@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from functools import wraps
 from math import isclose
-from typing import Literal, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 import pydantic.v1 as pydantic
@@ -1794,7 +1794,9 @@ class ModeSolver(Tidy3dBaseModel):
             **kwargs,
         )
 
-    def to_monitor(self, freqs: list[float] = None, name: str = None) -> ModeMonitor:
+    def to_monitor(
+        self, freqs: Optional[list[float]] = None, name: Optional[str] = None
+    ) -> ModeMonitor:
         """Creates :class:`ModeMonitor` from a :class:`ModeSolver` instance plus additional
         specifications.
 
@@ -1830,7 +1832,9 @@ class ModeSolver(Tidy3dBaseModel):
             name=name,
         )
 
-    def to_mode_solver_monitor(self, name: str, colocate: bool = None) -> ModeSolverMonitor:
+    def to_mode_solver_monitor(
+        self, name: str, colocate: Optional[bool] = None
+    ) -> ModeSolverMonitor:
         """Creates :class:`ModeSolverMonitor` from a :class:`ModeSolver` instance.
 
         Parameters
@@ -1898,8 +1902,8 @@ class ModeSolver(Tidy3dBaseModel):
     @require_fdtd_simulation
     def sim_with_monitor(
         self,
-        freqs: list[float] = None,
-        name: str = None,
+        freqs: Optional[list[float]] = None,
+        name: Optional[str] = None,
     ) -> Simulation:
         """Creates :class:`.Simulation` from a :class:`ModeSolver`. Creates a copy of
         the ModeSolver's original simulation with a mode monitor added corresponding to
@@ -1956,8 +1960,8 @@ class ModeSolver(Tidy3dBaseModel):
         scale: PlotScale = "lin",
         eps_alpha: float = 0.2,
         robust: bool = True,
-        vmin: float = None,
-        vmax: float = None,
+        vmin: Optional[float] = None,
+        vmax: Optional[float] = None,
         ax: Ax = None,
         **sel_kwargs,
     ) -> Ax:
@@ -2059,8 +2063,8 @@ class ModeSolver(Tidy3dBaseModel):
 
     def plot_eps(
         self,
-        freq: float = None,
-        alpha: float = None,
+        freq: Optional[float] = None,
+        alpha: Optional[float] = None,
         ax: Ax = None,
     ) -> Ax:
         """Plot the mode plane simulation's components.
@@ -2113,8 +2117,8 @@ class ModeSolver(Tidy3dBaseModel):
 
     def plot_structures_eps(
         self,
-        freq: float = None,
-        alpha: float = None,
+        freq: Optional[float] = None,
+        alpha: Optional[float] = None,
         cbar: bool = True,
         reverse: bool = False,
         ax: Ax = None,

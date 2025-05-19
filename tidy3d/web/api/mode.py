@@ -52,8 +52,8 @@ def run(
     folder_name: str = "Mode Solver",
     results_file: str = "mode_solver.hdf5",
     verbose: bool = True,
-    progress_callback_upload: Callable[[float], None] = None,
-    progress_callback_download: Callable[[float], None] = None,
+    progress_callback_upload: Optional[Callable[[float], None]] = None,
+    progress_callback_download: Optional[Callable[[float], None]] = None,
     reduce_simulation: Literal["auto", True, False] = "auto",
     pay_type: Union[PayType, str] = PayType.AUTO,
 ) -> ModeSolverData:
@@ -149,13 +149,13 @@ def run_batch(
     mode_solvers: list[ModeSolver],
     task_name: str = "BatchModeSolver",
     folder_name: str = "BatchModeSolvers",
-    results_files: list[str] = None,
+    results_files: Optional[list[str]] = None,
     verbose: bool = True,
     max_workers: int = DEFAULT_NUM_WORKERS,
     max_retries: int = DEFAULT_MAX_RETRIES,
     retry_delay: float = DEFAULT_RETRY_DELAY,
-    progress_callback_upload: Callable[[float], None] = None,
-    progress_callback_download: Callable[[float], None] = None,
+    progress_callback_upload: Optional[Callable[[float], None]] = None,
+    progress_callback_download: Optional[Callable[[float], None]] = None,
 ) -> list[ModeSolverData]:
     """
     Submits a batch of ModeSolver to the server concurrently, manages progress, and retrieves results.
@@ -375,7 +375,7 @@ class ModeSolverTask(ResourceLifecycle, Submittable, extra=pydantic.Extra.allow)
         to_file: str = "mode_solver.hdf5",
         sim_file: str = "simulation.hdf5",
         verbose: bool = True,
-        progress_callback: Callable[[float], None] = None,
+        progress_callback: Optional[Callable[[float], None]] = None,
     ) -> ModeSolverTask:
         """Get mode solver task from the server by id.
 
@@ -417,7 +417,7 @@ class ModeSolverTask(ResourceLifecycle, Submittable, extra=pydantic.Extra.allow)
         return ModeSolverTask(**resp, mode_solver=self.mode_solver)
 
     def upload(
-        self, verbose: bool = True, progress_callback: Callable[[float], None] = None
+        self, verbose: bool = True, progress_callback: Optional[Callable[[float], None]] = None
     ) -> None:
         """Upload this task's 'mode_solver' to the server.
 
@@ -500,7 +500,7 @@ class ModeSolverTask(ResourceLifecycle, Submittable, extra=pydantic.Extra.allow)
         to_file: str = "mode_solver.hdf5",
         sim_file: str = "simulation.hdf5",
         verbose: bool = True,
-        progress_callback: Callable[[float], None] = None,
+        progress_callback: Optional[Callable[[float], None]] = None,
     ) -> ModeSolver:
         """Get mode solver associated with this task from the server.
 
@@ -584,7 +584,7 @@ class ModeSolverTask(ResourceLifecycle, Submittable, extra=pydantic.Extra.allow)
         self,
         to_file: str = "mode_solver_data.hdf5",
         verbose: bool = True,
-        progress_callback: Callable[[float], None] = None,
+        progress_callback: Optional[Callable[[float], None]] = None,
     ) -> ModeSolverData:
         """Get mode solver results for this task from the server.
 
@@ -647,7 +647,7 @@ class ModeSolverTask(ResourceLifecycle, Submittable, extra=pydantic.Extra.allow)
         self,
         to_file: str = "mode_solver.log",
         verbose: bool = True,
-        progress_callback: Callable[[float], None] = None,
+        progress_callback: Optional[Callable[[float], None]] = None,
     ) -> pathlib.Path:
         """Get execution log for this task from the server.
 

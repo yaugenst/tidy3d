@@ -117,7 +117,12 @@ class AbstractStructure(Tidy3dBaseModel):
     @equal_aspect
     @add_ax_if_none
     def plot(
-        self, x: float = None, y: float = None, z: float = None, ax: Ax = None, **patch_kwargs
+        self,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
+        ax: Ax = None,
+        **patch_kwargs,
     ) -> Ax:
         """Plot structure's geometric cross section at single (x,y,z) coordinate.
 
@@ -355,9 +360,9 @@ class Structure(AbstractStructure):
 
     def to_gdstk(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         permittivity_threshold: pydantic.NonNegativeFloat = 1,
         frequency: pydantic.PositiveFloat = 0,
         gds_layer: pydantic.NonNegativeInt = 0,
@@ -423,9 +428,9 @@ class Structure(AbstractStructure):
 
     def to_gdspy(
         self,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         gds_layer: pydantic.NonNegativeInt = 0,
         gds_dtype: pydantic.NonNegativeInt = 0,
     ) -> None:
@@ -461,9 +466,9 @@ class Structure(AbstractStructure):
     def to_gds(
         self,
         cell,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         permittivity_threshold: pydantic.NonNegativeFloat = 1,
         frequency: pydantic.PositiveFloat = 0,
         gds_layer: pydantic.NonNegativeInt = 0,
@@ -525,9 +530,9 @@ class Structure(AbstractStructure):
     def to_gds_file(
         self,
         fname: str,
-        x: float = None,
-        y: float = None,
-        z: float = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        z: Optional[float] = None,
         permittivity_threshold: pydantic.NonNegativeFloat = 1,
         frequency: pydantic.PositiveFloat = 0,
         gds_layer: pydantic.NonNegativeInt = 0,

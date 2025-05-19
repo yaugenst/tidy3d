@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Optional, Union
 
 import pydantic.v1 as pd
 
@@ -39,12 +39,12 @@ class AbstractTerminalPort(Tidy3dBaseModel, ABC):
 
     @abstractmethod
     def to_source(
-        self, source_time: GaussianPulse, snap_center: float = None, grid: Grid = None
+        self, source_time: GaussianPulse, snap_center: Optional[float] = None, grid: Grid = None
     ) -> Source:
         """Create a current source from a terminal-based port."""
 
     def to_field_monitors(
-        self, freqs: FreqArray, snap_center: float = None, grid: Grid = None
+        self, freqs: FreqArray, snap_center: Optional[float] = None, grid: Grid = None
     ) -> Union[list[FieldMonitor], list[ModeMonitor]]:
         """DEPRECATED: Monitors used to compute the port voltage and current."""
         log.warning(
@@ -55,7 +55,7 @@ class AbstractTerminalPort(Tidy3dBaseModel, ABC):
 
     @abstractmethod
     def to_monitors(
-        self, freqs: FreqArray, snap_center: float = None, grid: Grid = None
+        self, freqs: FreqArray, snap_center: Optional[float] = None, grid: Grid = None
     ) -> Union[list[FieldMonitor], list[ModeMonitor]]:
         """Monitors used to compute the port voltage and current."""
 
