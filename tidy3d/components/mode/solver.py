@@ -472,9 +472,8 @@ class EigSolver(Tidy3dBaseModel):
         # code associated with these options is included below in case it's useful in the future
         enable_preconditioner = False
         analyze_conditioning = False
-        _threshold = 0.9 * np.abs(pec_val)
 
-        def incidence_matrix_for_pec(eps_vec, threshold=_threshold):
+        def incidence_matrix_for_pec(eps_vec, threshold=0.9 * np.abs(pec_val)):
             """Incidence matrix indicating non-PEC entries associated with 'eps_vec'."""
             nnz = eps_vec[np.abs(eps_vec) < threshold]
             eps_nz = eps_vec.copy()

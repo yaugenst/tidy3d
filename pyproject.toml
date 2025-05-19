@@ -274,6 +274,7 @@ extend-ignore = [
   "RUF015", # next(iter(...)) instead of list(...)[0]
   "E501",   # line too long
   "B905",   # `zip()` without an explicit `strict=` parameter
+  "B008",   # TODO: Disallow function calls in default arguments
   "UP007",  # TODO: Remove once Python >= 3.10
   "NPY002", # TODO: Revisit RNG handling
 ]

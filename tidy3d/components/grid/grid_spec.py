@@ -1073,9 +1073,9 @@ class LayerRefinementSpec(Box):
         min_steps_along_axis: np.PositiveFloat = None,
         bounds_refinement: GridRefinement = None,
         bounds_snapping: Literal["bounds", "lower", "upper", "center"] = "lower",
-        corner_finder: CornerFinderSpec = None,
+        corner_finder: CornerFinderSpec = CornerFinderSpec(),
         corner_snapping: bool = True,
-        corner_refinement: GridRefinement = None,
+        corner_refinement: GridRefinement = GridRefinement(),
         refinement_inside_sim_only: bool = True,
         gap_meshing_iters: pd.NonNegativeInt = 1,
         dl_min_from_gap_width: bool = True,
@@ -1115,11 +1115,6 @@ class LayerRefinementSpec(Box):
         >>> layer = LayerRefinementSpec.from_layer_bounds(axis=2, bounds=(0,1))
 
         """
-        if corner_finder is None:
-            corner_finder = CornerFinderSpec()
-        if corner_refinement is None:
-            corner_refinement = GridRefinement()
-
         center = Box.unpop_axis((bounds[0] + bounds[1]) / 2, (0, 0), axis)
         size = Box.unpop_axis((bounds[1] - bounds[0]), (inf, inf), axis)
 
@@ -1147,9 +1142,9 @@ class LayerRefinementSpec(Box):
         min_steps_along_axis: np.PositiveFloat = None,
         bounds_refinement: GridRefinement = None,
         bounds_snapping: Literal["bounds", "lower", "upper", "center"] = "lower",
-        corner_finder: CornerFinderSpec = None,
+        corner_finder: CornerFinderSpec = CornerFinderSpec(),
         corner_snapping: bool = True,
-        corner_refinement: GridRefinement = None,
+        corner_refinement: GridRefinement = GridRefinement(),
         refinement_inside_sim_only: bool = True,
         gap_meshing_iters: pd.NonNegativeInt = 1,
         dl_min_from_gap_width: bool = True,
@@ -1191,11 +1186,6 @@ class LayerRefinementSpec(Box):
         >>> layer = LayerRefinementSpec.from_bounds(axis=2, rmin=(0,0,0), rmax=(1,1,1))
 
         """
-        if corner_finder is None:
-            corner_finder = CornerFinderSpec()
-        if corner_refinement is None:
-            corner_refinement = GridRefinement()
-
         box = Box.from_bounds(rmin=rmin, rmax=rmax)
         if axis is None:
             axis = np.argmin(box.size)
@@ -1222,9 +1212,9 @@ class LayerRefinementSpec(Box):
         min_steps_along_axis: np.PositiveFloat = None,
         bounds_refinement: GridRefinement = None,
         bounds_snapping: Literal["bounds", "lower", "upper", "center"] = "lower",
-        corner_finder: CornerFinderSpec = None,
+        corner_finder: CornerFinderSpec = CornerFinderSpec(),
         corner_snapping: bool = True,
-        corner_refinement: GridRefinement = None,
+        corner_refinement: GridRefinement = GridRefinement(),
         refinement_inside_sim_only: bool = True,
         gap_meshing_iters: pd.NonNegativeInt = 1,
         dl_min_from_gap_width: bool = True,
@@ -1259,10 +1249,6 @@ class LayerRefinementSpec(Box):
             Take into account autodetected minimal PEC gap width when determining ``dl_min``.
 
         """
-        if corner_finder is None:
-            corner_finder = CornerFinderSpec()
-        if corner_refinement is None:
-            corner_refinement = GridRefinement()
 
         all_bounds = tuple(structure.geometry.bounds for structure in structures)
         rmin = tuple(min(b[i] for b, _ in all_bounds) for i in range(3))
@@ -2734,7 +2720,7 @@ class GridSpec(Tidy3dBaseModel):
         layer_refinement_specs: list[LayerRefinementSpec] = (),
         dl_min: pd.NonNegativeFloat = 0.0,
         min_steps_per_sim_size: pd.PositiveFloat = 10.0,
-        mesher: MesherType = None,
+        mesher: MesherType = GradedMesher(),
     ) -> GridSpec:
         """Use the same :class:`AutoGrid` along each of the three directions.
 
@@ -2768,8 +2754,6 @@ class GridSpec(Tidy3dBaseModel):
         GridSpec
             :class:`GridSpec` with the same automatic nonuniform grid settings in each direction.
         """
-        if mesher is None:
-            mesher = GradedMesher()
 
         grid_1d = AutoGrid(
             min_steps_per_wvl=min_steps_per_wvl,
@@ -2813,7 +2797,7 @@ class GridSpec(Tidy3dBaseModel):
         max_scale: pd.PositiveFloat = 1.4,
         override_structures: list[StructureType] = (),
         snapping_points: tuple[CoordinateOptional, ...] = (),
-        mesher: MesherType = None,
+        mesher: MesherType = GradedMesher(),
     ) -> GridSpec:
         """Use the same :class:`QuasiUniformGrid` along each of the three directions.
 
@@ -2837,8 +2821,6 @@ class GridSpec(Tidy3dBaseModel):
         GridSpec
             :class:`GridSpec` with the same uniform grid size in each direction.
         """
-        if mesher is None:
-            mesher = GradedMesher()
 
         grid_1d = QuasiUniformGrid(dl=dl, max_scale=max_scale, mesher=mesher)
         return cls(

@@ -712,7 +712,7 @@ class RectangularAntennaArrayCalculator(AbstractAntennaArrayCalculator):
         theta: Union[float, ArrayLike],
         phi: Union[float, ArrayLike],
         frequency: Union[NonNegativeFloat, ArrayLike],
-        medium: MediumType3D = None,
+        medium: MediumType3D = Medium(),
     ) -> ArrayLike:
         """
         Compute the array factor for a 3D antenna array.
@@ -731,8 +731,6 @@ class RectangularAntennaArrayCalculator(AbstractAntennaArrayCalculator):
         ArrayLike
             Array factor values for each combination of theta and phi.
         """
-        if medium is None:
-            medium = Medium()
 
         # Convert all inputs to numpy arrays
         theta_array = np.atleast_1d(theta)
