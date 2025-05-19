@@ -259,6 +259,7 @@ extend-select = [
   "W",      # pycodestyle
   "C4",     # flake8-comprehensions
   "NPY",
+  "RUF",
 ]
 extend-ignore = [
   "E501",  # line too long

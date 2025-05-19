@@ -201,7 +201,7 @@ class InverseDesign(AbstractInverseDesign):
         try:
             result = expr(data)
         except Exception as e:
-            raise ValidationError(f"Failed to evaluate the metric expression: {str(e)}") from e
+            raise ValidationError(f"Failed to evaluate the metric expression: {e!s}") from e
         if len(np.ravel(result)) > 1:
             raise ValidationError(
                 f"The expression must return a scalar value or an array of length 1 (got {result})."

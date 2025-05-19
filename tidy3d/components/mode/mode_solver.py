@@ -492,7 +492,7 @@ class ModeSolver(Tidy3dBaseModel):
             log.warning(
                 "Mode solver reduced_simulation_copy failed. "
                 "Falling back to non-reduced simulation, which may be slower. "
-                f"Exception: {str(e)}"
+                f"Exception: {e!s}"
             )
 
         # Compute the mode solution by rotating the reference data to the monitor plane
@@ -1041,7 +1041,7 @@ class ModeSolver(Tidy3dBaseModel):
             log.warning(
                 "Mode solver reduced_simulation_copy failed. "
                 "Falling back to non-reduced simulation, which may be slower. "
-                f"Exception: {str(e)}"
+                f"Exception: {e!s}"
             )
 
         _, _solver_coords = solver.plane.pop_axis(

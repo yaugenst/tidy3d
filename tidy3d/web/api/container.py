@@ -881,7 +881,7 @@ class Batch(WebContainer):
         str
             Full path to the data file.
         """
-        return os.path.join(path_dir, f"{str(task_id)}.hdf5")
+        return os.path.join(path_dir, f"{task_id!s}.hdf5")
 
     @staticmethod
     def _batch_path(path_dir: str = DEFAULT_DATA_DIR):

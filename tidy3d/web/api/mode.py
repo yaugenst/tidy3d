@@ -220,7 +220,7 @@ def run_batch(
                     progress.update(pbar, advance=1)
                 return result
             except Exception as e:
-                console.log(f"Error in mode solver {index}: {str(e)}")
+                console.log(f"Error in mode solver {index}: {e!s}")
                 if retries < max_retries:
                     time.sleep(retry_delay)
                     retries += 1

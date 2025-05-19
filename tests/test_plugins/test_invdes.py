@@ -421,7 +421,7 @@ def test_result_data(use_emulated_run, use_emulated_to_sim_data):  # noqa: F811
 
 
 def test_result_data_multi(
-    use_emulated_to_sim_data,  # noqa: F811
+    use_emulated_to_sim_data,
     use_emulated_run,  # noqa: F811
     tmp_path,
 ):

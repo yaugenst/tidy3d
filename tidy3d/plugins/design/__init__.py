@@ -15,13 +15,13 @@ from .result import Result
 
 __all__ = [
     "DesignSpace",
-    "ParameterInt",
-    "ParameterFloat",
-    "ParameterAny",
-    "Result",
-    "MethodMonteCarlo",
-    "MethodGrid",
     "MethodBayOpt",
     "MethodGenAlg",
+    "MethodGrid",
+    "MethodMonteCarlo",
     "MethodParticleSwarm",
+    "ParameterAny",
+    "ParameterFloat",
+    "ParameterInt",
+    "Result",
 ]

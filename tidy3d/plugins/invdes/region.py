@@ -184,7 +184,7 @@ class TopologyDesignRegion(DesignRegion):
             x = self.initial_parameters
             self.eps_values(x)
         except Exception as e:
-            raise ValidationError(f"Could not evaluate transformations: {str(e)}") from e
+            raise ValidationError(f"Could not evaluate transformations: {e!s}") from e
 
     def _validate_penalty_value(self):
         """Validate the penalty values by evaluating the penalties."""
@@ -192,7 +192,7 @@ class TopologyDesignRegion(DesignRegion):
             x = self.initial_parameters
             self.penalty_value(x)
         except Exception as e:
-            raise ValidationError(f"Could not evaluate penalties: {str(e)}") from e
+            raise ValidationError(f"Could not evaluate penalties: {e!s}") from e
 
     def _validate_gradients(self):
         """Validate the gradients of the penalties and transformations."""

@@ -15,15 +15,15 @@ from .result import InverseDesignResult
 from .transformation import FilterProject
 
 __all__ = (
+    "AdamOptimizer",
+    "CustomInitializationSpec",
+    "ErosionDilationPenalty",
+    "FilterProject",
     "InverseDesign",
     "InverseDesignMulti",
-    "FilterProject",
-    "ErosionDilationPenalty",
-    "TopologyDesignRegion",
-    "AdamOptimizer",
     "InverseDesignResult",
     "RandomInitializationSpec",
+    "TopologyDesignRegion",
     "UniformInitializationSpec",
-    "CustomInitializationSpec",
     "utils",
 )

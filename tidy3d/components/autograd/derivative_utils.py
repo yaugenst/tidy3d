@@ -390,6 +390,6 @@ def integrate_within_bounds(arr: xr.DataArray, dims: list[str], bounds: Bound) -
 
 
 __all__ = [
-    "integrate_within_bounds",
     "DerivativeInfo",
+    "integrate_within_bounds",
 ]

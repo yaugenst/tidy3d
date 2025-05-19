@@ -22,13 +22,13 @@ warnings.filterwarnings(
 
 __all__ = [
     "AbstractComponentModeler",
-    "ComponentModeler",
-    "Port",
-    "ModalPortDataArray",
-    "TerminalComponentModeler",
     "CoaxialLumpedPort",
+    "ComponentModeler",
     "LumpedPort",
-    "WavePort",
-    "TerminalPortDataArray",
+    "ModalPortDataArray",
+    "Port",
     "PortDataArray",
+    "TerminalComponentModeler",
+    "TerminalPortDataArray",
+    "WavePort",
 ]

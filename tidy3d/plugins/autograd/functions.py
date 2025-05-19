@@ -14,22 +14,22 @@ from tidy3d.components.autograd.functions import add_at, interpn, trapz
 from .types import PaddingType
 
 __all__ = [
-    "interpn",
-    "trapz",
     "add_at",
-    "pad",
     "convolve",
+    "grey_closing",
     "grey_dilation",
     "grey_erosion",
     "grey_opening",
-    "grey_closing",
+    "interpn",
     "morphological_gradient",
-    "morphological_gradient_internal",
     "morphological_gradient_external",
+    "morphological_gradient_internal",
+    "pad",
     "rescale",
-    "threshold",
-    "smooth_min",
     "smooth_max",
+    "smooth_min",
+    "threshold",
+    "trapz",
 ]
 
 

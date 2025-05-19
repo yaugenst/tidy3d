@@ -242,7 +242,7 @@ defjvp(
 
 
 __all__ = [
+    "add_at",
     "interpn",
     "trapz",
-    "add_at",
 ]

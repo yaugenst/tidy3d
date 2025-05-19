@@ -18,16 +18,16 @@ from .utils import echo_and_check_subprocess, echo_and_run_subprocess, get_insta
 __all__ = [
     "activate_correct_poetry_python",
     "configure_submodules",
-    "verify_pandoc_is_installed_and_version_less_than_3",
-    "verify_pipx_is_installed",
-    "verify_poetry_is_installed",
-    "verify_sphinx_is_installed",
     "get_install_directory_command",
     "install_development_environment",
     "install_in_poetry",
     "uninstall_development_environment",
     "update_submodules_remote",
     "verify_development_environment",
+    "verify_pandoc_is_installed_and_version_less_than_3",
+    "verify_pipx_is_installed",
+    "verify_poetry_is_installed",
+    "verify_sphinx_is_installed",
 ]
 
 
@@ -330,7 +330,7 @@ def uninstall_development_environment(args=None):
                 "Unsupported operating system installation flow. Verify the subprocess commands in "
                 "tidy3d develop are compatible with your operating system."
             )
-    else:  # NOQA: E722
+    else:
         print("poetry is not found on the PATH. It is already uninstalled from PATH.")
 
     # Verify and install pipx if required
@@ -359,7 +359,7 @@ def uninstall_development_environment(args=None):
             "Please uninstall pandoc < 3 depending on your platform: https://pandoc.org/installing.html . Then run this "
             "command again. You can also follow our detailed instructions under the development guide."
         )
-    else:  # NOQA: E722
+    else:
         print("pandoc is not found on the PATH. It is already uninstalled from PATH.")
 
     return 0

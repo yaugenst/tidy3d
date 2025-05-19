@@ -6,19 +6,19 @@ from .metrics import ModeAmp, ModePower, generate_validation_data
 from .variables import Constant, Variable
 
 __all__ = [
-    "Expression",
     "Constant",
-    "Variable",
-    "ModeAmp",
-    "ModePower",
-    "generate_validation_data",
-    "Sin",
     "Cos",
-    "Tan",
     "Exp",
+    "Expression",
     "Log",
     "Log10",
+    "ModeAmp",
+    "ModePower",
+    "Sin",
     "Sqrt",
+    "Tan",
+    "Variable",
+    "generate_validation_data",
 ]
 
 # The following code dynamically collects all classes that are subclasses of Expression

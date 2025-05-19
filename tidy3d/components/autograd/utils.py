@@ -24,6 +24,6 @@ def is_tidy_box(x: typing.Any) -> bool:
 
 __all__ = [
     "get_static",
-    "split_list",
     "is_tidy_box",
+    "split_list",
 ]

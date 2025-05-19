@@ -13,19 +13,19 @@ from .simulation import JaxSimulation
 from .structure import JaxStructure, JaxStructureStaticGeometry, JaxStructureStaticMedium
 
 __all__ = [
+    "JaxAnisotropicMedium",
     "JaxBox",
-    "JaxPolySlab",
     "JaxComplexPolySlab",
+    "JaxCustomMedium",
+    "JaxDataArray",
     "JaxGeometryGroup",
     "JaxMedium",
-    "JaxAnisotropicMedium",
-    "JaxCustomMedium",
-    "JaxStructure",
-    "JaxStructureStaticMedium",
-    "JaxStructureStaticGeometry",
-    "JaxSimulation",
-    "JaxSimulationData",
     "JaxModeData",
     "JaxPermittivityDataset",
-    "JaxDataArray",
+    "JaxPolySlab",
+    "JaxSimulation",
+    "JaxSimulationData",
+    "JaxStructure",
+    "JaxStructureStaticGeometry",
+    "JaxStructureStaticMedium",
 ]
