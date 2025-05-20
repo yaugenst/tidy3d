@@ -19,7 +19,7 @@ Examples:
 
 """
 
-from typing import Optional, Union
+from typing import Optional
 
 import pydantic.v1 as pd
 
@@ -47,7 +47,7 @@ class DCVoltageSource(Tidy3dBaseModel):
     """
 
     name: Optional[str]
-    voltage: Union[pd.FiniteFloat, ArrayFloat1D] = pd.Field(
+    voltage: ArrayFloat1D = pd.Field(
         ...,
         title="Voltage",
         description="DC voltage usually used as source in 'VoltageBC' boundary conditions.",
