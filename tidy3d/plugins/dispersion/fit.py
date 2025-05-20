@@ -69,7 +69,7 @@ class DispersionFitter(Tidy3dBaseModel):
     def _kdata_setup_and_length_match(self):
         """Validate the length of k_data, or setup k if it's None."""
         if self.k_data is None:
-            self.k_data = np.zeros_like(self.wvl_um)
+            object.__setattr__(self, "k_data", np.zeros_like(self.wvl_um))
         if self.k_data.shape != self.wvl_um.shape:
             raise ValidationError("The length of 'k_data' doesn't match 'wvl_um'.")
         return self

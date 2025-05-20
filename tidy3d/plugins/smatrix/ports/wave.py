@@ -98,7 +98,7 @@ class WavePort(AbstractTerminalPort, Box):
         if snap_center:
             center[self.injection_axis] = snap_center
         return ModeSource(
-            center=center,
+            center=tuple(center),
             size=self.size,
             source_time=source_time,
             mode_spec=self.mode_spec,

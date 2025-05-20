@@ -94,7 +94,7 @@ class CoaxialLumpedPort(AbstractLumpedPort, AbstractAxesRH):
         shape is an annulus."""
         if self.inner_diameter >= self.outer_diameter:
             raise ValidationError(
-                f"The 'inner_diameter' {self.inner_diameterval} of a coaxial lumped element "
+                f"The 'inner_diameter' {self.inner_diameter} of a coaxial lumped element "
                 f"must be less than its 'outer_diameter' {self.outer_diameter}."
             )
         return self
@@ -226,7 +226,7 @@ class CoaxialLumpedPort(AbstractLumpedPort, AbstractAxesRH):
             center=self._voltage_path_center(center),
             size=self._voltage_path_size,
             freqs=freqs,
-            fields=[E1, E2],
+            fields=(E1, E2),
             name=self._voltage_monitor_name,
             colocate=False,
         )
@@ -254,10 +254,10 @@ class CoaxialLumpedPort(AbstractLumpedPort, AbstractAxesRH):
 
         # Create a current monitor
         return FieldMonitor(
-            center=center,
+            center=tuple(center),
             size=current_mon_size,
             freqs=freqs,
-            fields=[H1, H2],
+            fields=(H1, H2),
             name=self._current_monitor_name,
             colocate=False,
         )

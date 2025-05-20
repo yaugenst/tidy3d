@@ -98,7 +98,7 @@ class AdvancedFitterParam(Tidy3dBaseModel):
     @model_validator(mode="after")
     def _validate_lower_frequency_bound(self):
         """bound_f_lower cannot be larger than bound_f."""
-        if self.bound_f is not None and self.bound_f_lowerval > self.bound_f:
+        if self.bound_f is not None and self.bound_f_lower > self.bound_f:
             raise SetupError(
                 "The upper bound 'bound_f' cannot be smaller "
                 "than the lower bound 'bound_f_lower'."

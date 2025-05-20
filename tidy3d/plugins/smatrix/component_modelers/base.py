@@ -91,7 +91,7 @@ class AbstractComponentModeler(ABC, Tidy3dBaseModel):
         description="Base directory where data and batch will be downloaded.",
     )
 
-    solver_version: str = Field(
+    solver_version: Optional[str] = Field(
         None,
         title="Solver Version",
         description_str="Custom solver version to use. "

@@ -159,10 +159,10 @@ class LumpedPort(AbstractLumpedPort, Box):
         e_component = "xyz"[self.voltage_axis]
         # Create a voltage monitor
         return FieldMonitor(
-            center=center,
-            size=size,
+            center=tuple(center),
+            size=tuple(size),
             freqs=freqs,
-            fields=[f"E{e_component}"],
+            fields=(f"E{e_component}",),
             name=self._voltage_monitor_name,
             colocate=False,
         )
@@ -193,10 +193,10 @@ class LumpedPort(AbstractLumpedPort, Box):
         h_cap_component = "xyz"[self.injection_axis]
         # Create a current monitor
         return FieldMonitor(
-            center=center,
-            size=size,
+            center=tuple(center),
+            size=tuple(size),
             freqs=freqs,
-            fields=[f"H{h_component}", f"H{h_cap_component}"],
+            fields=(f"H{h_component}", f"H{h_cap_component}"),
             name=self._current_monitor_name,
             colocate=False,
         )

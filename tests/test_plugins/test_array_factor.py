@@ -1,11 +1,11 @@
 """Test the array factor functions."""
 
 import numpy as np
-import pydantic.v1 as pydantic
 import pytest
 import tidy3d as td
 import tidy3d.plugins.microwave as mw
 import tidy3d.plugins.smatrix as smatrix
+from pydantic import ValidationError
 
 from ..utils import AssertLogLevel
 
@@ -93,19 +93,19 @@ def test_rectangular_array_calculator_basic():
     # test ._extend_dims
     assert array_calculator._extend_dims == [1, 2]
 
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         # Test invalid array size
         mw.RectangularAntennaArrayCalculator(
             array_size=(0, 4, 5), spacings=(0.5, 0.5, 0.5), phase_shifts=(0, 0, 0)
         )
 
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         # Test invalid spacings
         mw.RectangularAntennaArrayCalculator(
             array_size=(3, 4, 5), spacings=(-0.5, 0.5, 0.5), phase_shifts=(0, 0, 0)
         )
 
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         # Test wrong length of amp_multipliers
         mw.RectangularAntennaArrayCalculator(
             array_size=(3, 4, 5),
@@ -115,7 +115,7 @@ def test_rectangular_array_calculator_basic():
         )
 
     for i in range(3):
-        with pytest.raises(pydantic.ValidationError):
+        with pytest.raises(ValidationError):
             # Test wrong length of amp_multipliers components
             amps = [np.ones(3), np.ones(4), np.ones(5)]
             amps[i] = np.ones(10)

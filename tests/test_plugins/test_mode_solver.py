@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pydantic.v1 as pydantic
 import pytest
 import responses
 import tidy3d as td
 import tidy3d.plugins.mode.web as msweb
+from pydantic import ValidationError
 from tidy3d import ScalarFieldDataArray
 from tidy3d.components.data.monitor_data import ModeSolverData
 from tidy3d.components.mode.derivatives import create_sfactor_b, create_sfactor_f
@@ -265,7 +265,7 @@ def test_mode_solver_validation():
     )
 
     # frequency is too low
-    with pytest.raises(pydantic.ValidationError):
+    with pytest.raises(ValidationError):
         ms = ModeSolver(
             simulation=simulation,
             plane=PLANE,

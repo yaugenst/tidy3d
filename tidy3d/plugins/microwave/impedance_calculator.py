@@ -90,7 +90,7 @@ class ImpedanceCalculator(Tidy3dBaseModel):
     def check_voltage_or_current(self):
         """Raise validation error if both ``voltage_integral`` and ``current_integral``
         are not provided."""
-        if not self.voltage_integral and not self.current_intergral:
+        if not self.voltage_integral and not self.current_integral:
             raise ValidationError(
                 "At least one of 'voltage_integral' or 'current_integral' must be provided."
             )

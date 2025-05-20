@@ -4,10 +4,10 @@ from math import isclose
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pydantic.v1 as pd
 import pytest
 import tidy3d as td
 import tidy3d.plugins.microwave as mw
+from pydantic import ValidationError
 from skrf import Frequency
 from skrf.media import MLine
 from tidy3d import FieldData
@@ -320,7 +320,7 @@ def test_tiny_voltage_path():
 
 def test_impedance_calculator():
     """Check validation of ImpedanceCalculator when integrals are missing."""
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         _ = mw.ImpedanceCalculator(voltage_integral=None, current_integral=None)
 
 
@@ -461,12 +461,12 @@ def test_vertices_validator_custom_current_integral():
     # Make wrong box
     vertices = [(0.2, -0.2, 0.5), (0.2, 0.2), (-0.2, 0.2), (-0.2, -0.2), (0.2, -0.2)]
 
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         _ = mw.CustomCurrentIntegral2D(axis=2, position=0, vertices=vertices)
 
     # Make wrong box shape
     vertices = [(0.2, 0.2, -0.2, -0.2, 0.2), (-0.2, 0.2, 0.2, -0.2, 0.2)]
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         _ = mw.CustomCurrentIntegral2D(axis=2, position=0, vertices=vertices)
 
 
@@ -656,7 +656,7 @@ def test_lobe_measurer_validation():
     Urad = np.cos(theta)
 
     # Raise error when radiation pattern is negative
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         mw.LobeMeasurer(
             angle=theta,
             radiation_pattern=Urad,
@@ -664,7 +664,7 @@ def test_lobe_measurer_validation():
 
     Urad = np.cos(theta) + 1j * np.sin(theta)
     # Raise error when radiation pattern is complex
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         mw.LobeMeasurer(
             angle=theta,
             radiation_pattern=Urad,
@@ -676,7 +676,7 @@ def test_lobe_measurer_validation():
     mw.LobeMeasurer(angle=theta, radiation_pattern=Urad, apply_cyclic_extension=False)
 
     # Raise error when cyclic extension is enabled and angle array is not in [0, 2π)
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         mw.LobeMeasurer(
             angle=theta,
             radiation_pattern=Urad,
@@ -686,7 +686,7 @@ def test_lobe_measurer_validation():
     theta[10] = theta[75]
     Urad = np.cos(theta) ** 2
     # Make sure array is sorted
-    with pytest.raises(pd.ValidationError):
+    with pytest.raises(ValidationError):
         mw.LobeMeasurer(angle=theta, radiation_pattern=Urad, apply_cyclic_extension=False)
 
 

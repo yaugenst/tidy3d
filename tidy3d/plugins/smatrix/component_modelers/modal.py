@@ -181,9 +181,7 @@ class ComponentModeler(AbstractComponentModeler):
             name=port.name,
         )
 
-    def to_source(
-        self, port: Port, mode_index: int, num_freqs: int = 1, **kwargs
-    ) -> list[ModeSource]:
+    def to_source(self, port: Port, mode_index: int, num_freqs: int = 1, **kwargs) -> ModeSource:
         """Creates a list of mode sources from a given port."""
         freq0 = np.mean(self.freqs)
         fdiff = max(self.freqs) - min(self.freqs)
@@ -218,7 +216,7 @@ class ComponentModeler(AbstractComponentModeler):
         for port_source in self.ports:
             mode_source_0 = self.to_source(port=port_source, mode_index=0)
             plot_sources.append(mode_source_0)
-        sim_plot = self.simulation.copy(update=dict(sources=plot_sources))
+        sim_plot = self.simulation.copy(update=dict(sources=tuple(plot_sources)))
         return sim_plot.plot(x=x, y=y, z=z, ax=ax)
 
     @equal_aspect
@@ -232,7 +230,7 @@ class ComponentModeler(AbstractComponentModeler):
         for port_source in self.ports:
             mode_source_0 = self.to_source(port=port_source, mode_index=0)
             plot_sources.append(mode_source_0)
-        sim_plot = self.simulation.copy(update=dict(sources=plot_sources))
+        sim_plot = self.simulation.copy(update=dict(sources=tuple(plot_sources)))
         return sim_plot.plot_eps(x=x, y=y, z=z, ax=ax, **kwargs)
 
     def _normalization_factor(self, port_source: Port, sim_data: SimulationData) -> complex:

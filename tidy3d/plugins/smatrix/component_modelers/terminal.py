@@ -228,7 +228,7 @@ class TerminalComponentModeler(AbstractComponentModeler):
             if not is_subset:
                 raise ValidationError(
                     f"The frequencies in the radiation monitor '{rad_mon.name}' "
-                    f"must be equal to or a subset of the frequencies in the '{self.__name__}'."
+                    f"must be equal to or a subset of the frequencies in the '{self.__class__.__name__}'."
                 )
         return self
 
