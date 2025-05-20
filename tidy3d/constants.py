@@ -194,9 +194,9 @@ SPECIFIC_HEAT_CAPACITY = "J/(kg*K)"
 Joules per (kilogram Kelvin).
 """
 
-DENSITY = "kg/m^3"
+DENSITY = "kg/um^3"
 """
-Kilograms per cubic meter.
+Kilograms per cubic micrometer.
 """
 
 HEAT_FLUX = "W/um^2"

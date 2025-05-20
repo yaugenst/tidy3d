@@ -89,6 +89,25 @@ class SolidMedium(AbstractHeatMedium):
         units=DENSITY,
     )
 
+    def from_si_units(
+        conductivity: pd.PositiveFloat,
+        capacity: pd.PositiveFloat = None,
+        density: pd.PositiveFloat = None,
+    ):
+        """Create a SolidMedium using SI units"""
+        new_conductivity = conductivity * 1e-6  # Convert from W/(m*K) to W/(um*K)
+        new_capacity = capacity
+        new_density = density
+
+        if density is not None:
+            new_density = density * 1e-18
+
+        return SolidMedium(
+            capacity=new_capacity,
+            conductivity=new_conductivity,
+            density=new_density,
+        )
+
 
 class SolidSpec(SolidMedium):
     """Solid medium class for backwards compatibility"""
