@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Union
 
-from tidy3d.components.types import ArrayLike, Complex, discriminated_union
+from tidy3d.components.types import ArrayLikeStrict, Complex, discriminated_union
 
 if TYPE_CHECKING:
     from .functions import Cos, Exp, Log, Log10, Sin, Sqrt, Tan
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     )
     from .variables import Constant, Variable
 
-NumberType = Union[int, float, Complex, ArrayLike]
+NumberType = Union[int, float, Complex, ArrayLikeStrict]
 
 OperatorType = discriminated_union(
     Union[

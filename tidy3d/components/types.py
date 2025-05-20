@@ -36,7 +36,7 @@ def _from_complex_dict(v):
     return v
 
 
-def _coerce(v, *, dtype, ndim, shape, forbid_nan, scalar_to_1d):
+def _coerce(v, *, dtype, ndim, shape, forbid_nan, scalar_to_1d, strict):
     """Convert input to a NumPy array with constraints.
 
     Raises
@@ -47,6 +47,11 @@ def _coerce(v, *, dtype, ndim, shape, forbid_nan, scalar_to_1d):
         - If the number of dimensions or shape does not match the expectations.
         - If ``forbid_nan`` is ``True`` and the array contains NaN values.
     """
+    if strict and np.isscalar(v):
+        raise ValueError(
+            f"strict mode: scalar value {type(v).__name__!r} cannot be coerced to a NumPy array. "
+        )
+
     try:
         arr = np.asarray(v) if dtype is None else np.asarray(v, dtype=dtype)
     except Exception as e:
@@ -92,6 +97,7 @@ def array_alias(
     shape: Optional[tuple[int, ...]] = None,
     forbid_nan: bool = True,
     scalar_to_1d: bool = False,
+    strict: bool = False,
 ):
     """Return an `Annotated[np.ndarray, ...]` with checks."""
     validators = [
@@ -104,6 +110,7 @@ def array_alias(
                 shape=shape,
                 forbid_nan=forbid_nan,
                 scalar_to_1d=scalar_to_1d,
+                strict=strict,
             )
         ),
     ]
@@ -114,6 +121,7 @@ def array_alias(
 
 
 ArrayLike = array_alias()
+ArrayLikeStrict = array_alias(strict=True)
 
 ArrayInt1D = array_alias(dtype=int, ndim=1, scalar_to_1d=True)
 
