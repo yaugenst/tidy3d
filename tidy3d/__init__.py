@@ -45,6 +45,7 @@ from tidy3d.components.tcad.grid import (
     GridRefinementRegion,
     UniformUnstructuredGrid,
 )
+from tidy3d.components.tcad.mesher import VolumeMeshSpec
 from tidy3d.components.tcad.monitors.charge import (
     SteadyCapacitanceMonitor,
     SteadyEnergyBandMonitor,
@@ -610,6 +611,7 @@ __all__ = [
     "TemperatureData",
     "TemperatureMonitor",
     "HeatChargeSimulation",
+    "VolumeMeshSpec",
     "SteadyPotentialData",
     "SteadyFreeCarrierData",
     "SteadyEnergyBandData",
