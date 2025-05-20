@@ -271,7 +271,7 @@ class InverseDesignMulti(AbstractInverseDesign):
     def _check_lengths(self):
         """Check the lengths of all of the multi fields."""
 
-        keys = ("simulations", "post_process_fns", "output_monitor_names", "override_structure_dl")
+        keys = ("simulations", "output_monitor_names")
         multi_dict = {key: getattr(self, key) for key in keys}
         sizes = {key: len(val) for key, val in multi_dict.items() if val is not None}
 

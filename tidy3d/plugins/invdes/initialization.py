@@ -52,9 +52,9 @@ class RandomInitializationSpec(AbstractInitializationSpec):
     @model_validator(mode="after")
     def _validate_max_ge_min(self):
         """Ensure that max_value is greater than or equal to min_value."""
-        if self.minval > self.maxval:
+        if self.min_value > self.max_value:
             raise ValidationError(
-                f"'max_value' ({self.maxval}) must be greater or equal than 'min_value' ({self.minval})"
+                f"'max_value' ({self.max_value}) must be greater or equal than 'min_value' ({self.min_value})"
             )
         return self
 

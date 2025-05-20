@@ -7,7 +7,7 @@ from typing import Literal, Optional, Union
 import autograd.numpy as anp
 import numpy as np
 from autograd import elementwise_grad, grad
-from pydantic import Field, PositiveFloat
+from pydantic import Field, PositiveFloat, field_validator
 
 import tidy3d as td
 from tidy3d.components.types import TYPE_TAG_STR, Coordinate, Size
@@ -37,7 +37,6 @@ class DesignRegion(InvdesBaseModel, abc.ABC):
     )
 
     eps_bounds: tuple[float, float] = Field(
-        ge=1.0,
         title="Relative Permittivity Bounds",
         description="Minimum and maximum relative permittivity expressed to the design region.",
     )
@@ -67,16 +66,22 @@ class DesignRegion(InvdesBaseModel, abc.ABC):
         discriminator=TYPE_TAG_STR,
     )
 
+    @field_validator("eps_bounds")
+    def _validate_ge_one(v):
+        if any(vi < 1 for vi in v):
+            raise ValueError("Each value in 'eps_bounds' must be '>=1.0'.")
+        return v
+
     @property
     def _post_init_validators(self):
         """Return any `_validate_XXX` method."""
         validators = []
         for attr_name in dir(self):
-            if attr_name.startswith("_validate") and callable(getattr(self, attr_name)):
+            if attr_name.startswith("_validate_post") and callable(getattr(self, attr_name)):
                 validators.append(getattr(self, attr_name))
         return tuple(validators)
 
-    def _validate_eps_bounds(self):
+    def _validate_post_eps_bounds(self):
         if self.eps_bounds[1] < self.eps_bounds[0]:
             raise ValidationError(
                 f"Maximum relative permittivity ({self.eps_bounds[1]}) must be "

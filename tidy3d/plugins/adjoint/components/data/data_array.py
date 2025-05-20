@@ -68,7 +68,7 @@ class JaxDataArray(Tidy3dBaseModel):
         except TypeError:
             values_shape = jnp.array(_values).shape
 
-        for (key, coord_val), size_dim in zip(self.coord.items(), values_shape):
+        for (key, coord_val), size_dim in zip(self.coords.items(), values_shape):
             if len(coord_val) != size_dim:
                 raise ValueError(
                     f"JaxDataArray coord {key} has {len(coord_val)} elements, "

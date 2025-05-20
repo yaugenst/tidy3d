@@ -31,7 +31,7 @@ class NumpyArrayType(np.ndarray):
 
     @classmethod
     def __get_pydantic_core_schema__(cls, source, handler):
-        return core_schema.no_info_plain_validator_function(lambda v, _: np.asarray(v))
+        return core_schema.no_info_plain_validator_function(np.asarray)
 
     @classmethod
     def __get_pydantic_json_schema__(cls, core_schema, handler):

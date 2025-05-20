@@ -59,7 +59,7 @@ class InverseDesignResult(InvdesBaseModel):
         description="History of ``td.Simulation`` instances throughout the optimization.",
     )
 
-    opt_state: tuple[dict, ...] = Field(
+    opt_state: tuple[dict[str, Union[int, ArrayLike]], ...] = Field(
         (),
         title="Optimizer State History",
         description="History of optimizer states throughout the optimization.",

@@ -102,7 +102,7 @@ class JaxInfo(Tidy3dBaseModel):
         units=HERTZ,
     )
 
-    run_time_adjoint: float = Field(
+    run_time_adjoint: Optional[float] = Field(
         None,
         title="Adjoint Run Time",
         description="Custom run time of the original JaxSimulation.",

@@ -138,7 +138,7 @@ class DerivativeInfo(Tidy3dBaseModel):
         "Used when it can not be computed from ``eps_data`` or when ``eps_approx==True``.",
     )
 
-    eps_background: Complex = Field(
+    eps_background: Optional[Complex] = Field(
         None,
         title="Permittivity in Background",
         description="Permittivity outside of the ``Structure`` as manually specified by. "

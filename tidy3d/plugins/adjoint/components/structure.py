@@ -29,7 +29,7 @@ class AbstractJaxStructure(Structure, JaxObject):
     _tidy3d_class = Structure
 
     # which of "geometry" or "medium" is differentiable for this class
-    _differentiable_fields = ()
+    _differentiable_fields: tuple[str, ...] = ()
 
     geometry: Union[JaxGeometryType, GeometryType]
     medium: Union[JaxMediumType, MediumType]
