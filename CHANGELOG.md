@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- `TriangleMesh.from_height_expression` class method to create a mesh from an analytical height function defined on a 2D grid and `TriangleMesh.from_height_grid` class method to create a mesh from height values sampled on a 2D grid.
+- `TriangleMesh.from_height_function` class method to create a mesh from an analytical height function defined on a 2D grid and `TriangleMesh.from_height_grid` class method to create a mesh from height values sampled on a 2D grid.
 
 ## [2.8.4] - 2025-05-15
 

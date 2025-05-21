@@ -8,7 +8,7 @@ from typing import Callable, List, Literal, Optional, Tuple, Union
 import numpy as np
 import pydantic.v1 as pydantic
 
-from ...constants import inf
+from ...constants import fp_eps, inf
 from ...exceptions import DataError, ValidationError
 from ...log import log
 from ...packaging import verify_packages_import
@@ -359,6 +359,13 @@ class TriangleMesh(base.Geometry, ABC):
                 f"the number of grid points {nt}."
             )
 
+        if np.any(flat_height < 0):
+            raise ValueError("All height values must be non-negative.")
+
+        max_h = np.max(flat_height)
+        min_h_clip = fp_eps * max_h
+        flat_height = np.clip(flat_height, min_h_clip, inf)
+
         vertices_raw_list = [
             [np.ravel(x_mesh), np.ravel(y_mesh), base + sign * flat_height],  # Alpha surface
             [np.ravel(x_mesh), np.ravel(y_mesh), base * np.ones(nt)],
@@ -420,7 +427,7 @@ class TriangleMesh(base.Geometry, ABC):
         return cls.from_vertices_faces(vertices=vertices, faces=tri_faces)
 
     @classmethod
-    def from_height_expression(
+    def from_height_function(
         cls,
         axis: Ax,
         direction: Literal["-", "+"],
