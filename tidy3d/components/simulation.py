@@ -540,7 +540,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         vlim: Optional[tuple[float, float]] = None,
         ax: Ax = None,
         eps_component: Optional[PermittivityComponent] = None,
-        eps_lim: Tuple[Union[float, None], Union[float, None]] = (None, None),
+        eps_lim: tuple[Union[float, None], Union[float, None]] = (None, None),
     ) -> Ax:
         """Plot each of simulation's components on a plane defined by one nonzero x,y,z coordinate.
         The permittivity is plotted in grayscale based on its value at the specified frequency.
@@ -646,7 +646,7 @@ class AbstractYeeGridSimulation(AbstractSimulation, ABC):
         hlim: Optional[tuple[float, float]] = None,
         vlim: Optional[tuple[float, float]] = None,
         eps_component: Optional[PermittivityComponent] = None,
-        eps_lim: Tuple[Union[float, None], Union[float, None]] = (None, None),
+        eps_lim: tuple[Union[float, None], Union[float, None]] = (None, None),
     ) -> Ax:
         """Plot each of simulation's structures on a plane defined by one nonzero x,y,z coordinate.
         The permittivity is plotted in grayscale based on its value at the specified frequency.
