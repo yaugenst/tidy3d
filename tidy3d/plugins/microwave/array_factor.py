@@ -20,7 +20,7 @@ from tidy3d.components.monitor import AbstractFieldProjectionMonitor, MonitorTyp
 from tidy3d.components.simulation import Simulation
 from tidy3d.components.source.utils import SourceType
 from tidy3d.components.structure import MeshOverrideStructure, Structure
-from tidy3d.components.types import ArrayLike, Axis, Bound
+from tidy3d.components.types import ArrayLike, Axis, Bound, Undefined
 from tidy3d.constants import C_0, inf
 from tidy3d.log import log
 
@@ -712,7 +712,7 @@ class RectangularAntennaArrayCalculator(AbstractAntennaArrayCalculator):
         theta: Union[float, ArrayLike],
         phi: Union[float, ArrayLike],
         frequency: Union[NonNegativeFloat, ArrayLike],
-        medium: MediumType3D = Medium(),
+        medium: MediumType3D = Undefined,
     ) -> ArrayLike:
         """
         Compute the array factor for a 3D antenna array.
@@ -731,6 +731,8 @@ class RectangularAntennaArrayCalculator(AbstractAntennaArrayCalculator):
         ArrayLike
             Array factor values for each combination of theta and phi.
         """
+        if medium is Undefined:
+            medium = Medium()
 
         # Convert all inputs to numpy arrays
         theta_array = np.atleast_1d(theta)

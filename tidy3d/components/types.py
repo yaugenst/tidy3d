@@ -2,11 +2,7 @@
 
 from __future__ import annotations
 
-from typing import (
-    Literal,  # We support py3.9+, so direct typing import is fine.
-    Optional,
-    Union,
-)
+from typing import Literal, Optional, Union
 
 import autograd.numpy as np
 import pydantic.v1 as pydantic
@@ -261,3 +257,6 @@ LumpDistType = Literal["off", "laterally_only", "on"]
 
 xyz = Literal["x", "y", "z"]
 UnitsZBF = Literal["mm", "cm", "in", "m"]
+
+""" sentinel """
+Undefined = object()

@@ -12,6 +12,7 @@ from pydantic.v1 import Field, NonNegativeFloat, PositiveFloat, PositiveInt, val
 
 from tidy3d.components.base import Tidy3dBaseModel, skip_if_fields_missing
 from tidy3d.components.medium import PoleResidue
+from tidy3d.components.types import Undefined
 from tidy3d.constants import HERTZ, MICROMETER
 from tidy3d.exceptions import SetupError, Tidy3dError, WebError
 from tidy3d.log import log
@@ -314,7 +315,7 @@ def run(
     num_poles: PositiveInt = 1,
     num_tries: PositiveInt = 50,
     tolerance_rms: NonNegativeFloat = 1e-2,
-    advanced_param: AdvancedFitterParam = AdvancedFitterParam(),
+    advanced_param: AdvancedFitterParam = Undefined,
 ) -> tuple[PoleResidue, float]:
     """Execute the data fit using the stable fitter in the server.
 
@@ -336,6 +337,8 @@ def run(
     Tuple[:class:`.PoleResidue`, float]
         Best results of multiple fits: (dispersive medium, RMS error).
     """
+    if advanced_param is Undefined:
+        advanced_param = AdvancedFitterParam()
     task = FitterData.create(fitter, num_poles, num_tries, tolerance_rms, advanced_param)
     return task.run()
 
@@ -357,7 +360,9 @@ class StableDispersionFitter(DispersionFitter):
         num_tries: PositiveInt = 50,
         tolerance_rms: NonNegativeFloat = 1e-2,
         guess: PoleResidue = None,
-        advanced_param: AdvancedFitterParam = AdvancedFitterParam(),
+        advanced_param: AdvancedFitterParam = Undefined,
     ) -> tuple[PoleResidue, float]:
         """Deprecated."""
+        if advanced_param is Undefined:
+            advanced_param = AdvancedFitterParam()
         return run(self, num_poles, num_tries, tolerance_rms, advanced_param)
